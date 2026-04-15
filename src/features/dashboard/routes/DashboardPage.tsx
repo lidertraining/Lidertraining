@@ -1,11 +1,44 @@
-import { PagePlaceholder } from '@shared/ui/PagePlaceholder';
+import { useProfile } from '@shared/hooks/useProfile';
+import { useDailyTick } from '@features/gamification/hooks/useDailyTick';
+import { HeroGreeting } from '../components/HeroGreeting';
+import { NBACard } from '../components/NBACard';
+import { StatsGrid } from '../components/StatsGrid';
+import { CommissionSimulator } from '../components/CommissionSimulator';
+import { FlashMissionsPreview } from '../components/FlashMissionsPreview';
+import { QuickActions } from '../components/QuickActions';
+import { XPBar } from '@features/gamification/components/XPBar';
+import { FeedList } from '@features/feed/components/FeedList';
+import { useNBA } from '../hooks/useNBA';
 
 export function DashboardPage() {
+  useDailyTick();
+  const { data: profile, isLoading } = useProfile();
+  const nba = useNBA(profile);
+
+  if (isLoading || !profile) {
+    return <div className="pt-8 text-center text-sm text-on-3">Carregando\u2026</div>;
+  }
+
   return (
-    <PagePlaceholder
-      title="Dashboard"
-      icon="dashboard"
-      description="Hero, NBA, stats, carreira, comissão e flash missions \u2014 Fase 1."
-    />
+    <div className="flex flex-col gap-5 pt-2">
+      <HeroGreeting name={profile.name} />
+
+      <NBACard nba={nba} />
+
+      <XPBar xp={profile.xp} />
+
+      <StatsGrid profile={profile} />
+
+      <CommissionSimulator profile={profile} />
+
+      <QuickActions />
+
+      <FlashMissionsPreview />
+
+      <section className="flex flex-col gap-3">
+        <h2 className="serif text-lg font-bold">Atividade da equipe</h2>
+        <FeedList limit={8} />
+      </section>
+    </div>
   );
 }
