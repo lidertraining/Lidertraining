@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html class="dark" lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>LiderTraining — Plataforma Elite</title>
+<meta name="description" content="Plataforma gamificada de treinamento para consultores de marketing de rede"/>
+<meta name="theme-color" content="#0e0e10"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>💎</text></svg>"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config={darkMode:"class",theme:{extend:{
+colors:{
+"sf":"#131315","sf-low":"#1c1b1d","sf-c":"#201f21","sf-hi":"#2a2a2c","sf-top":"#353437","sf-void":"#0e0e10",
+"am":"#edb1ff","am-dim":"#c9a0ff","am-deep":"#6e218d","am-darker":"#520070",
+"on":"#e5e1e4","on2":"#cfc2d5","on3":"#988d9e","ov":"#4d4353",
+"gd":"#ffd700","gd-dim":"#b8860b","em":"#50c878","em-dim":"#2e8b57",
+"rb":"#e0115f","sp":"#4169e1","or":"#ff6b35","cy":"#00bcd4","vi":"#9c27b0",
+"dia":"#b9f2ff"
+},
+fontFamily:{"display":["Playfair Display","serif"],"body":["Manrope","sans-serif"]},
+}}}
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Manrope',sans-serif;background:#0e0e10;color:#e5e1e4;overflow-x:hidden;-webkit-font-smoothing:antialiased;min-height:100dvh}
+.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;font-size:20px;vertical-align:middle}
+.filled{font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24}
+.serif{font-family:'Playfair Display',serif}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#4d4353;border-radius:9px}
+.no-scroll::-webkit-scrollbar{display:none}
+.no-scroll{scrollbar-width:none}
+
+/* Glass & Surfaces */
+.glass{backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);background:rgba(32,31,33,.88)}
+.glass-lite{backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:rgba(42,42,44,.6)}
+.surface{background:#2a2a2c;border-radius:16px}
+.surface-sm{background:#2a2a2c;border-radius:12px}
+
+/* Gradient helpers */
+.gp{background:linear-gradient(135deg,#edb1ff 0%,#6e218d 100%)}
+.gp-h{background:linear-gradient(160deg,#c9a0ff 0%,#6e218d 60%,#520070 100%)}
+.gg{background:linear-gradient(135deg,#ffd700,#b8860b)}
+.ge{background:linear-gradient(135deg,#50c878,#2e8b57)}
+.gr{background:linear-gradient(135deg,#e0115f,#9c1340)}
+
+/* Glow & Shadow */
+.glow-am{box-shadow:0 0 40px rgba(237,177,255,.1),0 0 80px rgba(110,33,141,.06)}
+.glow-gd{box-shadow:0 0 30px rgba(255,215,0,.12)}
+.amb-sh{box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.soft-sh{box-shadow:0 8px 24px rgba(0,0,0,.25)}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideR{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+@keyframes glow-pulse{0%,100%{box-shadow:0 0 12px rgba(237,177,255,.08)}50%{box-shadow:0 0 28px rgba(237,177,255,.22)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-2px)}80%{transform:translateX(2px)}}
+@keyframes confetti{0%{transform:translateY(0) rotate(0)}100%{transform:translateY(-40px) rotate(360deg);opacity:0}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+
+.an{animation:fadeUp .5s cubic-bezier(.22,1,.36,1) forwards}
+.an-f{animation:fadeIn .4s ease forwards}
+.an-s{animation:slideR .4s ease forwards}
+.d0{animation-delay:0s}.d1{animation-delay:.06s;opacity:0}.d2{animation-delay:.12s;opacity:0}.d3{animation-delay:.18s;opacity:0}.d4{animation-delay:.24s;opacity:0}.d5{animation-delay:.3s;opacity:0}.d6{animation-delay:.36s;opacity:0}
+.glow-p{animation:glow-pulse 2.5s ease-in-out infinite}
+.float{animation:float 3s ease-in-out infinite}
+
+/* Interactive */
+.tap{transition:all .2s cubic-bezier(.4,0,.2,1);cursor:pointer;-webkit-user-select:none;user-select:none}
+.tap:active{transform:scale(.97);opacity:.85}
+.tap:hover{transform:translateY(-1px)}
+.hover-glow:hover{box-shadow:0 0 20px rgba(237,177,255,.12)}
+
+/* Progress */
+.bar-track{width:100%;height:6px;background:#353437;border-radius:99px;overflow:hidden}
+.bar-fill{height:100%;border-radius:99px;transition:width .8s cubic-bezier(.22,1,.36,1)}
+.bar-sm .bar-track{height:4px}
+.bar-xs .bar-track{height:3px}
+
+/* Badge */
+.streak-grad{background:linear-gradient(135deg,#ff6b35,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.xp-badge{background:rgba(110,33,141,.25);color:#edb1ff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:99px}
+
+/* Status */
+.st-hot{background:rgba(255,107,53,.12);color:#ff6b35}
+.st-warm{background:rgba(255,215,0,.12);color:#ffd700}
+.st-cold{background:rgba(65,105,225,.12);color:#4169e1}
+.st-closed{background:rgba(80,200,120,.12);color:#50c878}
+.st-active{background:rgba(80,200,120,.12);color:#50c878}
+.st-risk{background:rgba(255,107,53,.12);color:#ff6b35}
+.st-inactive{background:rgba(152,141,158,.12);color:#988d9e}
+
+/* Tabs */
+.tab{display:flex;gap:3px;background:#2a2a2c;border-radius:12px;padding:3px}
+.tab>button{flex:1;padding:8px 4px;border-radius:10px;border:none;font-size:10px;font-weight:700;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:3px;background:transparent;color:#988d9e}
+.tab>button.active{background:linear-gradient(135deg,#edb1ff,#6e218d);color:white}
+.tab>button .material-symbols-outlined{font-size:14px}
+
+/* Nav */
+#bnav{position:fixed;bottom:0;left:0;right:0;z-index:90;border-top:1px solid rgba(77,67,83,.12)}
+#bnav .ni{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 12px;border-radius:10px;border:none;cursor:pointer;background:none;color:#988d9e;transition:all .25s;font-family:'Manrope',sans-serif}
+#bnav .ni.act{color:#edb1ff}
+#bnav .ni .material-symbols-outlined{font-size:21px}
+#bnav .ni span:last-child{font-size:8px;letter-spacing:.04em;font-weight:600}
+#bnav .ni .dot{width:18px;height:2.5px;background:#edb1ff;border-radius:2px;margin-top:1px}
+
+/* Header */
+#hdr{position:fixed;top:0;left:0;right:0;z-index:90}
+
+/* Page container */
+#page{max-width:500px;margin:0 auto;padding:60px 16px 80px}
+
+/* Modal backdrop */
+.backdrop{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
+.backdrop .bg{position:absolute;inset:0;background:rgba(0,0,0,.75)}
+.backdrop .panel{position:relative;width:100%;max-width:360px}
+
+/* Inputs */
+input[type=text],input[type=search],input[type=number],input[type=tel],input[type=email],textarea,select{background:#2a2a2c;border:none;color:#e5e1e4;outline:none;font-family:'Manrope',sans-serif;border-radius:12px;padding:11px 14px;font-size:13px;width:100%;transition:box-shadow .2s}
+input:focus,textarea:focus{box-shadow:0 0 0 1.5px rgba(237,177,255,.3)}
+textarea{resize:none}
+
+/* Chips */
+.chip{padding:5px 14px;border-radius:99px;font-size:10px;font-weight:700;white-space:nowrap;border:none;cursor:pointer;transition:all .2s}
+.chip.active{background:rgba(110,33,141,.25);color:#edb1ff}
+.chip:not(.active){background:#2a2a2c;color:#988d9e}
+
+/* Hide utility */
+[hidden]{display:none!important}
+.vis-hidden{visibility:hidden;position:absolute;pointer-events:none}
+
+/* Responsive */
+@media(min-width:640px){#page{padding:70px 24px 90px}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- APP ROOT -->
+<!-- ═══════════════════════════════════════════ -->
+<div id="app">
+  <div id="hdr" class="glass"></div>
+  <div id="page"></div>
+  <nav id="bnav" class="glass"></nav>
+  <div id="modals"></div>
+  <div id="toast" hidden></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// LiderTraining — Mega App Engine
+// ═══════════════════════════════════════════════════════
+
+// ── Helpers ──
+const $=s=>document.querySelector(s);
+const $$=s=>document.querySelectorAll(s);
+const ic=(n,x='')=>`<span class="material-symbols-outlined ${x}">${n}</span>`;
+const icf=(n,x='')=>`<span class="material-symbols-outlined filled ${x}">${n}</span>`;
+const bar=(pct,cls='gp',sz='')=>`<div class="bar-track ${sz}"><div class="bar-fill ${cls}" style="width:${Math.min(100,pct)}%"></div></div>`;
+
+// ── Data Constants ──
+const STEPS=[
+  {id:0,n:'Mentalidade',ic:'psychology',c:'#c9a0ff',desc:'Desenvolva a mentalidade de um empreendedor de sucesso'},
+  {id:1,n:'Sonhos',ic:'auto_awesome',c:'#ffd700',desc:'Defina seus sonhos e crie sua visão de futuro'},
+  {id:2,n:'Conecte-se',ic:'handshake',c:'#50c878',desc:'Construa conexões genuínas e poderosas'},
+  {id:3,n:'Metas',ic:'flag',c:'#4169e1',desc:'Estabeleça metas claras e mensuráveis'},
+  {id:4,n:'Produto',ic:'inventory_2',c:'#ff6b35',desc:'Domine o produto e torne-se referência'},
+  {id:5,n:'Lista',ic:'format_list_numbered',c:'#e0115f',desc:'Construa sua lista quente e qualificada'},
+  {id:6,n:'Convite',ic:'mail',c:'#00bcd4',desc:'Aprenda a convidar com maestria'},
+  {id:7,n:'Apresentação',ic:'present_to_all',c:'#9c27b0',desc:'Faça apresentações irresistíveis'},
+  {id:8,n:'Fechamento',ic:'gavel',c:'#ffd700',desc:'Domine as 3 Leis do Fechamento'},
+  {id:9,n:'Patrocínio',ic:'groups',c:'#50c878',desc:'Patrocine e acompanhe novos membros'},
+  {id:10,n:'Duplicação',ic:'content_copy',c:'#edb1ff',desc:'Duplique o sistema e escale sua rede'},
+];
+
+const CAREER=[
+  {lv:'Master',xp:0,c:'#808080',ic:'military_tech'},
+  {lv:'Prata',xp:2000,c:'#c0c0c0',ic:'shield'},
+  {lv:'Ouro',xp:5000,c:'#ffd700',ic:'workspace_premium'},
+  {lv:'Diamante',xp:10000,c:'#b9f2ff',ic:'diamond'},
+  {lv:'Elite',xp:20000,c:'#edb1ff',ic:'auto_awesome'},
+];
+
+const LEAGUES=[
+  {n:'Diamante',c:'#b9f2ff'},{n:'Ouro',c:'#ffd700'},{n:'Prata',c:'#c0c0c0'},{n:'Bronze',c:'#cd7f32'}
+];
+
+const QUEBRAGELOS=[
+  'ganhar renda extra sem sair de casa',
+  'ter mais tempo com a família',
+  'conquistar independência financeira',
+  'criar um negócio próprio do zero',
+  'viajar o mundo sendo pago',
+  'aposentar mais cedo',
+  'ter liberdade de horários',
+  'mudar de vida em 90 dias',
+];
+
+const OBJECOES=[
+  {o:'Não tenho dinheiro',r:'Justamente por isso! Este negócio foi feito para quem quer mudar de situação financeira. Você começa com um investimento mínimo.'},
+  {o:'Não tenho tempo',r:'Você precisa de apenas 1-2 horas por dia. Pode fazer no seu tempo livre, sem largar nada do que já faz.'},
+  {o:'Isso é pirâmide?',r:'Não. Pirâmide é crime e não tem produto. Aqui vendemos produtos reais e você ganha pela venda e pela equipe que constrói.'},
+  {o:'Preciso pensar',r:'Claro! O que exatamente te deixou em dúvida? Posso esclarecer agora para você tomar a melhor decisão.'},
+  {o:'Meu cônjuge não vai aceitar',r:'E se vocês pudessem fazer juntos? Muitos casais constroem isso como um projeto de família e transformam suas vidas.'},
+];
+
+const LEIS=[
+  {n:'Lei da Pergunta',d:'Sempre feche com uma pergunta que guie para o SIM. Quem pergunta, conduz.',ic:'help',ex:'"Você prefere começar com o kit básico ou o completo?"'},
+  {n:'Lei da Perspectiva',d:'Mostre onde a pessoa estará em 1, 3 e 5 anos se começar agora.',ic:'visibility',ex:'"Imagine daqui a 1 ano ganhando R$5.000 extras por mês..."'},
+  {n:'Lei da Urgência',d:'Crie senso de oportunidade limitada e timing perfeito.',ic:'timer',ex:'"Esta promoção de entrada é válida apenas até sexta-feira."'},
+];
+
+const AUDIOS=[
+  {t:'Mentalidade de Campeão',d:'15:30',done:true},
+  {t:'Os 4 Pilares do Sucesso',d:'12:45',done:true},
+  {t:'Como Apresentar o Negócio',d:'18:20',done:true},
+  {t:'Fechamento Avançado',d:'22:10',done:false},
+  {t:'Liderança e Duplicação',d:'16:40',done:false},
+  {t:'A Arte do Convite',d:'14:55',done:false},
+  {t:'Construindo sua Rede',d:'20:30',done:false},
+  {t:'Mentalidade Milionária',d:'25:00',done:false},
+];
+
+const REGRAS_OURO=['Seja um produto do produto','Duplique, não complique','Acompanhe sempre os novos','Mantenha o sistema simples'];
+
+const PLANO_1x1=['Conexão Pessoal','Celebrar Vitórias','Revisar Metas','Analisar Números','Pipeline de Leads','Plano de Ação','Compromissos','Encerramento Motivador'];
+
+const FIR_STEPS=['Bem-vindo ao LiderTraining','Configure seu perfil','Assista ao vídeo de boas-vindas','Ouça o áudio inicial','Defina seus 3 maiores sonhos','Adicione 20 nomes à sua lista','Agende seu primeiro 1x1','Faça seu primeiro convite'];
+
+const FORMAS_APRESENTAR=['Presencial (1 a 1)','Online (Zoom/Meet)','Vídeo de Apresentação','Evento em Grupo'];
+
+const SCRIPTS_FECHAMENTO=[
+  {n:'Script Direto',t:'Depois de tudo que viu, o que faz mais sentido pra você: começar com o kit [A] ou o [B]? Eu recomendo o [B] porque [benefício]. Vamos fazer sua inscrição agora?'},
+  {n:'Script Consultivo',t:'Com base no que conversamos, vejo que [necessidade]. O plano que mais combina com você é [X]. Posso preparar tudo para você começar amanhã?'},
+];
+
+// ── State (persisted) ──
+let S = {
+  page:'dashboard', prevPage:null, sub:null,
+  user:{
+    name:'',xp:0,lv:'Master',streak:0,energy:5,maxEnergy:5,freezes:1,
+    contacts:0,sales:0,team:0,step:0,
+    pg:0,pp:0,vip:0,fir:false,firStep:0,
+    rank:0,league:'Bronze',weeklyXP:0,
+    commCurrent:0,commProjected:0,commGoal:5000,
+    scout:[5,5,5,5,5,5,5,5,5,5],
+    audiosDone:[],
+    onboarded:false,
+    lastActive:null,
+    streakFreezeActive:false,
+    notesPerStep:{},
+  },
+  leads:[],
+  team:[],
+  missions:[
+    {id:'m1',n:'Sprint de Convites',d:'Convide 5 pessoas hoje',p:0,t:5,xp:100,timer:21600,type:'flash',active:true},
+    {id:'m2',n:'Mestre do Produto',d:'Estude 3 módulos do produto',p:0,t:3,xp:150,timer:86400,type:'flash',active:true},
+    {id:'m3',n:'Construtor de Rede',d:'Adicione 10 contatos esta semana',p:0,t:10,xp:200,type:'weekly',active:true},
+    {id:'m4',n:'Streak de Fogo',d:'Mantenha 15 dias consecutivos',p:0,t:15,xp:500,type:'achievement',active:true},
+  ],
+  feed:[],
+  notifications:[],
+  passoTab:'aprender',
+  leaderTab:'semanal',
+  leadFilter:'todos',
+  teamFilter:'todos',
+};
+
+// Load from storage
+async function loadState(){
+  try{
+    const r=await window.storage.get('lt_state');
+    if(r&&r.value){
+      const saved=JSON.parse(r.value);
+      S={...S,...saved,missions:S.missions.map(m=>{
+        const sm=saved.missions?.find(x=>x.id===m.id);
+        return sm?{...m,...sm}:m;
+      })};
+    }
+  }catch(e){console.log('Fresh start')}
+}
+
+async function saveState(){
+  try{await window.storage.set('lt_state',JSON.stringify(S))}catch(e){}
+}
+
+// ── Toast ──
+function toast(msg,type='success'){
+  const t=$('#toast');
+  const colors={success:'#50c878',error:'#e0115f',xp:'#edb1ff',info:'#4169e1'};
+  t.hidden=false;
+  t.style.cssText=`position:fixed;top:64px;left:50%;transform:translateX(-50%);z-index:200;padding:10px 20px;border-radius:12px;font-size:12px;font-weight:700;color:white;background:${colors[type]||colors.info};box-shadow:0 8px 24px rgba(0,0,0,.4);animation:fadeUp .3s ease;pointer-events:none;white-space:nowrap`;
+  t.textContent=msg;
+  setTimeout(()=>{t.hidden=true},2200);
+}
+
+function addXP(amount,reason=''){
+  S.user.xp+=amount;
+  // Check level up
+  for(let i=CAREER.length-1;i>=0;i--){
+    if(S.user.xp>=CAREER[i].xp){S.user.lv=CAREER[i].lv;break}
+  }
+  toast(`+${amount} XP${reason?' — '+reason:''}`, 'xp');
+  addFeed('Você',`ganhou ${amount} XP${reason?' ('+reason+')':''}`, 'star');
+  saveState();
+}
+
+function addFeed(user,action,icon='emoji_events'){
+  S.feed.unshift({u:user,a:action,ic:icon,t:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),xp:0});
+  if(S.feed.length>20)S.feed.pop();
+}
+
+function addNotif(msg,type='info'){
+  const icons={streak:'local_fire_department',mission:'bolt',league:'military_tech',team:'group',nba:'lightbulb',info:'info',xp:'star'};
+  S.notifications.unshift({id:Date.now(),type,msg,time:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),read:false,ic:icons[type]||'info'});
+  if(S.notifications.length>30)S.notifications.pop();
+}
+
+// ── Navigation ──
+function nav(page,sub=null){
+  S.prevPage=S.page;
+  S.page=page;
+  S.sub=sub;
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
+  saveState();
+}
+
+function back(){
+  if(S.sub!==null){S.sub=null;render();return}
+  if(S.prevPage){S.page=S.prevPage;S.prevPage=null;render();return}
+  S.page='dashboard';render();
+}
+
+// ── Streak Logic ──
+function checkStreak(){
+  const today=new Date().toDateString();
+  if(S.user.lastActive===today)return;
+  const yesterday=new Date(Date.now()-86400000).toDateString();
+  if(S.user.lastActive===yesterday){
+    S.user.streak++;
+    S.user.lastActive=today;
+    if(S.user.streak>0&&S.user.streak%5===0)addXP(50,'Streak de '+S.user.streak+' dias!');
+    addNotif(`Streak de ${S.user.streak} dias! 🔥`,'streak');
+  }else if(S.user.lastActive&&S.user.lastActive!==today){
+    if(S.user.streakFreezeActive){
+      S.user.streakFreezeActive=false;
+      S.user.freezes=Math.max(0,S.user.freezes-1);
+      S.user.lastActive=today;
+      addNotif('Streak Freeze usado! Seu streak foi protegido.','info');
+    }else{
+      S.user.streak=1;
+      S.user.lastActive=today;
+      addNotif('Streak perdido! Comece novamente.','info');
+    }
+  }else{
+    S.user.streak=1;
+    S.user.lastActive=today;
+  }
+  // Update mission
+  const sm=S.missions.find(m=>m.id==='m4');
+  if(sm)sm.p=Math.min(sm.t,S.user.streak);
+  saveState();
+}
+
+// ═══════════════════════════════════════
+// HEADER
+// ═══════════════════════════════════════
+function renderHeader(){
+  const u=S.user;
+  const unread=S.notifications.filter(n=>!n.read).length;
+  $('#hdr').innerHTML=`
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:0 16px;height:54px;max-width:500px;margin:0 auto">
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="serif" style="font-size:19px;color:#edb1ff;font-style:italic;letter-spacing:-.03em">LiderTraining</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="tap" onclick="showModal('energy')" style="display:flex;align-items:center;gap:2px" title="Energia">
+        ${icf('bolt','','style="color:#ffd700;font-size:15px"')}
+        <span style="font-size:10px;font-weight:700;color:#ffd700">${u.energy}/${u.maxEnergy}</span>
+      </div>
+      <div class="tap" onclick="showModal('freeze')" style="display:flex;align-items:center;gap:2px" title="Streak">
+        ${icf('local_fire_department','','style="color:#ff6b35;font-size:15px"')}
+        <span class="streak-grad" style="font-size:10px;font-weight:700">${u.streak}</span>
+      </div>
+      <span class="xp-badge">${u.xp} XP</span>
+      <button class="tap" onclick="showModal('notif')" style="position:relative;background:none;border:none;padding:4px">
+        ${ic('notifications','','style="color:#edb1ff;font-size:21px"')}
+        ${unread>0?`<span style="position:absolute;top:0;right:0;width:14px;height:14px;border-radius:50%;background:#e0115f;font-size:7px;font-weight:800;display:flex;align-items:center;justify-content:center;color:white;border:2px solid #0e0e10">${unread>9?'9+':unread}</span>`:''}
+      </button>
+      <button class="tap gp" onclick="nav('profile')" style="width:30px;height:30px;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center">
+        <span style="font-size:12px;font-weight:700;color:white">${(u.name||'?')[0].toUpperCase()}</span>
+      </button>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════
+// BOTTOM NAV
+// ═══════════════════════════════════════
+function renderNav(){
+  const items=[
+    {id:'dashboard',ic:'dashboard',l:'Início'},
+    {id:'journey',ic:'route',l:'Jornada'},
+    {id:'prospector',ic:'person_search',l:'Prospectar'},
+    {id:'academy',ic:'school',l:'Academia'},
+    {id:'ranking',ic:'leaderboard',l:'Ranking'},
+  ];
+  const active=items.find(i=>i.id===S.page)?S.page:'dashboard';
+  $('#bnav').innerHTML=`
+  <div style="display:flex;justify-content:space-around;align-items:center;height:58px;max-width:500px;margin:0 auto">
+    ${items.map(i=>`<button class="ni ${active===i.id?'act':''}" onclick="nav('${i.id}')">
+      <span class="material-symbols-outlined ${active===i.id?'filled':''}">${i.ic}</span>
+      <span>${i.l}</span>
+      ${active===i.id?'<div class="dot"></div>':''}
+    </button>`).join('')}
+  </div>`;
+}
+
+// ═══════════════════════════════════════
+// STAT CARD
+// ═══════════════════════════════════════
+function statCard(icn,label,value,color,trend=''){
+  return `<div class="surface tap hover-glow" style="padding:14px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+      <div style="width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:${color}14">
+        <span class="material-symbols-outlined filled" style="color:${color};font-size:17px">${icn}</span>
+      </div>
+      ${trend?`<span style="font-size:10px;font-weight:700;color:${trend.startsWith('+')?'#50c878':'#ffb4ab'}">${trend}</span>`:''}
+    </div>
+    <p style="font-size:20px;font-weight:700;color:#e5e1e4;margin-bottom:2px">${value}</p>
+    <p style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#cfc2d5">${label}</p>
+  </div>`;
+}
+
+// ═══════════════════════════════════════
+// PAGES
+// ═══════════════════════════════════════
+
+// ── ONBOARDING ──
+function renderOnboarding(){
+  return `
+  <div class="an" style="text-align:center;padding-top:40px">
+    <div class="float" style="margin-bottom:20px">
+      <div class="gp" style="width:80px;height:80px;border-radius:24px;display:flex;align-items:center;justify-content:center;margin:0 auto">
+        ${icf('diamond','','style="color:white;font-size:40px"')}
+      </div>
+    </div>
+    <h1 class="serif" style="font-size:28px;color:#e5e1e4;margin-bottom:8px">Bem-vindo ao<br><em style="color:#edb1ff">LiderTraining</em></h1>
+    <p style="font-size:13px;color:#cfc2d5;margin-bottom:32px;max-width:280px;margin-left:auto;margin-right:auto">Sua plataforma de treinamento gamificada para se tornar um consultor de elite.</p>
+    <div style="margin-bottom:24px;padding:0 20px">
+      <label style="display:block;font-size:11px;color:#988d9e;text-align:left;margin-bottom:6px;text-transform:uppercase;letter-spacing:.1em">Seu nome</label>
+      <input id="onb-name" type="text" placeholder="Como quer ser chamado?" style="text-align:center;font-size:15px;padding:14px">
+    </div>
+    <button class="tap gp glow-am" onclick="completeOnboarding()" style="border:none;border-radius:14px;padding:14px 48px;font-size:14px;font-weight:700;color:white;width:calc(100% - 40px)">
+      Começar Minha Jornada ${ic('arrow_forward','','style="font-size:18px"')}
+    </button>
+    <p style="font-size:10px;color:#988d9e;margin-top:16px">Você ganhará <strong style="color:#edb1ff">+100 XP</strong> ao completar</p>
+  </div>`;
+}
+
+window.completeOnboarding=function(){
+  const name=$('#onb-name')?.value?.trim();
+  if(!name){toast('Digite seu nome','error');$('#onb-name')?.focus();return}
+  S.user.name=name;
+  S.user.onboarded=true;
+  S.user.lastActive=new Date().toDateString();
+  S.user.streak=1;
+  addXP(100,'Bem-vindo!');
+  addNotif('Bem-vindo ao LiderTraining! 🎉','info');
+  addFeed(name,'entrou no LiderTraining','person_add');
+  nav('dashboard');
+}
+
+// ── DASHBOARD ──
+function renderDashboard(){
+  const u=S.user;
+  const ci=CAREER.findIndex(c=>c.xp>u.xp);
+  const cur=CAREER[Math.max(0,ci-1)];
+  const nxt=CAREER[ci]||CAREER[CAREER.length-1];
+  const cpct=nxt.xp>cur.xp?((u.xp-cur.xp)/(nxt.xp-cur.xp)*100):100;
+
+  // NBA
+  let nba={action:'Comece sua jornada',reason:'Complete o onboarding FIR para desbloquear sua trilha',icon:'rocket_launch'};
+  if(u.step>0&&S.leads.length===0)nba={action:'Adicione seu primeiro lead',reason:'Vá ao Prospector e comece a construir sua lista',icon:'person_add'};
+  else if(S.leads.length>0){
+    const hot=S.leads.find(l=>l.status==='quente');
+    if(hot)nba={action:`Ligar para ${hot.name}`,reason:`Lead quente — ${hot.score}% de conversão`,icon:'phone_in_talk'};
+    else nba={action:'Adicione mais contatos à sua lista',reason:'Expanda sua rede para crescer mais rápido',icon:'group_add'};
+  }
+
+  const flashMissions=S.missions.filter(m=>m.type==='flash'&&m.active);
+
+  return `
+  <!-- Hero -->
+  <div class="an" style="margin-bottom:20px">
+    <p style="font-size:10px;text-transform:uppercase;letter-spacing:.2em;color:#edb1ff;margin-bottom:6px">Performance Overview</p>
+    <h1 class="serif" style="font-size:30px;color:#e5e1e4;line-height:1.15;margin-bottom:6px">Olá,<br><em style="color:#edb1ff">${u.name||'Consultor'}</em></h1>
+    <p style="font-size:13px;color:#cfc2d5">Passo ${u.step}/10 · ${u.lv} · Streak ${u.streak} dias</p>
+  </div>
+
+  <!-- NBA -->
+  <div class="an d1 surface tap glow-am" onclick="${nba.action.includes('lead')||nba.action.includes('contatos')?`nav('prospector')`:nba.action.includes('Ligar')?`nav('prospector')`:nba.action.includes('jornada')?`nav('journey',0)`:`nav('journey')`}" style="padding:18px;background:rgba(110,33,141,.12);margin-bottom:16px">
+    <div style="display:flex;gap:12px;align-items:flex-start">
+      <div class="gp" style="width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        ${icf(nba.icon,'','style="color:white;font-size:22px"')}
+      </div>
+      <div>
+        <p style="font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:#edb1ff;font-weight:700;margin-bottom:4px">Próxima Melhor Ação</p>
+        <p style="font-size:14px;font-weight:600;color:#e5e1e4;margin-bottom:3px">${nba.action}</p>
+        <p style="font-size:11px;color:#cfc2d5">${nba.reason}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="an d2" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+    ${statCard('trending_up','Vendas',u.sales,'#50c878',u.sales>0?'+'+Math.round(u.sales*6.5)+'%':'')}
+    ${statCard('group','Equipe',u.team,'#4169e1',u.team>0?'+'+u.team:'')}
+    ${statCard('contacts','Contatos',S.leads.length,'#ff6b35')}
+    ${statCard('attach_money','Comissão','R$ '+u.commCurrent.toLocaleString('pt-BR'),'#ffd700',u.commCurrent>0?'+'+Math.round(u.commCurrent/50)+'%':'')}
+  </div>
+
+  <!-- Career -->
+  <div class="an d3 surface" style="padding:18px;margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div>
+        <p style="font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:#cfc2d5;margin-bottom:3px">Evolução de Carreira</p>
+        <p class="serif" style="font-size:17px;color:#e5e1e4">${cur.lv} → ${nxt.lv}</p>
+      </div>
+      <span style="font-size:11px;font-weight:700;color:${cur.c}">${u.xp} / ${nxt.xp} XP</span>
+    </div>
+    ${bar(cpct)}
+    <div style="display:flex;justify-content:space-between;margin-top:8px">
+      ${CAREER.map(c=>`<div style="text-align:center">
+        <div style="width:10px;height:10px;border-radius:50%;background:${c.c};margin:0 auto 3px;opacity:${u.xp>=c.xp?1:.25}"></div>
+        <span style="font-size:7px;color:#cfc2d5">${c.lv}</span>
+      </div>`).join('')}
+    </div>
+  </div>
+
+  <!-- Commission Sim -->
+  <div class="an d3 surface" style="padding:18px;margin-bottom:16px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+      ${icf('calculate','','style="color:#ffd700"')}
+      <span style="font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#cfc2d5">Simulador de Comissões</span>
+    </div>
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px">
+        <span style="color:#cfc2d5">Atual</span><span style="color:#50c878;font-weight:700">R$ ${u.commCurrent.toLocaleString('pt-BR')}</span>
+      </div>
+      <div class="bar-sm">${bar(u.commGoal?u.commCurrent/u.commGoal*100:0,'ge')}</div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px">
+        <span style="color:#cfc2d5">Projetada</span><span style="color:#edb1ff;font-weight:700">R$ ${u.commProjected.toLocaleString('pt-BR')}</span>
+      </div>
+      <div class="bar-sm">${bar(u.commGoal?u.commProjected/u.commGoal*100:0)}</div>
+    </div>
+    <p style="font-size:10px;text-align:center;color:#988d9e;margin-top:8px">Meta: R$ ${u.commGoal.toLocaleString('pt-BR')}</p>
+  </div>
+
+  <!-- Flash Missions -->
+  ${flashMissions.length?`
+  <div class="an d4" style="margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <p class="serif" style="font-size:17px;color:#e5e1e4">Missões Relâmpago</p>
+      <button class="tap" onclick="nav('arena')" style="font-size:11px;color:#edb1ff;background:none;border:none">Ver todas →</button>
+    </div>
+    ${flashMissions.slice(0,2).map(m=>`<div class="surface" style="padding:14px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:6px">
+          ${icf('bolt','','style="color:#ffd700;font-size:15px"')}
+          <span style="font-size:13px;font-weight:600;color:#e5e1e4">${m.n}</span>
+        </div>
+        <span style="font-size:9px;color:#ffb4ab;font-weight:700;display:flex;align-items:center;gap:2px">${ic('timer','','style="font-size:12px;color:#ffb4ab"')} ${formatTimer(m.timer)}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="flex:1">${bar(m.t?m.p/m.t*100:0)}</div>
+        <span style="font-size:10px;color:#cfc2d5">${m.p}/${m.t}</span>
+        <span style="font-size:10px;font-weight:700;color:#edb1ff">+${m.xp}</span>
+      </div>
+    </div>`).join('')}
+  </div>`:''}
+
+  <!-- Feed -->
+  ${S.feed.length?`
+  <div class="an d5" style="margin-bottom:16px">
+    <p class="serif" style="font-size:17px;color:#e5e1e4;margin-bottom:12px">Feed da Equipe</p>
+    ${S.feed.slice(0,4).map(f=>`<div class="surface-sm" style="padding:10px 14px;margin-bottom:5px;display:flex;align-items:center;gap:10px">
+      <div class="gp" style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        ${icf(f.ic,'','style="color:white;font-size:13px"')}
+      </div>
+      <div style="flex:1;min-width:0">
+        <p style="font-size:11px;color:#e5e1e4"><strong>${f.u}</strong> ${f.a}</p>
+        <span style="font-size:9px;color:#988d9e">${f.t}</span>
+      </div>
+    </div>`).join('')}
+  </div>`:''}
+
+  <!-- Quick Actions -->
+  <div class="an d6" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+    ${[{ic:'rocket_launch',l:'FIR',p:'fir'},{ic:'school',l:'Aprender',p:'academy'},{ic:'swords',l:'Arena',p:'arena'},{ic:'admin_panel_settings',l:'Líder',p:'leader'}].map(a=>`
+    <button class="surface-sm tap" onclick="nav('${a.p}')" style="padding:14px 0;display:flex;flex-direction:column;align-items:center;gap:4px;border:none">
+      ${ic(a.ic,'','style="color:#edb1ff;font-size:22px"')}
+      <span style="font-size:9px;color:#cfc2d5">${a.l}</span>
+    </button>`).join('')}
+  </div>`;
+}
+
+function formatTimer(seconds){
+  if(!seconds||seconds<=0)return '0:00';
+  const h=Math.floor(seconds/3600);
+  const m=Math.floor((seconds%3600)/60);
+  return h>0?`${h}h ${m}min`:`${m}min`;
+}
+
+// ── JOURNEY ──
+function renderJourney(){
+  if(S.sub!==null&&S.sub!==undefined){
+    return renderPassoDetail(S.sub);
+  }
+  const u=S.user;
+  return `
+  <div class="an" style="margin-bottom:20px">
+    <p style="font-size:10px;text-transform:uppercase;letter-spacing:.2em;color:#edb1ff;margin-bottom:6px">Sua Jornada</p>
+    <h1 class="serif" style="font-size:26px;color:#e5e1e4;margin-bottom:4px">10 Passos para o Sucesso</h1>
+    <p style="font-size:12px;color:#cfc2d5">Você está no Passo ${u.step} — ${STEPS[u.step]?.n||'Completo!'}</p>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:6px">
+    ${STEPS.map((p,i)=>{
+      const done=i<u.step,cur=i===u.step,lock=i>u.step;
+      return `<button ${lock?'disabled':''} onclick="${lock?'':`nav('journey',${i})`}" class="surface tap" style="padding:14px 16px;display:flex;align-items:center;gap:14px;border:none;text-align:left;${lock?'opacity:.4;cursor:not-allowed;transform:none':''}">
+        <div style="width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;${done?'background:linear-gradient(135deg,#edb1ff,#6e218d)':cur?`background:${p.c}14`:'background:#353437'}">
+          ${done?ic('check','','style="color:white;font-size:18px"'):lock?ic('lock','','style="color:#988d9e;font-size:16px"'):`<span class="material-symbols-outlined" style="color:${p.c};font-size:19px">${p.ic}</span>`}
+        </div>
+        <div style="flex:1">
+          <p style="font-size:13px;font-weight:600;color:${cur?'#edb1ff':'#e5e1e4'}">${p.n}</p>
+          <p style="font-size:10px;color:#988d9e">${p.desc}</p>
+        </div>
+        ${!lock?`<div style="display:flex;align-items:center;gap:4px">
+          ${done?'<span style="font-size:10px;color:#50c878;font-weight:700">✓</span>':cur?'<span style="font-size:9px;color:#edb1ff;font-weight:600">Em progresso</span>':''}
+          ${ic('chevron_right','','style="color:#988d9e;font-size:16px"')}
+        </div>`:''}
+      </button>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderPassoDetail(idx){
+  const p=STEPS[idx];if(!p)return renderJourney();
+  const tab=S.passoTab;
+  const tabs=[{id:'aprender',l:'Aprender',ic:'headphones'},{id:'tarefas',l:'Tarefas',ic:'edit_note'},{id:'praticar',l:'Praticar',ic:'smart_toy'},{id:'agentes',l:'Agentes',ic:'precision_manufacturing'}];
+
+  let content='';
+  if(tab==='aprender'){
+    content=`
+    <div class="surface" style="padding:18px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        ${icf('podcasts','','style="color:#edb1ff"')}
+        <span style="font-size:12px;font-weight:700;color:#e5e1e4">Podcast IA — ${p.n}</span>
+      </div>
+      <p style="font-size:12px;color:#cfc2d5;margin-bottom:14px">Conteúdo personalizado sobre "${p.n}" para seu nível atual.</p>
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="tap gp" style="width:50px;height:50px;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center">
+          ${icf('play_arrow','','style="color:white;font-size:26px"')}
+        </button>
+        <div style="flex:1">
+          ${bar(35)}
+          <div style="display:flex;justify-content:space-between;margin-top:3px">
+            <span style="font-size:9px;color:#988d9e">4:32</span>
+            <span style="font-size:9px;color:#988d9e">12:00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="surface" style="padding:18px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        ${icf('style','','style="color:#ffd700"')}
+        <span style="font-size:12px;font-weight:700;color:#e5e1e4">Flashcards</span>
+      </div>
+      <div style="background:rgba(110,33,141,.08);border-radius:12px;padding:18px;text-align:center">
+        <p style="font-size:10px;color:#edb1ff;margin-bottom:8px">Pergunta 1/5</p>
+        <p style="font-size:14px;color:#e5e1e4;font-weight:500;margin-bottom:14px">${idx===8?'Quais são as 3 Leis do Fechamento?':'Qual o elemento mais importante deste passo?'}</p>
+        <button class="tap" onclick="toast('+10 XP — Flashcard!','xp');addXP(10,'Flashcard')" style="font-size:12px;color:#edb1ff;font-weight:700;background:none;border:none">Revelar Resposta →</button>
+      </div>
+    </div>
+    ${idx===8?`<div class="surface" style="padding:18px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        ${icf('menu_book','','style="color:#50c878"')}
+        <span style="font-size:12px;font-weight:700;color:#e5e1e4">3 Leis do Fechamento</span>
+      </div>
+      ${LEIS.map(l=>`<div style="background:rgba(53,52,55,.35);border-radius:12px;padding:14px;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+          ${ic(l.ic,'','style="color:#edb1ff;font-size:16px"')}
+          <span style="font-size:12px;font-weight:700;color:#e5e1e4">${l.n}</span>
+        </div>
+        <p style="font-size:11px;color:#cfc2d5;margin-bottom:4px">${l.d}</p>
+        <p style="font-size:10px;color:#edb1ff;font-style:italic">${l.ex}</p>
+      </div>`).join('')}
+    </div>`:''}
+    ${idx===6?`<div class="surface" style="padding:18px;margin-top:12px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        ${icf('ac_unit','','style="color:#00bcd4"')}
+        <span style="font-size:12px;font-weight:700;color:#e5e1e4">Quebra-gelos</span>
+      </div>
+      ${QUEBRAGELOS.map((q,i)=>`<div style="background:rgba(110,33,141,.06);border-radius:10px;padding:10px 12px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center">
+        <p style="font-size:11px;color:#edb1ff;font-style:italic;flex:1">"Eu acabei de descobrir como ${q}"</p>
+        <button class="tap" onclick="navigator.clipboard?.writeText('Eu acabei de descobrir como ${q}');toast('Copiado!')" style="background:none;border:none;padding:4px">${ic('content_copy','','style="font-size:14px;color:#988d9e"')}</button>
+      </div>`).join('')}
+    </div>`:''}`;
+  }else if(tab==='tarefas'){
+    const saved=S.user.notesPerStep[idx]||'';
+    content=`<div class="surface" style="padding:18px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        ${icf('edit_note','','style="color:#ff6b35"')}
+        <span style="font-size:12px;font-weight:700;color:#e5e1e4">Caderno Digital — ${p.n}</span>
+      </div>
+      <textarea id="step-notes" style="width:100%;height:180px;font-size:13px;line-height:1.6" placeholder="Anote suas reflexões, metas e aprendizados sobre ${p.n}...">${saved}</textarea>
+      <button class="tap gp" onclick="saveStepNote(${idx})" style="margin-top:12px;border:none;border-radius:10px;padding:10px 20px;font-size:12px;font-weight:700;color:white">Salvar Anotações +10 XP</button>
+    </div>`;
+  }else if(tab==='praticar'){
+    content=`<div class="surface" style="padding:18px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        ${icf('smart_toy','','style="color:#4169e1"')}
+        <span style="font-size:12px;font-weight:700;color:#e5e1e4">Simulador IA — ${p.n}</span>
+      </div>
+      <p style="font-size:12px;color:#cfc2d5;margin-bottom:14px">Pratique situações reais com nosso simulador inteligente.</p>
+      ${idx===8?OBJECOES.map((o,i)=>`<div class="surface-sm tap" onclick="showModal('objecao',${i})" style="padding:14px;margin-bottom:6px;border:none;text-align:left;width:100%">
+        <p style="font-size:12px;font-weight:700;color:#e5e1e4;margin-bottom:3px">"${o.o}"</p>
+        <p style="font-size:10px;color:#edb1ff">Praticar resposta →</p>
+      </div>`).join(''):`
+      <button class="tap gp" onclick="addXP(15,'Simulação de ${p.n}');toast('Simulação concluída! +15 XP','xp')" style="width:100%;border:none;border-radius:14px;padding:14px;font-size:13px;font-weight:700;color:white">
+        ${ic('play_arrow','')} Iniciar Simulação de ${p.n}
+      </button>`}
+    </div>
+    ${idx===8?`<div class="surface" style="padding:18px;margin-top:12px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        ${icf('description','','style="color:#9c27b0"')}
+        <span style="font-size:12px;font-weight:700;color:#e5e1e4">Scripts de Fechamento</span>
+      </div>
+      ${SCRIPTS_FECHAMENTO.map(s=>`<div style="background:rgba(53,52,55,.35);border-radius:12px;padding:14px;margin-bottom:8px">
+        <p style="font-size:11px;font-weight:700;color:#edb1ff;margin-bottom:6px">${s.n}</p>
+        <p style="font-size:11px;color:#cfc2d5;line-height:1.5">${s.t}</p>
+        <button class="tap" onclick="navigator.clipboard?.writeText('${s.t.replace(/'/g,"\\'")}');toast('Script copiado!')" style="margin-top:8px;font-size:10px;color:#edb1ff;font-weight:700;background:none;border:none">${ic('content_copy','','style="font-size:12px"')} Copiar</button>
+      </div>`).join('')}
+    </div>`:''}`;
+  }else{
+    content=`<div class="surface" style="padding:18px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        ${icf('precision_manufacturing','','style="color:#edb1ff"')}
+        <span style="font-size:12px;font-weight:700;color:#e5e1e4">Agentes IA</span>
+      </div>
+      ${[{n:'Gerador de Scripts',d:'Crie scripts personalizados para '+p.n,ic:'description'},{n:'Analisador de Objeções',d:'IA analisa e sugere respostas otimizadas',ic:'psychology'},{n:'Coach Virtual',d:'Receba feedback em tempo real',ic:'support_agent'}].map(a=>`
+      <div class="surface-sm tap hover-glow" style="padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px" onclick="toast('Agente em breve!','info')">
+        <div style="width:42px;height:42px;border-radius:12px;background:rgba(110,33,141,.12);display:flex;align-items:center;justify-content:center">
+          ${ic(a.ic,'','style="color:#edb1ff;font-size:19px"')}
+        </div>
+        <div style="flex:1"><p style="font-size:13px;font-weight:600;color:#e5e1e4">${a.n}</p><p style="font-size:10px;color:#cfc2d5">${a.d}</p></div>
+        ${ic('arrow_forward_ios','','style="color:#988d9e;font-size:13px"')}
+      </div>`).join('')}
+    </div>`;
+  }
+
+  return `
+  <button class="tap" onclick="back()" style="display:flex;align-items:center;gap:4px;color:#edb1ff;font-size:13px;background:none;border:none;margin-bottom:14px">
+    ${ic('arrow_back','','style="font-size:18px"')} Voltar
+  </button>
+  <div class="an" style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
+    <div style="width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:${p.c}14">
+      <span class="material-symbols-outlined filled" style="color:${p.c};font-size:26px">${p.ic}</span>
+    </div>
+    <div>
+      <p style="font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:#cfc2d5">Passo ${p.id}</p>
+      <h2 class="serif" style="font-size:24px;color:#e5e1e4">${p.n}</h2>
+    </div>
+    ${S.user.step>idx?`<div class="ge" style="margin-left:auto;padding:4px 10px;border-radius:99px;font-size:9px;font-weight:700;color:white">Completo</div>`:''}
+  </div>
+  <!-- Tabs -->
+  <div class="tab" style="margin-bottom:16px">
+    ${tabs.map(t=>`<button class="${tab===t.id?'active':''}" onclick="S.passoTab='${t.id}';render()">
+      ${ic(t.ic,'')}${t.l}
+    </button>`).join('')}
+  </div>
+  ${content}
+  ${S.user.step===idx?`<button class="tap gp glow-am" onclick="completeStep(${idx})" style="width:100%;border:none;border-radius:14px;padding:14px;font-size:14px;font-weight:700;color:white;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:6px">
+    ${ic('check_circle','')} Completar Passo ${idx} — ${p.n}
+  </button>`:''}`;
+}
+
+window.saveStepNote=function(idx){
+  const v=$('#step-notes')?.value||'';
+  S.user.notesPerStep[idx]=v;
+  addXP(10,'Anotação salva');
+  saveState();
+}
+
+window.completeStep=function(idx){
+  if(S.user.step!==idx)return;
+  S.user.step=idx+1;
+  addXP(100,'Passo '+STEPS[idx].n+' completo!');
+  addFeed(S.user.name,`completou o Passo ${idx} — ${STEPS[idx].n}`,'emoji_events');
+  addNotif(`Parabéns! Passo ${idx} completo! 🎉`,'xp');
+  toast('Passo completo! +100 XP 🎉','xp');
+  S.sub=null;
+  saveState();
+  render();
+}
+
+// ── PROSPECTOR ──
+function renderProspector(){
+  const stCol={quente:'#ff6b35',morno:'#ffd700',frio:'#4169e1',fechado:'#50c878'};
+  const stCls={quente:'st-hot',morno:'st-warm',frio:'st-cold',fechado:'st-closed'};
+  const filtered=S.leadFilter==='todos'?S.leads:S.leads.filter(l=>l.status===S.leadFilter);
+
+  return `
+  <div class="an" style="margin-bottom:16px">
+    <p style="font-size:10px;text-transform:uppercase;letter-spacing:.2em;color:#edb1ff;margin-bottom:6px">Smart Prospector</p>
+    <h1 class="serif" style="font-size:26px;color:#e5e1e4;margin-bottom:12px">Banco de Leads</h1>
+  </div>
+
+  <!-- Add Lead -->
+  <div class="an d1 surface" style="padding:16px;margin-bottom:14px">
+    <p style="font-size:11px;font-weight:700;color:#e5e1e4;margin-bottom:10px">Adicionar Novo Lead</p>
+    <div style="display:flex;gap:6px;margin-bottom:6px">
+      <input id="lead-name" type="text" placeholder="Nome" style="flex:2">
+      <input id="lead-phone" type="tel" placeholder="Telefone" style="flex:1.5">
+    </div>
+    <div style="display:flex;gap:6px">
+      <select id="lead-status" style="flex:1">
+        <option value="frio">Frio</option><option value="morno">Morno</option><option value="quente">Quente</option>
+      </select>
+      <select id="lead-source" style="flex:1">
+        <option value="Lista quente">Lista quente</option><option value="Instagram">Instagram</option><option value="Indicação">Indicação</option><option value="Evento">Evento</option><option value="Facebook">Facebook</option>
+      </select>
+    </div>
+    <button class="tap gp" onclick="addLead()" style="width:100%;border:none;border-radius:10px;padding:10px;font-size:12px;font-weight:700;color:white;margin-top:8px">
+      ${ic('person_add','')} Adicionar Lead +15 XP
+    </button>
+  </div>
+
+  <!-- Quebra-gelos -->
+  <div class="an d2 surface" style="padding:14px;margin-bottom:14px">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+      ${icf('ac_unit','','style="color:#00bcd4"')}
+      <span style="font-size:11px;font-weight:700;color:#e5e1e4">Quebra-gelos</span>
+    </div>
+    <div class="no-scroll" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px">
+      ${QUEBRAGELOS.slice(0,5).map(q=>`<div class="tap" onclick="navigator.clipboard?.writeText('Eu acabei de descobrir como ${q}');toast('Copiado!')" style="flex-shrink:0;background:rgba(110,33,141,.08);border-radius:12px;padding:12px;max-width:180px">
+        <p style="font-size:11px;color:#edb1ff;font-style:italic;line-height:1.4">"Eu acabei de descobrir como ${q}"</p>
+        <span style="display:flex;align-items:center;gap:2px;margin-top:6px;font-size:9px;color:#988d9e">${ic('content_copy','','style="font-size:11px"')} Copiar</span>
+      </div>`).join('')}
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="an d2 no-scroll" style="display:flex;gap:5px;margin-bottom:12px;overflow-x:auto">
+    ${['todos','quente','morno','frio','fechado'].map(f=>`<button class="chip ${S.leadFilter===f?'active':''}" onclick="S.leadFilter='${f}';render()">${f==='todos'?'Todos':f[0].toUpperCase()+f.slice(1)} ${f!=='todos'?'('+S.leads.filter(l=>l.status===f).length+')':''}</button>`).join('')}
+  </div>
+
+  <!-- Leads List -->
+  ${filtered.length===0?`<div style="text-align:center;padding:40px 0">
+    <p style="font-size:40px;margin-bottom:10px">📋</p>
+    <p style="font-size:13px;color:#988d9e">${S.leads.length===0?'Nenhum lead ainda. Adicione o primeiro!':'Nenhum lead neste filtro.'}</p>
+  </div>`:`
+  <div class="an d3">${filtered.map(l=>`<div class="surface tap" style="padding:14px;margin-bottom:6px" onclick="showModal('lead','${l.id}')">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:38px;height:38px;border-radius:50%;background:${stCol[l.status]}14;display:flex;align-items:center;justify-content:center">
+          <span style="font-size:13px;font-weight:700;color:${stCol[l.status]}">${l.name[0]}</span>
+        </div>
+        <div>
+          <p style="font-size:13px;font-weight:600;color:#e5e1e4">${l.name}</p>
+          <p style="font-size:10px;color:#cfc2d5">${l.step||'Novo contato'}</p>
+        </div>
+      </div>
+      <span style="font-size:11px;font-weight:700;color:${l.score>70?'#50c878':l.score>40?'#ffd700':'#988d9e'}">${l.score}%</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="chip ${stCls[l.status]}" style="font-size:8px;padding:2px 8px">${l.status.toUpperCase()}</span>
+        <span style="font-size:9px;color:#988d9e">${l.source}</span>
+      </div>
+      <div style="display:flex;gap:4px">
+        <button class="tap" onclick="event.stopPropagation();window.open('https://wa.me/55'+('${l.phone}'.replace(/\\D/g,'')))" style="width:28px;height:28px;border-radius:8px;background:rgba(80,200,120,.1);border:none;display:flex;align-items:center;justify-content:center">${ic('chat','','style="font-size:14px;color:#50c878"')}</button>
+        <button class="tap" onclick="event.stopPropagation();window.open('tel:${l.phone}')" style="width:28px;height:28px;border-radius:8px;background:rgba(237,177,255,.1);border:none;display:flex;align-items:center;justify-content:center">${ic('phone','','style="font-size:14px;color:#edb1ff"')}</button>
+      </div>
+    </div>
+  </div>`).join('')}</div>`}
+
+  <!-- Count -->
+  <p style="text-align:center;font-size:10px;color:#988d9e;margin-top:12px">${S.leads.length} leads no total</p>`;
+}
+
+window.addLead=function(){
+  const name=$('#lead-name')?.value?.trim();
+  const phone=$('#lead-phone')?.value?.trim();
+  const status=$('#lead-status')?.value||'frio';
+  const source=$('#lead-source')?.value||'Lista quente';
+  if(!name){toast('Digite o nome do lead','error');return}
+  const score=status==='quente'?Math.floor(Math.random()*20)+70:status==='morno'?Math.floor(Math.random()*25)+40:Math.floor(Math.random()*30)+15;
+  S.leads.push({id:'l'+Date.now(),name,phone:phone||'',status,source,score,step:'Novo contato',lastContact:'Agora',created:new Date().toISOString()});
+  S.user.contacts=S.leads.length;
+  addXP(15,'Novo lead: '+name);
+  addFeed(S.user.name,`adicionou ${name} à lista`,'person_add');
+  // Update mission
+  const m3=S.missions.find(m=>m.id==='m3');
+  if(m3)m3.p=Math.min(m3.t,m3.p+1);
+  saveState();
+  render();
+}
+
+// ── ACADEMY ──
+function renderAcademy(){
+  const doneCount=S.user.audiosDone.length;
+  return `
+  <div class="an" style="margin-bottom:16px">
+    <p style="font-size:10px;text-transform:uppercase;letter-spacing:.2em;color:#edb1ff;margin-bottom:6px">Centro de Aprendizado</p>
+    <h1 class="serif" style="font-size:26px;color:#e5e1e4;margin-bottom:12px">Academia Elite</h1>
+  </div>
+
+  <!-- Áudios -->
+  <div class="an d1 surface" style="padding:18px;margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px">${icf('headphones','','style="color:#edb1ff"')}<span style="font-size:12px;font-weight:700;color:#e5e1e4">Áudios Obrigatórios</span></div>
+      <span style="font-size:10px;color:#50c878;font-weight:700">${doneCount}/${AUDIOS.length} ouvidos</span>
+    </div>
+    ${AUDIOS.map((a,i)=>{const done=S.user.audiosDone.includes(i);return `
+    <div style="display:flex;align-items:center;gap:12px;padding:8px 0">
+      <button class="tap ${done?'gp':'surface-sm'}" onclick="${done?'':`markAudio(${i})`}" style="width:34px;height:34px;border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        ${done?ic('check','','style="color:white;font-size:14px"'):ic('play_arrow','','style="color:#988d9e;font-size:15px"')}
+      </button>
+      <div style="flex:1">
+        <p style="font-size:13px;color:${done?'#988d9e':'#e5e1e4'};${done?'text-decoration:line-through':''}">${a.t}</p>
+        <p style="font-size:9px;color:#988d9e">${a.d}</p>
+      </div>
+      ${done?icf('check_circle','','style="color:#50c878;font-size:18px"'):ic('radio_button_unchecked','','style="color:#988d9e;font-size:18px"')}
+    </div>`}).join('')}
+  </div>
+
+  <!-- Educação Financeira -->
+  <div class="an d2 surface" style="padding:18px;margin-bottom:14px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">${icf('account_balance','','style="color:#ffd700"')}<span style="font-size:12px;font-weight:700;color:#e5e1e4">Educação Financeira 50/42,5/7,5</span></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+      ${[{p:'50%',l:'Reinvestir',c:'#50c878'},{p:'42,5%',l:'Despesas',c:'#4169e1'},{p:'7,5%',l:'Reserva',c:'#ffd700'}].map(e=>`
+      <div style="background:rgba(53,52,55,.35);border-radius:12px;padding:14px;text-align:center">
+        <p style="font-size:22px;font-weight:700;color:${e.c}">${e.p}</p>
+        <p style="font-size:8px;color:#cfc2d5;margin-top:4px;text-transform:uppercase;letter-spacing:.05em">${e.l}</p>
+      </div>`).join('')}
+    </div>
+  </div>
+
+  <!-- 4 Regras de Ouro -->
+  <div class="an d3 surface" style="padding:18px;margin-bottom:14px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">${icf('stars','','style="color:#ffd700"')}<span style="font-size:12px;font-weight:700;color:#e5e1e4">4 Regras de Ouro</span></div>
+    ${REGRAS_OURO.map((r,i)=>`<div style="display:flex;align-items:center;gap:10px;background:rgba(255,215,0,.04);border-radius:12px;padding:12px;margin-bottom:6px">
+      <div class="gg" style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="font-size:10px;font-weight:700;color:#0e0e10">${i+1}</span></div>
+      <span style="font-size:13px;color:#e5e1e4">${r}</span>
+    </div>`).join('')}
+  </div>
+
+  <!-- MOS -->
+  <div class="an d3 surface" style="padding:18px;margin-bottom:14px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">${icf('schedule','','style="color:#e0115f"')}<span style="font-size:12px;font-weight:700;color:#e5e1e4">MOS — Método de Operação</span></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+      ${[{t:'6h',l:'Follow-up',c:'#ff6b35'},{t:'12h',l:'Apresentação',c:'#9c27b0'},{t:'24h',l:'Fechamento',c:'#50c878'}].map(m=>`
+      <div style="background:rgba(53,52,55,.35);border-radius:12px;padding:14px;text-align:center">
+        <p style="font-size:20px;font-weight:700;color:${m.c}">${m.t}</p>
+        <p style="font-size:8px;color:#cfc2d5;margin-top:3px">${m.l}</p>
+      </div>`).join('')}
+    </div>
+  </div>
+
+  <!-- Plano 1x1 -->
+  <div class="an d4 surface" style="padding:18px;margin-bottom:14px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">${icf('people','','style="color:#50c878"')}<span style="font-size:12px;font-weight:700;color:#e5e1e4">Plano 1x1 — 8 Etapas</span></div>
+    ${PLANO_1x1.map((e,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:6px 0">
+      <div style="width:24px;height:24px;border-radius:50%;background:rgba(110,33,141,.12);display:flex;align-items:center;justify-content:center"><span style="font-size:10px;font-weight:700;color:#edb1ff">${i+1}</span></div>
+      <span style="font-size:13px;color:#e5e1e4">${e}</span>
+    </div>`).join('')}
+  </div>
+
+  <!-- Formas de Apresentar -->
+  <div class="an d4 surface" style="padding:18px;margin-bottom:14px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">${icf('present_to_all','','style="color:#9c27b0"')}<span style="font-size:12px;font-weight:700;color:#e5e1e4">4 Formas de Apresentar</span></div>
+    ${FORMAS_APRESENTAR.map((f,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:6px 0">
+      <div style="width:24px;height:24px;border-radius:50%;background:rgba(156,39,176,.1);display:flex;align-items:center;justify-content:center"><span style="font-size:10px;font-weight:700;color:#9c27b0">${i+1}</span></div>
+      <span style="font-size:13px;color:#e5e1e4">${f}</span>
+    </div>`).join('')}
+  </div>
+
+  <!-- VIP 600 -->
+  <div class="an d5 surface glow-am" style="padding:18px;background:rgba(110,33,141,.1)">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">${icf('diamond','','style="color:#edb1ff"')}<span style="font-size:12px;font-weight:700;color:#edb1ff">VIP 600</span></div>
+    <p style="font-size:12px;color:#cfc2d5">Meta de 600 pontos de volume pessoal</p>
+    <p style="margin-top:4px"><span style="font-size:24px;font-weight:700;color:#edb1ff">${S.user.vip}</span><span style="font-size:12px;color:#cfc2d5"> / 600 pontos</span></p>
+    <div style="margin-top:10px">${bar(Math.min(100,S.user.vip/600*100))}</div>
+  </div>`;
+}
+
+window.markAudio=function(i){
+  if(S.user.audiosDone.includes(i))return;
+  S.user.audiosDone.push(i);
+  addXP(25,'Áudio: '+AUDIOS[i].t);
+  saveState();
+  render();
+}
+
+// ── RANKING ──
+function renderRanking(){
+  const u=S.user;
+  // Generate fake leaderboard based on user XP
+  const fakeBoard=[
+    {n:'Bruno F.',xp:Math.max(u.weeklyXP+150,200)},{n:u.name||'Você',xp:u.weeklyXP,me:true},{n:'Ana O.',xp:Math.max(u.weeklyXP-40,50)},
+    {n:'Carlos L.',xp:Math.max(u.weeklyXP-80,30)},{n:'Juliana M.',xp:Math.max(u.weeklyXP-110,20)},{n:'Pedro S.',xp:Math.max(u.weeklyXP-140,15)},
+    {n:'Mariana R.',xp:Math.max(u.weeklyXP-170,10)},{n:'Lucas P.',xp:Math.max(u.weeklyXP-200,8)},
+  ].sort((a,b)=>b.xp-a.xp);
+  const top3=fakeBoard.slice(0,3);
+
+  return `
+  <div class="an" style="margin-bottom:16px">
+    <p style="font-size:10px;text-transform:uppercase;letter-spacing:.2em;color:#edb1ff;margin-bottom:6px">Ranking Elite</p>
+    <h1 class="serif" style="font-size:26px;color:#e5e1e4;margin-bottom:4px">Liga <em style="color:${LEAGUES.find(l=>l.n===u.league)?.c||'#ffd700'}">${u.league}</em></h1>
+  </div>
+
+  <div style="display:flex;gap:6px;margin-bottom:14px">
+    ${LEAGUES.map(l=>`<div class="surface-sm" style="flex:1;padding:8px;text-align:center;${u.league===l.n?'box-shadow:inset 0 0 0 1.5px rgba(237,177,255,.3)':''}">
+      <div style="width:22px;height:22px;border-radius:50%;background:${l.c};margin:0 auto 4px;opacity:.8"></div>
+      <span style="font-size:8px;font-weight:700;color:${l.c}">${l.n}</span>
+    </div>`).join('')}
+  </div>
+
+  <!-- Podium -->
+  <div class="an d1" style="display:flex;justify-content:center;align-items:flex-end;gap:10px;padding:16px 0">
+    ${[{p:top3[1]||top3[0],h:'90px',s:'44px',m:'🥈',r:2},{p:top3[0],h:'120px',s:'52px',m:'🥇',r:1},{p:top3[2]||top3[0],h:'72px',s:'40px',m:'🥉',r:3}].map(x=>`
+    <div style="text-align:center">
+      <div style="width:${x.s};height:${x.s};border-radius:50%;${x.p?.me?'background:linear-gradient(135deg,#edb1ff,#6e218d)':'background:#353437'};display:flex;align-items:center;justify-content:center;margin:0 auto 6px">
+        <span style="font-weight:700;color:white;font-size:13px">${(x.p?.n||'?')[0]}</span>
+      </div>
+      <p style="font-size:10px;font-weight:700;color:#e5e1e4;margin-bottom:2px">${x.p?.n||'—'}</p>
+      <p style="font-size:9px;color:#edb1ff;margin-bottom:4px">${x.p?.xp||0} XP</p>
+      <div style="width:68px;height:${x.h};border-radius:12px 12px 0 0;background:rgba(110,33,141,.1);display:flex;align-items:flex-start;justify-content:center;padding-top:8px">
+        <span style="font-size:22px">${x.m}</span>
+      </div>
+    </div>`).join('')}
+  </div>
+
+  <!-- Board -->
+  <div class="an d2">
+    ${fakeBoard.slice(3).map((p,i)=>`<div class="surface-sm ${p.me?'glow-am':''}" style="padding:10px 14px;margin-bottom:4px;display:flex;align-items:center;gap:10px;${p.me?'background:rgba(110,33,141,.12)':''}">
+      <span style="font-size:11px;font-weight:700;color:#988d9e;width:20px">#${i+4}</span>
+      <div style="width:30px;height:30px;border-radius:50%;${p.me?'background:linear-gradient(135deg,#edb1ff,#6e218d)':'background:#353437'};display:flex;align-items:center;justify-content:center"><span style="font-size:10px;font-weight:700;color:${p.me?'white':'#cfc2d5'}">${p.n[0]}</span></div>
+      <span style="flex:1;font-size:12px;color:#e5e1e4;${p.me?'font-weight:700':''}">${p.n}${p.me?' (você)':''}</span>
+      <span style="font-size:11px;font-weight:700;color:#edb1ff">${p.xp} XP</span>
+    </div>`).join('')}
+  </div>
+
+  <!-- Zones -->
+  <div class="an d3 surface" style="padding:14px;margin-top:12px;margin-bottom:14px">
+    <p style="font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:#cfc2d5;margin-bottom:10px">Promoção / Rebaixamento Semanal</p>
+    <div style="display:flex;justify-content:space-between">
+      <span style="font-size:10px;color:#50c878;display:flex;align-items:center;gap:3px">${ic('arrow_upward','','style="font-size:14px;color:#50c878"')} Top 5 sobem</span>
+      <span style="font-size:10px;color:#ffb4ab;display:flex;align-items:center;gap:3px">${ic('arrow_downward','','style="font-size:14px;color:#ffb4ab"')} Bottom 3 descem</span>
+    </div>
+  </div>
+
+  <button class="tap surface" onclick="showModal('certificate')" style="width:100%;padding:14px;display:flex;align-items:center;justify-content:center;gap:8px;border:none">
+    ${icf('workspace_premium','','style="color:#ffd700"')}
+    <span style="font-size:13px;font-weight:600;color:#e5e1e4">Gerar Certificado</span>
+  </button>`;
+}
+
+// ── ARENA ──
+function renderArena(){
+  return `
+  <div class="an" style="margin-bottom:16px">
+    <p style="font-size:10px;text-transform:uppercase;letter-spacing:.2em;color:#edb1ff;margin-bottom:6px">Arena de Desafios</p>
+    <h1 class="serif" style="font-size:26px;color:#e5e1e4;margin-bottom:12px">Missões & Conquistas</h1>
+  </div>
+  
+  <!-- Flash -->
+  <p style="font-size:11px;font-weight:700;color:#ffb4ab;display:flex;align-items:center;gap:4px;margin-bottom:10px">${icf('bolt','','style="color:#ffd700;font-size:14px"')} Missões Relâmpago</p>
+  ${S.missions.filter(m=>m.type==='flash').map(m=>`
+  <div class="an d1 surface" style="padding:16px;margin-bottom:8px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+      <div><p style="font-size:13px;font-weight:700;color:#e5e1e4">${m.n}</p><p style="font-size:11px;color:#cfc2d5">${m.d}</p></div>
+      <div style="background:rgba(255,180,171,.08);padding:3px 10px;border-radius:99px;display:flex;align-items:center;gap:3px">
+        ${ic('timer','','style="font-size:12px;color:#ffb4ab"')}<span style="font-size:9px;font-weight:700;color:#ffb4ab">${formatTimer(m.timer)}</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="flex:1">${bar(m.t?m.p/m.t*100:0)}</div>
+      <span style="font-size:10px;color:#cfc2d5">${m.p}/${m.t}</span>
+      <span style="font-size:10px;font-weight:700;color:#ffd700">+${m.xp}</span>
+    </div>
+  </div>`).join('')}
+
+  <!-- Achievements -->
+  <p style="font-size:11px;font-weight:700;color:#edb1ff;display:flex;align-items:center;gap:4px;margin:18px 0 10px">${icf('emoji_events','','style="font-size:14px"')} Conquistas</p>
+  ${S.missions.filter(m=>m.type!=='flash').map(m=>`
+  <div class="an d2 surface" style="padding:16px;margin-bottom:8px">
+    <p style="font-size:13px;font-weight:700;color:#e5e1e4;margin-bottom:2px">${m.n}</p>
+    <p style="font-size:11px;color:#cfc2d5;margin-bottom:10px">${m.d}</p>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="flex:1">${bar(m.t?m.p/m.t*100:0,'ge')}</div>
+      <span style="font-size:10px;color:#cfc2d5">${m.p}/${m.t}</span>
+      <span style="font-size:10px;font-weight:700;color:#edb1ff">+${m.xp}</span>
+    </div>
+  </div>`).join('')}
+
+  <!-- START 48h -->
+  <div class="an d3 surface glow-am" style="padding:18px;background:rgba(110,33,141,.1);margin-top:16px;margin-bottom:14px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">${icf('rocket_launch','','style="color:#edb1ff"')}<span style="font-size:12px;font-weight:700;color:#edb1ff">START em 48h</span></div>
+    <p style="font-size:12px;color:#cfc2d5;margin-bottom:12px">Complete as ações iniciais nas primeiras 48 horas!</p>
+    ${['Cadastrar-se','Ouvir áudio de boas-vindas','Adicionar 20 nomes à lista','Agendar 3 convites','Fazer primeira apresentação'].map((s,i)=>{
+      const done=i<(S.user.onboarded?1:0)+(S.user.audiosDone.length>0?1:0)+(S.leads.length>=20?1:0);
+      return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0">
+        ${done?icf('check_circle','','style="color:#50c878;font-size:16px"'):ic('radio_button_unchecked','','style="color:#988d9e;font-size:16px"')}
+        <span style="font-size:12px;color:${done?'#988d9e':'#e5e1e4'};${done?'text-decoration:line-through':''}">${s}</span>
+      </div>`;}).join('')}
+  </div>
+
+  <!-- 21 dias -->
+  <div class="an d4 surface" style="padding:18px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">${icf('calendar_month','','style="color:#ff6b35"')}<span style="font-size:12px;font-weight:700;color:#e5e1e4">Fluxo dos 21 Dias</span></div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">
+      ${Array.from({length:21},(_,i)=>{const d=i<S.user.streak,t=i===S.user.streak;return `<div style="aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;${t?'background:linear-gradient(135deg,#edb1ff,#6e218d);color:white':d?'background:rgba(80,200,120,.12);color:#50c878':'background:rgba(53,52,55,.3);color:#988d9e'}">${i+1}</div>`}).join('')}
+    </div>
+  </div>`;
+}
+
+// ── LEADER PANEL ──
+function renderLeader(){
+  const stCol={ativo:'#50c878',inativo:'#988d9e',risco:'#ff6b35'};
+  const team=S.team;
+  const ativos=team.filter(t=>t.st==='ativo').length;
+  const riscos=team.filter(t=>t.st!=='ativo').length;
+
+  return `
+  <div class="an" style="margin-bottom:16px">
+    <p style="font-size:10px;text-transform:uppercase;letter-spacing:.2em;color:#edb1ff;margin-bottom:6px">Painel do Líder</p>
+    <h1 class="serif" style="font-size:26px;color:#e5e1e4;margin-bottom:12px">Gestão da Equipe</h1>
+  </div>
+
+  <!-- Add team member -->
+  <div class="an d1 surface" style="padding:16px;margin-bottom:14px">
+    <p style="font-size:11px;font-weight:700;color:#e5e1e4;margin-bottom:10px">Adicionar Consultor</p>
+    <div style="display:flex;gap:6px">
+      <input id="tm-name" type="text" placeholder="Nome do consultor" style="flex:1">
+      <button class="tap gp" onclick="addTeamMember()" style="border:none;border-radius:10px;padding:10px 16px;font-size:11px;font-weight:700;color:white;white-space:nowrap">${ic('person_add','')} Add</button>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+    ${statCard('group','Total',team.length,'#4169e1')}
+    ${statCard('check_circle','Ativos',ativos,'#50c878')}
+    ${statCard('warning','Risco',riscos,'#ff6b35')}
+  </div>
+
+  <!-- Alerts -->
+  ${riscos>0?`<div class="an d2 surface" style="padding:16px;background:rgba(255,107,53,.05);margin-bottom:14px">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">${icf('notification_important','','style="color:#ff6b35"')}<span style="font-size:11px;font-weight:700;color:#ff6b35">Alertas Automáticos</span></div>
+    ${team.filter(t=>t.st!=='ativo').map(t=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:24px;height:24px;border-radius:50%;background:rgba(255,107,53,.12);display:flex;align-items:center;justify-content:center"><span style="font-size:9px;font-weight:700;color:#ff6b35">${t.n[0]}</span></div>
+        <span style="font-size:11px;color:#e5e1e4">${t.n}</span>
+        <span style="font-size:9px;color:#ff6b35">${t.st==='inativo'?'Inativo':'Streak perdido'}</span>
+      </div>
+    </div>`).join('')}
+  </div>`:''}
+
+  ${team.length===0?`<div style="text-align:center;padding:40px 0">
+    <p style="font-size:40px;margin-bottom:10px">👥</p>
+    <p style="font-size:13px;color:#988d9e">Adicione membros da sua equipe para gerenciar.</p>
+  </div>`:team.map(t=>`<div class="an surface" style="padding:16px;margin-bottom:8px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="gp" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center"><span style="font-size:14px;font-weight:700;color:white">${t.n[0]}</span></div>
+        <div>
+          <p style="font-size:13px;font-weight:600;color:#e5e1e4">${t.n}</p>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="chip ${t.st==='ativo'?'st-active':t.st==='risco'?'st-risk':'st-inactive'}" style="font-size:8px;padding:2px 6px">${t.st}</span>
+            <span style="font-size:9px;color:#988d9e">Passo ${t.step}</span>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <p style="font-size:11px;font-weight:700;color:#edb1ff">${t.xp} XP</p>
+        <span style="font-size:9px;color:#ff6b35">${icf('local_fire_department','','style="font-size:11px;color:#ff6b35"')} ${t.streak}</span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px">
+      ${[{l:'VIP',v:t.vip},{l:'FIR',v:t.fir?'✓':'✗'},{l:'Streak',v:t.streak},{l:'Áudios',v:t.audios||0}].map(s=>`
+      <div style="background:rgba(53,52,55,.35);border-radius:8px;padding:6px;text-align:center">
+        <p style="font-size:8px;color:#988d9e">${s.l}</p>
+        <p style="font-size:11px;font-weight:700;color:#e5e1e4">${s.v}</p>
+      </div>`).join('')}
+    </div>
+    <div style="display:flex;gap:4px">
+      ${[{ic:'chat',l:'WhatsApp',c:'#50c878'},{ic:'event',l:'1x1',c:'#4169e1'},{ic:'notifications',l:'Lembrete',c:'#ff6b35'},{ic:'star',l:'Reconhecer',c:'#ffd700'}].map(a=>`
+      <button class="tap" onclick="toast('Ação: ${a.l} para ${t.n}')" style="flex:1;padding:8px 0;border-radius:8px;background:${a.c}0a;border:none;display:flex;flex-direction:column;align-items:center;gap:2px">
+        ${ic(a.ic,'','style="font-size:14px;color:'+a.c+'"')}
+        <span style="font-size:7px;color:${a.c}">${a.l}</span>
+      </button>`).join('')}
+    </div>
+  </div>`).join('')}
+
+  <!-- Network Tree -->
+  <button class="tap surface" onclick="nav('network')" style="width:100%;padding:14px;display:flex;align-items:center;justify-content:center;gap:8px;border:none;margin-top:6px">
+    ${icf('account_tree','','style="color:#edb1ff"')}
+    <span style="font-size:13px;font-weight:600;color:#e5e1e4">Árvore Genealógica da Rede</span>
+  </button>`;
+}
+
+window.addTeamMember=function(){
+  const name=$('#tm-name')?.value?.trim();
+  if(!name){toast('Digite o nome','error');return}
+  S.team.push({id:'t'+Date.now(),n:name,xp:0,step:0,streak:0,st:'ativo',vip:0,fir:false,audios:0});
+  S.user.team=S.team.length;
+  addFeed(name,'entrou na equipe','group_add');
+  toast(name+' adicionado!');
+  saveState();render();
+}
+
+// ── NETWORK TREE ──
+function renderNetwork(){
+  function renderNode(nd,depth=0){
+    const ml=depth*24;
+    const lc={Elite:'#edb1ff',Diamante:'#b9f2ff',Ouro:'#ffd700',Prata:'#c0c0c0',Master:'#808080'};
+    const c=lc[nd.lv||'Master']||'#808080';
+    return `<div style="margin-left:${ml}px">
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0">
+        ${depth>0?'<div style="width:14px;border-left:2px solid rgba(77,67,83,.25);border-bottom:2px solid rgba(77,67,83,.25);height:14px"></div>':''}
+        <div style="width:30px;height:30px;border-radius:50%;border:2px solid ${c};background:${c}14;display:flex;align-items:center;justify-content:center"><span style="font-size:10px;font-weight:700;color:${c}">${nd.n[0]}</span></div>
+        <div><p style="font-size:11px;font-weight:600;color:#e5e1e4">${nd.n}</p><span style="font-size:8px;font-weight:700;color:${c}">${nd.lv||'Master'}</span></div>
+      </div>
+      ${nd.ch&&nd.ch.length?`<div style="border-left:2px solid rgba(77,67,83,.12);margin-left:15px;padding-left:6px">${nd.ch.map(c2=>renderNode(c2,depth+1)).join('')}</div>`:''}
+    </div>`;
+  }
+
+  // Build tree from team
+  const tree={n:S.user.name||'Você',lv:S.user.lv,ch:S.team.map(t=>({n:t.n,lv:'Master',ch:[]}))};
+
+  return `
+  <button class="tap" onclick="back()" style="display:flex;align-items:center;gap:4px;color:#edb1ff;font-size:13px;background:none;border:none;margin-bottom:14px">${ic('arrow_back','','style="font-size:18px"')} Voltar</button>
+  <div class="an" style="margin-bottom:16px">
+    <p style="font-size:10px;text-transform:uppercase;letter-spacing:.2em;color:#edb1ff;margin-bottom:6px">Network Intelligence</p>
+    <h1 class="serif" style="font-size:26px;color:#e5e1e4;margin-bottom:12px">Árvore da Rede</h1>
+  </div>
+  <div class="surface" style="padding:18px;margin-bottom:14px">${tree.ch.length?renderNode(tree):'<p style="text-align:center;color:#988d9e;font-size:12px">Adicione membros da equipe para ver a árvore</p>'}</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    ${statCard('groups','Na rede',S.team.length+1,'#4169e1')}
+    ${statCard('trending_up','Nível',S.user.lv,CAREER.find(c=>c.lv===S.user.lv)?.c||'#808080')}
+  </div>`;
+}
+
+// ── FIR ──
+function renderFIR(){
+  const step=S.user.firStep||0;
+  return `
+  <button class="tap" onclick="back()" style="display:flex;align-items:center;gap:4px;color:#edb1ff;font-size:13px;background:none;border:none;margin-bottom:14px">${ic('arrow_back','','style="font-size:18px"')} Voltar</button>
+  <div class="an" style="margin-bottom:16px">
+    <p style="font-size:10px;text-transform:uppercase;letter-spacing:.2em;color:#edb1ff;margin-bottom:6px">Onboarding FIR</p>
+    <h1 class="serif" style="font-size:26px;color:#e5e1e4;margin-bottom:4px">Primeiros Passos</h1>
+    <p style="font-size:12px;color:#cfc2d5">Etapa ${step+1} de ${FIR_STEPS.length}</p>
+  </div>
+  <!-- Progress -->
+  <div style="display:flex;gap:3px;margin-bottom:16px">
+    ${FIR_STEPS.map((_,i)=>`<div style="flex:1;height:4px;border-radius:99px;${i<=step?'background:linear-gradient(135deg,#edb1ff,#6e218d)':'background:#353437'}"></div>`).join('')}
+  </div>
+  <!-- Current Step -->
+  <div class="an surface" style="padding:24px;text-align:center" key="${step}">
+    <div class="gp float" style="width:64px;height:64px;border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+      <span style="font-size:28px;font-weight:700;color:white">${step+1}</span>
+    </div>
+    <h3 class="serif" style="font-size:20px;color:#e5e1e4;margin-bottom:12px">${FIR_STEPS[step]}</h3>
+    <p style="font-size:12px;color:#cfc2d5;margin-bottom:20px">Complete esta etapa para ganhar XP e avançar!</p>
+    ${step===5?`<div style="margin-bottom:16px"><textarea id="fir-names" style="height:120px;font-size:12px" placeholder="Liste seus nomes aqui...&#10;1. &#10;2. &#10;3. "></textarea></div>`:''}
+    <div style="display:flex;gap:8px">
+      ${step>0?`<button class="tap surface-sm" onclick="S.user.firStep=${step-1};saveState();render()" style="flex:1;padding:12px;border:none;font-size:12px;color:#cfc2d5">Voltar</button>`:''}
+      <button class="tap gp" onclick="advanceFIR(${step})" style="flex:1;padding:12px;border:none;border-radius:12px;font-size:13px;font-weight:700;color:white">
+        ${step===FIR_STEPS.length-1?'Concluir! 🎉':'Próximo →'}
+      </button>
+    </div>
+  </div>
+  <p style="text-align:center;font-size:10px;color:#edb1ff;margin-top:12px">+${(step+1)*25} XP ao completar</p>`;
+}
+
+window.advanceFIR=function(step){
+  if(step<FIR_STEPS.length-1){
+    S.user.firStep=step+1;
+    addXP((step+1)*25,'FIR Etapa '+(step+1));
+  }else{
+    S.user.fir=true;
+    addXP(200,'FIR Completo! 🎉');
+    addNotif('FIR completo! Você está pronto para a jornada!','xp');
+    toast('FIR Completo! +200 XP 🎉','xp');
+    nav('dashboard');
+  }
+  saveState();render();
+}
+
+// ── PROFILE ──
+function renderProfile(){
+  const u=S.user;
+  return `
+  <button class="tap" onclick="back()" style="display:flex;align-items:center;gap:4px;color:#edb1ff;font-size:13px;background:none;border:none;margin-bottom:14px">${ic('arrow_back','','style="font-size:18px"')} Voltar</button>
+  <div class="an" style="text-align:center;margin-bottom:20px">
+    <div class="gp" style="width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px"><span style="font-size:28px;font-weight:700;color:white">${(u.name||'?')[0].toUpperCase()}</span></div>
+    <h2 class="serif" style="font-size:22px;color:#e5e1e4">${u.name||'Consultor'}</h2>
+    <p style="font-size:11px;color:#edb1ff;font-weight:700">${u.lv} · Passo ${u.step}</p>
+    <p style="font-size:10px;color:#cfc2d5;margin-top:4px">${u.xp} XP · Streak ${u.streak} dias · Liga ${u.league}</p>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+    ${statCard('shopping_cart','Vendas',u.sales,'#50c878')}
+    ${statCard('group','Equipe',u.team,'#4169e1')}
+    ${statCard('contacts','Contatos',S.leads.length,'#ff6b35')}
+    ${statCard('star','VIP',u.vip,'#ffd700')}
+    ${statCard('attach_money','PG',u.pg,'#edb1ff')}
+    ${statCard('account_balance_wallet','PP',u.pp,'#c0c0c0')}
+  </div>
+  <!-- Streak Freeze -->
+  <button class="tap surface" onclick="showModal('freeze')" style="width:100%;padding:14px;display:flex;align-items:center;justify-content:center;gap:8px;border:none;margin-bottom:14px">
+    ${icf('ac_unit','','style="color:#4169e1"')}
+    <span style="font-size:13px;color:#e5e1e4">Streak Freeze</span>
+    <span style="font-size:11px;color:#edb1ff;font-weight:700">(${u.freezes} disponíveis)</span>
+  </button>
+  <!-- Scout -->
+  <div class="surface" style="padding:18px;margin-bottom:14px">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">${icf('radar','','style="color:#edb1ff"')}<span style="font-size:12px;font-weight:700;color:#e5e1e4">Scout — 10 Eixos</span></div>
+    ${['Mentalidade','Disciplina','Comunicação','Liderança','Prospecção','Fechamento','Produto','Duplicação','Networking','Resiliência'].map((ax,i)=>{
+      const v=u.scout[i];
+      return `<div style="margin-bottom:6px">
+        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px"><span style="color:#cfc2d5">${ax}</span><span style="color:#edb1ff;font-weight:700">${v}/10</span></div>
+        <div class="bar-xs">${bar(v*10)}</div>
+      </div>`;}).join('')}
+  </div>
+  <!-- Settings -->
+  <div class="surface" style="padding:16px;margin-bottom:14px">
+    <p style="font-size:11px;font-weight:700;color:#e5e1e4;margin-bottom:12px">Configurações</p>
+    ${[{ic:'download',l:'Modo Offline',d:'Baixar áudios e conteúdo'},{ic:'notifications',l:'Notificações',d:'Timing personalizado'},{ic:'palette',l:'Aparência',d:'Tema Amethyst Elite'}].map(s=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0">
+      <div style="display:flex;align-items:center;gap:10px">
+        ${ic(s.ic,'','style="color:#edb1ff;font-size:18px"')}
+        <div><p style="font-size:13px;color:#e5e1e4">${s.l}</p><p style="font-size:9px;color:#988d9e">${s.d}</p></div>
+      </div>
+      <div class="tap" onclick="toast('Em breve!')" style="width:40px;height:20px;background:#6e218d;border-radius:99px;position:relative"><div style="position:absolute;right:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#edb1ff"></div></div>
+    </div>`).join('')}
+  </div>
+  <!-- Reset -->
+  <button class="tap" onclick="if(confirm('Resetar todos os dados?')){resetApp()}" style="width:100%;padding:12px;border:1px solid rgba(224,17,95,.2);border-radius:12px;background:none;color:#ffb4ab;font-size:12px;font-weight:600">
+    ${ic('delete','','style="font-size:16px"')} Resetar Dados
+  </button>`;
+}
+
+window.resetApp=async function(){
+  try{await window.storage.delete('lt_state')}catch(e){}
+  location.reload();
+}
+
+// ═══════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════
+function showModal(type,data){
+  const m=$('#modals');
+  let html='';
+
+  if(type==='notif'){
+    html=`<div class="backdrop" onclick="closeModal()">
+      <div class="bg"></div>
+      <div class="an glass amb-sh" style="position:absolute;top:56px;right:8px;width:320px;border-radius:16px;overflow:hidden;max-height:80vh" onclick="event.stopPropagation()">
+        <div style="padding:14px 16px;border-bottom:1px solid rgba(77,67,83,.15);display:flex;justify-content:space-between;align-items:center">
+          <span class="serif" style="font-size:16px;color:#e5e1e4">Notificações</span>
+          <button class="tap" onclick="S.notifications.forEach(n=>n.read=true);saveState();render();closeModal()" style="font-size:10px;color:#edb1ff;background:none;border:none">Marcar todas</button>
+        </div>
+        <div style="max-height:50vh;overflow-y:auto">
+          ${S.notifications.length===0?'<p style="padding:24px;text-align:center;font-size:12px;color:#988d9e">Nenhuma notificação</p>':
+          S.notifications.map(n=>`<div style="padding:12px 16px;display:flex;gap:10px;align-items:flex-start;${!n.read?'background:rgba(110,33,141,.04)':''}">
+            <div style="width:30px;height:30px;border-radius:50%;background:rgba(237,177,255,.08);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              ${icf(n.ic||'info','','style="color:#edb1ff;font-size:14px"')}
+            </div>
+            <div style="flex:1;min-width:0">
+              <p style="font-size:11px;color:${!n.read?'#e5e1e4':'#cfc2d5'};${!n.read?'font-weight:500':''}">${n.msg}</p>
+              <span style="font-size:9px;color:#988d9e">${n.time}</span>
+            </div>
+            ${!n.read?'<div style="width:6px;height:6px;border-radius:50%;background:#edb1ff;flex-shrink:0;margin-top:4px"></div>':''}
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  }else if(type==='freeze'){
+    html=`<div class="backdrop" onclick="closeModal()">
+      <div class="bg"></div>
+      <div class="panel an" onclick="event.stopPropagation()">
+        <div class="glass amb-sh" style="border-radius:20px;padding:24px">
+          <div style="text-align:center;margin-bottom:14px">${icf('ac_unit','','style="color:#4169e1;font-size:40px"')}</div>
+          <h3 class="serif" style="font-size:20px;text-align:center;color:#e5e1e4;margin-bottom:6px">Streak Freeze</h3>
+          <p style="font-size:12px;text-align:center;color:#cfc2d5;margin-bottom:14px">Proteja seu streak! Você tem <strong style="color:#edb1ff">${S.user.freezes}</strong> freezes.</p>
+          <div class="surface-sm" style="padding:14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:12px;color:#cfc2d5">Comprar 1 Freeze</span>
+            <span style="font-size:12px;font-weight:700;color:#edb1ff">200 XP</span>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="tap surface-sm" onclick="closeModal()" style="flex:1;padding:10px;border:none;font-size:12px;color:#cfc2d5">Cancelar</button>
+            <button class="tap gp" onclick="buyFreeze()" style="flex:1;padding:10px;border:none;border-radius:12px;font-size:12px;font-weight:700;color:white">Comprar</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }else if(type==='certificate'){
+    const u=S.user;
+    html=`<div class="backdrop" onclick="closeModal()">
+      <div class="bg"></div>
+      <div class="panel an" onclick="event.stopPropagation()">
+        <div class="glow-gd" style="background:linear-gradient(135deg,#1c1b1d,#0e0e10);border-radius:20px;padding:24px;border:1px solid rgba(255,215,0,.12)">
+          <div style="text-align:center;margin-bottom:20px">
+            <p style="font-size:9px;text-transform:uppercase;letter-spacing:.3em;color:#ffd700;margin-bottom:10px">Certificado de Conquista</p>
+            <div class="gg" style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">${icf('workspace_premium','','style="color:#0e0e10;font-size:32px"')}</div>
+            <h2 class="serif" style="font-size:22px;color:#e5e1e4;font-style:italic">LiderTraining</h2>
+            <p style="font-size:12px;color:#ffd700;margin-top:6px">Certifica que</p>
+            <p class="serif" style="font-size:20px;color:#e5e1e4;margin-top:8px">${u.name||'Consultor'}</p>
+            <p style="font-size:12px;color:#cfc2d5;margin-top:4px">alcançou o nível <strong style="color:${CAREER.find(c=>c.lv===u.lv)?.c||'#808080'}">${u.lv}</strong></p>
+            <p style="font-size:12px;color:#cfc2d5">com ${u.xp} XP e streak de ${u.streak} dias</p>
+            <div style="margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,215,0,.08)"><p style="font-size:9px;color:#988d9e">Abril 2026 · LiderTraining™</p></div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="tap surface-sm" onclick="toast('Compartilhar em breve!')" style="flex:1;padding:10px;border:none;font-size:11px;color:#cfc2d5;display:flex;align-items:center;justify-content:center;gap:4px">${ic('share','','style="font-size:14px"')} Compartilhar</button>
+            <button class="tap gg" onclick="toast('Download em breve!')" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:11px;font-weight:700;color:#0e0e10;display:flex;align-items:center;justify-content:center;gap:4px">${ic('download','','style="font-size:14px"')} Baixar</button>
+          </div>
+        </div>
+        <button class="tap" onclick="closeModal()" style="margin-top:12px;width:100%;text-align:center;font-size:11px;color:#988d9e;background:none;border:none">Fechar</button>
+      </div>
+    </div>`;
+  }else if(type==='energy'){
+    html=`<div class="backdrop" onclick="closeModal()">
+      <div class="bg"></div>
+      <div class="panel an" onclick="event.stopPropagation()">
+        <div class="glass amb-sh" style="border-radius:20px;padding:24px">
+          <div style="text-align:center;margin-bottom:14px">${icf('bolt','','style="color:#ffd700;font-size:40px"')}</div>
+          <h3 class="serif" style="font-size:20px;text-align:center;color:#e5e1e4;margin-bottom:6px">Sistema de Energia</h3>
+          <p style="font-size:12px;text-align:center;color:#cfc2d5;margin-bottom:14px">Você tem <strong style="color:#ffd700">${S.user.energy}</strong> de ${S.user.maxEnergy} energias. Cada ação no app consome 1 energia. Recarrega a cada hora.</p>
+          <div style="display:flex;justify-content:center;gap:6px;margin-bottom:14px">
+            ${Array.from({length:S.user.maxEnergy},(_,i)=>`<div style="width:28px;height:28px;border-radius:8px;${i<S.user.energy?'background:linear-gradient(135deg,#ffd700,#b8860b)':'background:#353437'};display:flex;align-items:center;justify-content:center">${icf('bolt','','style="font-size:14px;color:${i<S.user.energy?'#0e0e10':'#988d9e'}"')}</div>`).join('')}
+          </div>
+          <button class="tap gp" onclick="closeModal()" style="width:100%;padding:10px;border:none;border-radius:12px;font-size:12px;font-weight:700;color:white">Entendi</button>
+        </div>
+      </div>
+    </div>`;
+  }else if(type==='microlearning'){
+    html=`<div class="backdrop" onclick="closeModal()">
+      <div class="bg"></div>
+      <div class="panel an glow-am" onclick="event.stopPropagation()">
+        <div class="glass amb-sh" style="border-radius:20px;padding:24px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+            <div style="display:flex;align-items:center;gap:6px">${icf('auto_stories','','style="color:#edb1ff"')}<span style="font-size:9px;text-transform:uppercase;letter-spacing:.15em;color:#edb1ff;font-weight:700">Pílula Diária</span></div>
+            <button class="tap" onclick="closeModal()" style="background:none;border:none">${ic('close','','style="color:#988d9e"')}</button>
+          </div>
+          <h3 class="serif" style="font-size:18px;color:#e5e1e4;margin-bottom:10px">3 Leis do Fechamento</h3>
+          <p style="font-size:12px;color:#cfc2d5;line-height:1.5;margin-bottom:14px">Toda conversa de negócios deve usar: <strong style="color:#edb1ff">Pergunta</strong> + <strong style="color:#edb1ff">Perspectiva</strong> + <strong style="color:#edb1ff">Urgência</strong>. Domine essas 3 leis e seu fechamento será irresistível.</p>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:10px;color:#988d9e">⏱ 3 min</span>
+            <button class="tap gp" onclick="addXP(20,'Pílula diária');closeModal()" style="border:none;border-radius:10px;padding:8px 18px;font-size:11px;font-weight:700;color:white">Entendi! +20 XP</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }else if(type==='objecao'){
+    const o=OBJECOES[data];
+    if(!o)return;
+    html=`<div class="backdrop" onclick="closeModal()">
+      <div class="bg"></div>
+      <div class="panel an" onclick="event.stopPropagation()">
+        <div class="glass amb-sh" style="border-radius:20px;padding:24px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">${icf('psychology','','style="color:#edb1ff"')}<span style="font-size:12px;font-weight:700;color:#e5e1e4">Resposta à Objeção</span></div>
+          <div style="background:rgba(255,107,53,.06);border-radius:12px;padding:14px;margin-bottom:12px">
+            <p style="font-size:13px;font-weight:700;color:#ff6b35">"${o.o}"</p>
+          </div>
+          <div style="background:rgba(80,200,120,.06);border-radius:12px;padding:14px;margin-bottom:14px">
+            <p style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#50c878;margin-bottom:6px">Resposta Sugerida</p>
+            <p style="font-size:13px;color:#e5e1e4;line-height:1.5">${o.r}</p>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="tap" onclick="navigator.clipboard?.writeText('${o.r.replace(/'/g,"\\'")}');toast('Resposta copiada!')" style="flex:1;padding:10px;border-radius:10px;background:#2a2a2c;border:none;font-size:11px;color:#cfc2d5;display:flex;align-items:center;justify-content:center;gap:4px">${ic('content_copy','','style="font-size:14px"')} Copiar</button>
+            <button class="tap gp" onclick="addXP(10,'Objeção praticada');closeModal()" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:11px;font-weight:700;color:white">Praticado +10 XP</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }else if(type==='lead'){
+    const lead=S.leads.find(l=>l.id===data);
+    if(!lead)return;
+    const stCol={quente:'#ff6b35',morno:'#ffd700',frio:'#4169e1',fechado:'#50c878'};
+    html=`<div class="backdrop" onclick="closeModal()">
+      <div class="bg"></div>
+      <div class="panel an" onclick="event.stopPropagation()">
+        <div class="glass amb-sh" style="border-radius:20px;padding:24px">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+            <div style="width:48px;height:48px;border-radius:50%;background:${stCol[lead.status]}14;display:flex;align-items:center;justify-content:center"><span style="font-size:18px;font-weight:700;color:${stCol[lead.status]}">${lead.name[0]}</span></div>
+            <div><p style="font-size:16px;font-weight:700;color:#e5e1e4">${lead.name}</p><p style="font-size:11px;color:#cfc2d5">${lead.source} · Score ${lead.score}%</p></div>
+          </div>
+          ${lead.phone?`<p style="font-size:12px;color:#cfc2d5;margin-bottom:12px">${ic('phone','','style="font-size:14px"')} ${lead.phone}</p>`:''}
+          <div style="margin-bottom:14px">
+            <label style="font-size:10px;color:#988d9e;text-transform:uppercase;letter-spacing:.1em">Status</label>
+            <select id="lead-st-edit" style="margin-top:4px">
+              ${['frio','morno','quente','fechado'].map(s=>`<option value="${s}" ${lead.status===s?'selected':''}>${s[0].toUpperCase()+s.slice(1)}</option>`).join('')}
+            </select>
+          </div>
+          <div style="margin-bottom:14px">
+            <label style="font-size:10px;color:#988d9e;text-transform:uppercase;letter-spacing:.1em">Etapa</label>
+            <input id="lead-step-edit" type="text" value="${lead.step}" style="margin-top:4px">
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="tap" onclick="updateLead('${lead.id}');closeModal()" class="gp" style="flex:1;padding:10px;border:none;border-radius:10px;font-size:12px;font-weight:700;color:white;background:linear-gradient(135deg,#edb1ff,#6e218d)">Salvar</button>
+            <button class="tap" onclick="deleteLead('${lead.id}');closeModal()" style="flex:0;padding:10px 16px;border-radius:10px;background:rgba(224,17,95,.1);border:none;color:#ffb4ab;font-size:12px">${ic('delete','','style="font-size:16px"')}</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  m.innerHTML=html;
+}
+
+window.showModal=showModal;
+
+function closeModal(){$('#modals').innerHTML=''}
+window.closeModal=closeModal;
+
+window.buyFreeze=function(){
+  if(S.user.xp<200){toast('XP insuficiente!','error');closeModal();return}
+  S.user.xp-=200;
+  S.user.freezes++;
+  S.user.streakFreezeActive=true;
+  toast('Freeze comprado! (-200 XP)');
+  saveState();closeModal();render();
+}
+
+window.updateLead=function(id){
+  const lead=S.leads.find(l=>l.id===id);
+  if(!lead)return;
+  const newSt=$('#lead-st-edit')?.value;
+  const newStep=$('#lead-step-edit')?.value;
+  if(newSt)lead.status=newSt;
+  if(newStep)lead.step=newStep;
+  if(newSt==='fechado'&&lead.status!=='fechado'){
+    S.user.sales++;
+    addXP(50,'Venda fechada: '+lead.name);
+    addFeed(S.user.name,`fechou venda com ${lead.name}`,'shopping_cart');
+  }
+  toast('Lead atualizado!');
+  saveState();render();
+}
+
+window.deleteLead=function(id){
+  S.leads=S.leads.filter(l=>l.id!==id);
+  S.user.contacts=S.leads.length;
+  toast('Lead removido');
+  saveState();render();
+}
+
+// ═══════════════════════════════════════
+// RENDER ENGINE
+// ═══════════════════════════════════════
+function render(){
+  const pages={
+    dashboard:renderDashboard,
+    journey:renderJourney,
+    prospector:renderProspector,
+    academy:renderAcademy,
+    ranking:renderRanking,
+    arena:renderArena,
+    leader:renderLeader,
+    network:renderNetwork,
+    profile:renderProfile,
+    fir:renderFIR,
+  };
+
+  if(!S.user.onboarded){
+    $('#page').innerHTML=renderOnboarding();
+    $('#hdr').innerHTML='';
+    $('#bnav').innerHTML='';
+    return;
+  }
+
+  renderHeader();
+  renderNav();
+  $('#page').innerHTML=(pages[S.page]||pages.dashboard)();
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+async function init(){
+  await loadState();
+  checkStreak();
+  render();
+  // Show microlearning after 1.5s if onboarded
+  if(S.user.onboarded){
+    setTimeout(()=>showModal('microlearning'),1500);
+  }
+  // Timer tick for flash missions
+  setInterval(()=>{
+    S.missions.forEach(m=>{
+      if(m.type==='flash'&&m.timer>0)m.timer-=60;
+    });
+  },60000);
+}
+
+init();
+</script>
+</body>
+</html>
