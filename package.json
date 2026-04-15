@@ -13,6 +13,7 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
     "setup": "bash scripts/setup-supabase.sh",
     "setup:online": "bash scripts/setup-online.sh",
+    "smoke": "bash scripts/smoke-test.sh",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "supabase:status": "supabase status",
