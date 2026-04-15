@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /$
+Allow: /login
+Disallow: /dashboard
+Disallow: /journey
+Disallow: /prospector
+Disallow: /academy
+Disallow: /ranking
+Disallow: /arena
+Disallow: /leader
+Disallow: /network
+Disallow: /profile
+Disallow: /fir
+Disallow: /onboarding
+Disallow: /signup/
