@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 # Cria um projeto Supabase hospedado, aplica as 4 migrations, gera tipos
-# e popula .env.local. Roda no seu laptop \u2014 n\u00e3o no sandbox do Claude.
+# e popula .env.local. Roda na sua m\u00e1quina (n\u00e3o no sandbox).
 #
 # Uso:
-#   export SUPABASE_ACCESS_TOKEN=sbp_xxx
-#   bash scripts/setup-online.sh
+#   pnpm setup:online
 #
-# Ou interativo:
-#   bash scripts/setup-online.sh
+# Ou com token via env:
+#   SUPABASE_ACCESS_TOKEN=sbp_xxx bash scripts/setup-online.sh
+#
+# Depend\u00eancias:
+#   - curl
+#   - node (j\u00e1 instalado se voc\u00ea usa pnpm/npm; usado para parsear JSON)
 
-set -e
+set -euo pipefail
 
 BLUE="\033[1;34m"
 GREEN="\033[1;32m"
@@ -19,10 +22,43 @@ NC="\033[0m"
 
 API="https://api.supabase.com/v1"
 
-# -----------------------------------------------------------
-# 1) Token
-# -----------------------------------------------------------
-if [[ -z "$SUPABASE_ACCESS_TOKEN" ]]; then
+# ---------- helpers ----------
+json_get() {
+  # json_get '.path.to.value' <<< "$json"
+  node -e "
+    let data='';
+    process.stdin.on('data', d => data += d);
+    process.stdin.on('end', () => {
+      try {
+        const j = JSON.parse(data);
+        const path = '$1'.replace(/^\./, '').split('.').filter(Boolean);
+        let cur = j;
+        for (const p of path) cur = cur?.[p];
+        if (Array.isArray(cur) || typeof cur === 'object') {
+          console.log(JSON.stringify(cur));
+        } else if (cur !== undefined) {
+          console.log(cur);
+        }
+      } catch (e) {}
+    });
+  "
+}
+
+json_escape() {
+  node -e "
+    let data='';
+    process.stdin.on('data', d => data += d);
+    process.stdin.on('end', () => process.stdout.write(JSON.stringify(data)));
+  "
+}
+
+die() {
+  echo -e "${RED}$1${NC}" >&2
+  exit 1
+}
+
+# ---------- 1) token ----------
+if [[ -z "${SUPABASE_ACCESS_TOKEN:-}" ]]; then
   echo -e "${YELLOW}Gere um Personal Access Token em:${NC}"
   echo "  https://supabase.com/dashboard/account/tokens"
   echo ""
@@ -30,124 +66,151 @@ if [[ -z "$SUPABASE_ACCESS_TOKEN" ]]; then
   echo ""
 fi
 
-if [[ ! "$SUPABASE_ACCESS_TOKEN" =~ ^sbp_ ]]; then
-  echo -e "${RED}Token inv\u00e1lido (deve come\u00e7ar com sbp_).${NC}"
-  exit 1
-fi
+[[ "$SUPABASE_ACCESS_TOKEN" =~ ^sbp_ ]] || die "Token inv\u00e1lido (deve come\u00e7ar com sbp_)."
 
-AUTH="Authorization: Bearer $SUPABASE_ACCESS_TOKEN"
+AUTH_HEADER="Authorization: Bearer $SUPABASE_ACCESS_TOKEN"
 
-# -----------------------------------------------------------
-# 2) Dependencies
-# -----------------------------------------------------------
-for cmd in curl jq; do
-  if ! command -v "$cmd" &> /dev/null; then
-    echo -e "${RED}Precisa de '$cmd' instalado.${NC}"
-    exit 1
-  fi
-done
+# ---------- 2) deps ----------
+command -v curl &> /dev/null || die "curl n\u00e3o encontrado."
+command -v node &> /dev/null || die "node n\u00e3o encontrado (necess\u00e1rio para parse JSON)."
 
-# -----------------------------------------------------------
-# 3) Escolher organiza\u00e7\u00e3o
-# -----------------------------------------------------------
+# ---------- 3) listar orgs ----------
 echo -e "${BLUE}Listando organizações\u2026${NC}"
-ORGS=$(curl -sf -H "$AUTH" "$API/organizations")
-if [[ -z "$ORGS" ]]; then
-  echo -e "${RED}Falha ao listar orgs. Token v\u00e1lido?${NC}"
-  exit 1
+ORGS=$(curl -sf -H "$AUTH_HEADER" "$API/organizations") || die "Falha ao listar orgs. Token v\u00e1lido?"
+
+node -e "
+  const orgs = $ORGS;
+  if (!orgs.length) { console.error('Nenhuma org encontrada.'); process.exit(1); }
+  orgs.forEach((o, i) => console.log(\`[\${i+1}] \${o.id.padEnd(24)} \${o.name}\`));
+"
+
+read -rp "N\u00famero da org (ou cole o ID): " ORG_CHOICE
+
+# Se for n\u00famero, converter para ID
+if [[ "$ORG_CHOICE" =~ ^[0-9]+$ ]]; then
+  ORG_ID=$(node -e "
+    const orgs = $ORGS;
+    const idx = parseInt('$ORG_CHOICE') - 1;
+    if (!orgs[idx]) process.exit(1);
+    console.log(orgs[idx].id);
+  ") || die "\u00cdndice inv\u00e1lido."
+else
+  ORG_ID="$ORG_CHOICE"
 fi
 
-echo "$ORGS" | jq -r '.[] | "\(.id)  \(.name)"'
-echo ""
-read -rp "Cole o ID da organiza\u00e7\u00e3o: " ORG_ID
+echo -e "${GREEN}\u2713 Org:${NC} $ORG_ID"
 
-# -----------------------------------------------------------
-# 4) Criar projeto
-# -----------------------------------------------------------
+# ---------- 4) criar projeto ----------
 read -rp "Nome do projeto [lidertraining]: " PROJECT_NAME
 PROJECT_NAME=${PROJECT_NAME:-lidertraining}
 
 read -rp "Regi\u00e3o [sa-east-1]: " REGION
 REGION=${REGION:-sa-east-1}
 
-read -rsp "Senha do Postgres (m\u00edn. 8 chars, sem @, /, \", '): " DB_PASS
+# Senha do DB aleat\u00f3ria por padr\u00e3o (mais seguro que pedir ao user)
+DB_PASS=$(node -e "console.log(require('crypto').randomBytes(18).toString('base64').replace(/[+\/=@'\"]/g, 'x'))")
+echo -e "${YELLOW}Senha do Postgres gerada automaticamente.${NC}"
+echo -e "${YELLOW}Guarde: ${GREEN}$DB_PASS${NC}"
 echo ""
 
-echo -e "${BLUE}Criando projeto\u2026 (pode levar 2-4 min)${NC}"
-CREATE_RES=$(curl -sf -H "$AUTH" -H "Content-Type: application/json" \
-  -d "{
-    \"name\": \"$PROJECT_NAME\",
-    \"organization_id\": \"$ORG_ID\",
-    \"region\": \"$REGION\",
-    \"db_pass\": \"$DB_PASS\",
-    \"plan\": \"free\"
-  }" \
-  "$API/projects")
+echo -e "${BLUE}Criando projeto\u2026${NC}"
+CREATE_BODY=$(cat <<EOF
+{
+  "name": "$PROJECT_NAME",
+  "organization_id": "$ORG_ID",
+  "region": "$REGION",
+  "db_pass": "$DB_PASS",
+  "plan": "free"
+}
+EOF
+)
 
-PROJECT_REF=$(echo "$CREATE_RES" | jq -r '.id')
-if [[ -z "$PROJECT_REF" || "$PROJECT_REF" == "null" ]]; then
-  echo -e "${RED}Falha ao criar projeto:${NC}"
-  echo "$CREATE_RES"
+CREATE_RES=$(curl -s -w "\n%{http_code}" -H "$AUTH_HEADER" -H "Content-Type: application/json" \
+  -d "$CREATE_BODY" "$API/projects")
+
+HTTP_CODE=$(echo "$CREATE_RES" | tail -n1)
+BODY=$(echo "$CREATE_RES" | sed '$d')
+
+if [[ "$HTTP_CODE" != "201" && "$HTTP_CODE" != "200" ]]; then
+  echo -e "${RED}Falha (HTTP $HTTP_CODE):${NC}"
+  echo "$BODY"
   exit 1
 fi
+
+PROJECT_REF=$(echo "$BODY" | json_get ".id")
+[[ -n "$PROJECT_REF" ]] || die "Resposta sem 'id'."
 
 echo -e "${GREEN}\u2713 Projeto criado: $PROJECT_REF${NC}"
 
-# -----------------------------------------------------------
-# 5) Aguardar ficar ACTIVE_HEALTHY
-# -----------------------------------------------------------
-echo -e "${BLUE}Aguardando provisionamento\u2026${NC}"
-for i in {1..30}; do
-  STATUS=$(curl -sf -H "$AUTH" "$API/projects/$PROJECT_REF" | jq -r '.status')
-  echo "  [$i/30] $STATUS"
-  if [[ "$STATUS" == "ACTIVE_HEALTHY" ]]; then break; fi
+# ---------- 5) aguardar ACTIVE_HEALTHY ----------
+echo -e "${BLUE}Aguardando provisionamento (2-4 min)\u2026${NC}"
+for i in {1..36}; do
+  STATUS_RES=$(curl -sf -H "$AUTH_HEADER" "$API/projects/$PROJECT_REF" || echo '{}')
+  STATUS=$(echo "$STATUS_RES" | json_get ".status")
+  printf "  [%2d/36] %s\n" "$i" "${STATUS:-?}"
+  if [[ "$STATUS" == "ACTIVE_HEALTHY" ]]; then
+    break
+  fi
   sleep 10
 done
 
-if [[ "$STATUS" != "ACTIVE_HEALTHY" ]]; then
-  echo -e "${RED}Projeto n\u00e3o ficou saud\u00e1vel em 5min. Tente de novo em breve.${NC}"
-  exit 1
-fi
+[[ "$STATUS" == "ACTIVE_HEALTHY" ]] || die "Projeto n\u00e3o ficou saud\u00e1vel em 6min. Cheque o dashboard."
 
-# -----------------------------------------------------------
-# 6) Buscar anon key e URL
-# -----------------------------------------------------------
-KEYS=$(curl -sf -H "$AUTH" "$API/projects/$PROJECT_REF/api-keys")
-ANON_KEY=$(echo "$KEYS" | jq -r '.[] | select(.name=="anon") | .api_key')
+# ---------- 6) pegar anon key ----------
+KEYS=$(curl -sf -H "$AUTH_HEADER" "$API/projects/$PROJECT_REF/api-keys") || die "Falha ao buscar api-keys."
+
+ANON_KEY=$(node -e "
+  const keys = $KEYS;
+  const k = keys.find(x => x.name === 'anon');
+  if (!k) process.exit(1);
+  console.log(k.api_key);
+") || die "Anon key n\u00e3o encontrada."
+
 PROJECT_URL="https://${PROJECT_REF}.supabase.co"
 
-# -----------------------------------------------------------
-# 7) Aplicar migrations via /database/query
-# -----------------------------------------------------------
+# ---------- 7) aplicar migrations ----------
 echo -e "${BLUE}Aplicando migrations\u2026${NC}"
 for MIG in supabase/migrations/*.sql; do
-  echo "  \u2192 $(basename "$MIG")"
-  SQL=$(jq -Rs . < "$MIG")
-  RES=$(curl -s -H "$AUTH" -H "Content-Type: application/json" \
-    -d "{\"query\": $SQL}" \
+  [[ -f "$MIG" ]] || continue
+  NAME=$(basename "$MIG")
+  echo "  \u2192 $NAME"
+
+  SQL_JSON=$(json_escape < "$MIG")
+  RES=$(curl -s -w "\n%{http_code}" -H "$AUTH_HEADER" -H "Content-Type: application/json" \
+    -d "{\"query\": $SQL_JSON}" \
     "$API/projects/$PROJECT_REF/database/query")
-  if echo "$RES" | jq -e '.message' &>/dev/null; then
-    echo -e "${RED}  Erro:${NC}"
-    echo "$RES" | jq
+
+  CODE=$(echo "$RES" | tail -n1)
+  RES_BODY=$(echo "$RES" | sed '$d')
+
+  if [[ "$CODE" != "200" && "$CODE" != "201" ]]; then
+    echo -e "${RED}  Erro (HTTP $CODE):${NC}"
+    echo "$RES_BODY"
     exit 1
   fi
 done
 echo -e "${GREEN}\u2713 Migrations aplicadas${NC}"
 
-# Seed opcional (mesmo arquivo roda em prod com cautela; pula se preferir)
+# ---------- 8) seed opcional ----------
 read -rp "Aplicar supabase/seed.sql (cria user root + invite DEMO2026)? [y/N] " RUN_SEED
 if [[ "$RUN_SEED" =~ ^[yY] ]]; then
-  SQL=$(jq -Rs . < supabase/seed.sql)
-  curl -s -H "$AUTH" -H "Content-Type: application/json" \
-    -d "{\"query\": $SQL}" \
-    "$API/projects/$PROJECT_REF/database/query" > /dev/null
-  echo -e "${GREEN}\u2713 Seed aplicado${NC}"
+  echo -e "${BLUE}Aplicando seed\u2026${NC}"
+  SQL_JSON=$(json_escape < supabase/seed.sql)
+  curl -sf -H "$AUTH_HEADER" -H "Content-Type: application/json" \
+    -d "{\"query\": $SQL_JSON}" \
+    "$API/projects/$PROJECT_REF/database/query" > /dev/null \
+    && echo -e "${GREEN}\u2713 Seed aplicado${NC}" \
+    || echo -e "${YELLOW}Seed falhou (pode j\u00e1 existir). Continuando.${NC}"
 fi
 
-# -----------------------------------------------------------
-# 8) Popular .env.local
-# -----------------------------------------------------------
+# ---------- 9) popular .env.local ----------
+if [[ -f .env.local ]]; then
+  cp .env.local .env.local.bak
+  echo -e "${YELLOW}.env.local existente copiado para .env.local.bak${NC}"
+fi
+
 cat > .env.local <<EOF
+# Gerado automaticamente por scripts/setup-online.sh em $(date)
 VITE_SUPABASE_URL=$PROJECT_URL
 VITE_SUPABASE_ANON_KEY=$ANON_KEY
 VITE_APP_URL=http://localhost:5173
@@ -156,33 +219,35 @@ EOF
 
 echo -e "${GREEN}\u2713 .env.local populado${NC}"
 
-# -----------------------------------------------------------
-# 9) Gerar tipos TS (requer Supabase CLI logada; opcional)
-# -----------------------------------------------------------
+# ---------- 10) gerar tipos (se CLI dispon\u00edvel) ----------
 if command -v supabase &> /dev/null; then
   echo -e "${BLUE}Gerando src/types/database.ts\u2026${NC}"
   SUPABASE_ACCESS_TOKEN="$SUPABASE_ACCESS_TOKEN" \
-    supabase gen types typescript --project-id "$PROJECT_REF" > src/types/database.ts
-  echo -e "${GREEN}\u2713 Tipos gerados. Agora ative createClient<Database> em src/lib/supabase.ts${NC}"
+    supabase gen types typescript --project-id "$PROJECT_REF" \
+    > src/types/database.ts 2>/dev/null \
+    && echo -e "${GREEN}\u2713 Tipos gerados${NC}" \
+    || echo -e "${YELLOW}Geracao de tipos falhou. Rode manualmente:${NC} npx supabase gen types typescript --project-id $PROJECT_REF > src/types/database.ts"
 else
-  echo -e "${YELLOW}Supabase CLI n\u00e3o encontrada. Para gerar tipos:${NC}"
+  echo -e "${YELLOW}Supabase CLI n\u00e3o encontrada. Para gerar tipos depois:${NC}"
   echo "  npx supabase gen types typescript --project-id $PROJECT_REF > src/types/database.ts"
 fi
 
-# -----------------------------------------------------------
-# Fim
-# -----------------------------------------------------------
-echo ""
-echo -e "${GREEN}============================================${NC}"
-echo -e "${GREEN}\u2713 Setup online completo!${NC}"
-echo -e "${GREEN}============================================${NC}"
-echo ""
-echo "Project ref:     $PROJECT_REF"
-echo "Dashboard:       https://supabase.com/dashboard/project/$PROJECT_REF"
-echo "URL:             $PROJECT_URL"
-echo ""
-echo -e "${YELLOW}Pr\u00f3ximos passos:${NC}"
-echo "  1. Rode: pnpm dev"
-echo "  2. Acesse: http://localhost:5173/signup/DEMO2026"
-echo "  3. (seguran\u00e7a) Revogue o token:"
-echo "     https://supabase.com/dashboard/account/tokens"
+# ---------- fim ----------
+cat <<EOF
+
+${GREEN}============================================${NC}
+${GREEN}\u2713 Setup online completo!${NC}
+${GREEN}============================================${NC}
+
+Project ref:     $PROJECT_REF
+Dashboard:       https://supabase.com/dashboard/project/$PROJECT_REF
+URL:             $PROJECT_URL
+Senha do DB:     $DB_PASS  (anote se for usar via psql)
+
+${YELLOW}Pr\u00f3ximos passos:${NC}
+  1. pnpm dev
+  2. http://localhost:5173/signup/DEMO2026 (se aplicou seed)
+  3. (seguran\u00e7a) Revogue o token que voc\u00ea usou:
+     https://supabase.com/dashboard/account/tokens
+
+EOF
