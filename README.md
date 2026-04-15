@@ -15,21 +15,51 @@ Plataforma gamificada de treinamento para consultores de marketing de rede.
 
 ## Setup
 
+**Requisitos:** Node 20+, pnpm, Docker Desktop rodando, Supabase CLI.
+Instale a CLI via [supabase.com/docs/guides/cli](https://supabase.com/docs/guides/cli/getting-started) ou `brew install supabase/tap/supabase`.
+
 ```bash
-# Dependências
+# 1) Dependências
 pnpm install
 
-# Env
+# 2) Sobe Supabase local + aplica migrations + gera tipos
+pnpm setup
+
+# 3) Copie as credenciais exibidas para .env.local
 cp .env.example .env.local
-# edite VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY
+# Substitua VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY pelos valores
+# que o comando acima imprimiu.
 
-# Supabase local (opcional)
-pnpm supabase:start
-pnpm supabase:types  # gera src/types/database.ts
+# 4) (Opcional) Ative tipagem forte no client:
+#    Em src/lib/supabase.ts, descomente o import de Database
+#    e troque createClient() por createClient<Database>().
 
-# Dev server
+# 5) Dev server
 pnpm dev
+# → http://localhost:5173
+# → Supabase Studio: http://localhost:54323
 ```
+
+Para testar o fluxo de cadastro por convite, use o código **`DEMO2026`**
+(seedado automaticamente):
+
+```
+http://localhost:5173/signup/DEMO2026
+```
+
+### Comandos úteis
+
+| Script | O que faz |
+|---|---|
+| `pnpm dev` | Vite dev server com HMR |
+| `pnpm build` | Build de produção (tsc + vite) |
+| `pnpm typecheck` | Roda `tsc --noEmit` |
+| `pnpm lint` | ESLint |
+| `pnpm setup` | Supabase: start + reset + gen types |
+| `pnpm supabase:status` | Mostra URL/keys do Supabase local |
+| `pnpm supabase:reset` | Recria o banco e reaplica migrations |
+| `pnpm supabase:types` | Regera `src/types/database.ts` |
+| `pnpm supabase:stop` | Para os containers |
 
 ## Estrutura
 
