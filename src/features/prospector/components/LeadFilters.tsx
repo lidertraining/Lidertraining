@@ -1,4 +1,4 @@
-import type { Lead, LeadStatus } from '@types/domain';
+import type { Lead, LeadStatus } from '@ltypes/domain';
 import { cn } from '@lib/cn';
 
 export type FilterValue = 'todos' | LeadStatus;

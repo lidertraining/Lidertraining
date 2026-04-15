@@ -12,7 +12,7 @@ import { TasksTab } from '../components/TasksTab';
 import { PracticeTab } from '../components/PracticeTab';
 import { AgentsTab } from '../components/AgentsTab';
 import { completeJourneyStep } from '../api/journey';
-import { useToast } from '@shared/providers/ToastProvider';
+import { useToast } from '@shared/hooks/useToast';
 import { ROUTES } from '@config/routes';
 
 type TabId = 'aprender' | 'tarefas' | 'praticar' | 'agentes';

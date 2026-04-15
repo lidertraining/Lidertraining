@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@lib/supabase';
-import { useAuth } from '@shared/providers/AuthProvider';
+import { useAuth } from '@shared/hooks/useAuth';
 import { listFeed } from '../api/feed';
-import type { FeedEvent } from '@types/domain';
+import type { FeedEvent } from '@ltypes/domain';
 
 /** Feed de eventos (self + downline via RLS). */
 export function useFeed(limit = 20) {

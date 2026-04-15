@@ -8,7 +8,7 @@ import { FIR_STEPS } from '@content/firSteps';
 import { ROUTES } from '@config/routes';
 import { useProfile } from '@shared/hooks/useProfile';
 import { advanceFIR } from '../api/advanceFIR';
-import { useToast } from '@shared/providers/ToastProvider';
+import { useToast } from '@shared/hooks/useToast';
 import { cn } from '@lib/cn';
 
 export function FIRPage() {

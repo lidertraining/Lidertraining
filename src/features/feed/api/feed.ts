@@ -1,5 +1,5 @@
 import { supabase } from '@lib/supabase';
-import type { FeedEvent } from '@types/domain';
+import type { FeedEvent } from '@ltypes/domain';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function mapFeedEvent(row: any): FeedEvent {

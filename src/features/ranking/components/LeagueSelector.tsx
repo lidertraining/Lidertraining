@@ -1,4 +1,4 @@
-import type { League } from '@types/domain';
+import type { League } from '@ltypes/domain';
 import { LEAGUES } from '@content/leagues';
 import { Icon } from '@shared/ui/Icon';
 import { cn } from '@lib/cn';

@@ -26,7 +26,7 @@ export function Header() {
             <span>{profile?.energy ?? 0}</span>
           </div>
           <div className="flex items-center gap-1 text-xs font-bold">
-            <span aria-hidden>\u{1F525}</span>
+            <span aria-hidden>🔥</span>
             <span className="streak-grad">{profile?.streak ?? 0}</span>
           </div>
         </div>

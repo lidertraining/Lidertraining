@@ -1,4 +1,4 @@
-import type { Profile } from '@types/domain';
+import type { Profile } from '@ltypes/domain';
 import { Card } from '@shared/ui/Card';
 import { ProgressBar } from '@shared/ui/ProgressBar';
 import { Icon } from '@shared/ui/Icon';

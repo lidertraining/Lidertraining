@@ -6,6 +6,14 @@ node_modules
 dist
 dist-ssr
 *.local
+*.tsbuildinfo
+
+# TypeScript output artifacts dos configs (tsc -b emite .d.ts / .js)
+tailwind.config.d.ts
+tailwind.config.js
+vite.config.d.ts
+vite.config.js
+postcss.config.d.ts
 
 # Env
 .env

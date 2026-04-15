@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { League } from '@types/domain';
+import type { League } from '@ltypes/domain';
 import { useProfile } from '@shared/hooks/useProfile';
 import { useLeaderboard } from '../hooks/useLeaderboard';
 import { LeagueSelector } from '../components/LeagueSelector';

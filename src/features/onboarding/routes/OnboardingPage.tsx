@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@lib/supabase';
-import { useAuth } from '@shared/providers/AuthProvider';
+import { useAuth } from '@shared/hooks/useAuth';
 import { useProfile } from '@shared/hooks/useProfile';
 import { Button } from '@shared/ui/Button';
 import { Input } from '@shared/ui/Input';
-import { useToast } from '@shared/providers/ToastProvider';
+import { useToast } from '@shared/hooks/useToast';
 import { useQueryClient } from '@tanstack/react-query';
 import { ROUTES } from '@config/routes';
 
@@ -40,7 +40,7 @@ export function OnboardingPage() {
   return (
     <div className="mx-auto flex min-h-dvh max-w-page flex-col items-center justify-center gap-8 bg-sf-void px-6 py-12">
       <div className="text-center">
-        <div className="serif mb-2 text-5xl">\u{1F48E}</div>
+        <div className="serif mb-2 text-5xl">💎</div>
         <h1 className="serif text-3xl font-bold">Bem-vindo!</h1>
         <p className="mt-2 max-w-xs text-sm text-on-3">
           Antes de come\u00e7ar, como voc\u00ea gostaria de ser chamado?

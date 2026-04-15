@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '@shared/providers/AuthProvider';
+import { useAuth } from '@shared/hooks/useAuth';
 import { supabase } from '@lib/supabase';
-import type { Profile } from '@types/domain';
+import type { Profile } from '@ltypes/domain';
 
 /** Query do profile do usu\u00e1rio autenticado. */
 export function useProfile() {

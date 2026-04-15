@@ -1,4 +1,4 @@
-import type { LeagueDef } from '@types/content';
+import type { LeagueDef } from '@ltypes/content';
 
 export const LEAGUES: LeagueDef[] = [
   { name: 'Bronze', color: 'or', icon: 'military_tech' },

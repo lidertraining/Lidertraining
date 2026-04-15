@@ -10,7 +10,7 @@ export default defineConfig({
       '@features': path.resolve(__dirname, 'src/features'),
       '@shared': path.resolve(__dirname, 'src/shared'),
       '@lib': path.resolve(__dirname, 'src/lib'),
-      '@types': path.resolve(__dirname, 'src/types'),
+      '@ltypes': path.resolve(__dirname, 'src/types'),
       '@content': path.resolve(__dirname, 'src/content'),
       '@config': path.resolve(__dirname, 'src/config'),
       '@styles': path.resolve(__dirname, 'src/styles'),
@@ -23,5 +23,16 @@ export default defineConfig({
   build: {
     target: 'es2022',
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'query-vendor': ['@tanstack/react-query', '@tanstack/react-query-devtools'],
+          'supabase-vendor': ['@supabase/supabase-js'],
+          'motion-vendor': ['framer-motion'],
+          'form-vendor': ['react-hook-form', '@hookform/resolvers', 'zod'],
+        },
+      },
+    },
   },
 });

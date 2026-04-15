@@ -6,11 +6,11 @@ import { cn } from '@lib/cn';
 
 interface NetworkNodeProps {
   member: DownlineMember;
-  children?: DownlineMember[];
+  nested?: DownlineMember[];
   allMembers: DownlineMember[];
 }
 
-export function NetworkNode({ member, children = [], allMembers }: NetworkNodeProps) {
+export function NetworkNode({ member, nested = [], allMembers }: NetworkNodeProps) {
   return (
     <div className="flex flex-col">
       <div
@@ -35,15 +35,15 @@ export function NetworkNode({ member, children = [], allMembers }: NetworkNodePr
         </div>
       </div>
 
-      {children.length > 0 && (
+      {nested.length > 0 && (
         <div className="ml-5 mt-1.5 flex flex-col gap-1.5 border-l-2 border-am-darker/30 pl-3">
-          {children.map((child) => {
+          {nested.map((child) => {
             const grandchildren = allMembers.filter((m) => m.uplineId === child.id);
             return (
               <NetworkNode
                 key={child.id}
                 member={child}
-                children={grandchildren}
+                nested={grandchildren}
                 allMembers={allMembers}
               />
             );

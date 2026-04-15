@@ -1,4 +1,4 @@
-import type { FIRStep } from '@types/content';
+import type { FIRStep } from '@ltypes/content';
 
 /** First Introduction Reality \u2014 8 etapas de onboarding. */
 export const FIR_STEPS: FIRStep[] = [

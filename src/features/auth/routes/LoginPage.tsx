@@ -6,7 +6,7 @@ import { LoginSchema, type LoginInput } from '../schemas';
 import { login } from '../api/login';
 import { Button } from '@shared/ui/Button';
 import { Input } from '@shared/ui/Input';
-import { useToast } from '@shared/providers/ToastProvider';
+import { useToast } from '@shared/hooks/useToast';
 import { ROUTES } from '@config/routes';
 
 export function LoginPage() {

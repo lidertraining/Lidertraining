@@ -1,5 +1,5 @@
 import { supabase } from '@lib/supabase';
-import type { Lead, LeadStatus } from '@types/domain';
+import type { Lead, LeadStatus } from '@ltypes/domain';
 import type { CreateLeadInput, UpdateLeadInput } from '../schemas';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

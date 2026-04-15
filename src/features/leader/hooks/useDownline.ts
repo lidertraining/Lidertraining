@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '@shared/providers/AuthProvider';
+import { useAuth } from '@shared/hooks/useAuth';
 import { getDownline } from '../api/downline';
 
 export function useDownline(depth = 6) {

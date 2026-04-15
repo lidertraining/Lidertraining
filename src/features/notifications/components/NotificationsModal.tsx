@@ -3,12 +3,12 @@ import { Modal } from '@shared/ui/Modal';
 import { Icon } from '@shared/ui/Icon';
 import { useNotifications } from '../hooks/useNotifications';
 import { markAllRead } from '../api/notifications';
-import { useAuth } from '@shared/providers/AuthProvider';
+import { useAuth } from '@shared/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@lib/cn';
 import { relativeTime } from '@lib/relativeTime';
 import { EmptyState } from '@shared/ui/EmptyState';
-import type { NotifType } from '@types/domain';
+import type { NotifType } from '@ltypes/domain';
 
 interface NotificationsModalProps {
   open: boolean;

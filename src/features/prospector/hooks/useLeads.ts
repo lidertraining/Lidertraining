@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@shared/providers/AuthProvider';
+import { useAuth } from '@shared/hooks/useAuth';
 import { createLead, deleteLead, listLeads, updateLead } from '../api/leads';
 import type { CreateLeadInput, UpdateLeadInput } from '../schemas';
 import { useAddXP } from '@features/gamification/hooks/useAddXP';
-import { useToast } from '@shared/providers/ToastProvider';
+import { useToast } from '@shared/hooks/useToast';
 
 export function useLeads() {
   const { session } = useAuth();

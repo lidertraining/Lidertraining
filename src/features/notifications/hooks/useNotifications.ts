@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@lib/supabase';
-import { useAuth } from '@shared/providers/AuthProvider';
+import { useAuth } from '@shared/hooks/useAuth';
 import { listNotifications } from '../api/notifications';
-import type { Notification } from '@types/domain';
+import type { Notification } from '@ltypes/domain';
 
 /** Query + assinatura realtime das notificações do usu\u00e1rio. */
 export function useNotifications() {

@@ -1,5 +1,5 @@
 import { supabase } from '@lib/supabase';
-import type { Notification, NotifType } from '@types/domain';
+import type { Notification, NotifType } from '@ltypes/domain';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function mapNotification(row: any): Notification {

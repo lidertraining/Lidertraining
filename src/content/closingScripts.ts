@@ -1,4 +1,4 @@
-import type { ClosingScript } from '@types/content';
+import type { ClosingScript } from '@ltypes/content';
 
 export const CLOSING_SCRIPTS: ClosingScript[] = [
   {

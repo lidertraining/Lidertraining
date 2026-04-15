@@ -15,7 +15,7 @@ export function HeroGreeting({ name }: HeroGreetingProps) {
   return (
     <div className="animate-fade-up">
       <div className="text-sm text-on-3">{greeting},</div>
-      <h1 className="serif text-3xl font-bold text-on">{name} \u{1F48E}</h1>
+      <h1 className="serif text-3xl font-bold text-on">{name} 💎</h1>
     </div>
   );
 }

@@ -1,10 +1,10 @@
-import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@lib/cn';
 import { Icon } from '@shared/ui/Icon';
 
-type ToastType = 'success' | 'error' | 'info' | 'xp';
+export type ToastType = 'success' | 'error' | 'info' | 'xp';
 
 interface ToastItem {
   id: number;
@@ -13,12 +13,13 @@ interface ToastItem {
   icon?: string;
 }
 
-interface ToastContextValue {
+export interface ToastContextValue {
   toast: (message: string, type?: ToastType, icon?: string) => void;
   xp: (amount: number, reason?: string) => void;
 }
 
-const ToastContext = createContext<ToastContextValue | null>(null);
+// eslint-disable-next-line react-refresh/only-export-components
+export const ToastContext = createContext<ToastContextValue | null>(null);
 
 const STYLE: Record<ToastType, string> = {
   success: 'bg-em text-white',
@@ -71,10 +72,4 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       )}
     </ToastContext.Provider>
   );
-}
-
-export function useToast(): ToastContextValue {
-  const ctx = useContext(ToastContext);
-  if (!ctx) throw new Error('useToast deve ser usado dentro de <ToastProvider>');
-  return ctx;
 }

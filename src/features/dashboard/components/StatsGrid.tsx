@@ -1,4 +1,4 @@
-import type { Profile } from '@types/domain';
+import type { Profile } from '@ltypes/domain';
 import { StatCard } from '@shared/ui/StatCard';
 import { formatXP } from '@lib/format';
 

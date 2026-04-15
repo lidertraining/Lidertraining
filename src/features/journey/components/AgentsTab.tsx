@@ -1,6 +1,6 @@
 import { Card } from '@shared/ui/Card';
 import { Icon } from '@shared/ui/Icon';
-import { useToast } from '@shared/providers/ToastProvider';
+import { useToast } from '@shared/hooks/useToast';
 
 const AGENTS = [
   { id: 'coach', icon: 'support_agent', name: 'Coach Virtual', desc: 'Feedback em tempo real' },

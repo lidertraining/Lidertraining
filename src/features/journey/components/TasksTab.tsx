@@ -4,7 +4,7 @@ import { getStepNotes, saveStepNotes } from '../api/journey';
 import { Textarea } from '@shared/ui/Textarea';
 import { Card } from '@shared/ui/Card';
 import { Icon } from '@shared/ui/Icon';
-import { useToast } from '@shared/providers/ToastProvider';
+import { useToast } from '@shared/hooks/useToast';
 
 interface TasksTabProps {
   stepId: number;

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Lead, LeadStatus } from '@types/domain';
+import type { Lead, LeadStatus } from '@ltypes/domain';
 import { Modal } from '@shared/ui/Modal';
 import { Button } from '@shared/ui/Button';
 import { Select } from '@shared/ui/Select';

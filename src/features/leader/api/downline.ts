@@ -1,5 +1,5 @@
 import { supabase } from '@lib/supabase';
-import type { UserLevel } from '@types/domain';
+import type { UserLevel } from '@ltypes/domain';
 
 export interface DownlineMember {
   id: string;

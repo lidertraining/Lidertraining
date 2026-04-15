@@ -1,5 +1,5 @@
 import { supabase } from '@lib/supabase';
-import type { League, UserLevel } from '@types/domain';
+import type { League, UserLevel } from '@ltypes/domain';
 
 export interface LeaderboardEntry {
   id: string;

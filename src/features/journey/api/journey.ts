@@ -4,7 +4,7 @@ import { OBJECTIONS } from '@content/objections';
 import { ICEBREAKERS } from '@content/icebreakers';
 import { CLOSING_LAWS } from '@content/closingLaws';
 import { CLOSING_SCRIPTS } from '@content/closingScripts';
-import type { JourneyStep, Objection, ClosingLaw, ClosingScript } from '@types/content';
+import type { JourneyStep, Objection, ClosingLaw, ClosingScript } from '@ltypes/content';
 
 /**
  * Carrega os passos da jornada do Supabase.

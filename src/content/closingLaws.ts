@@ -1,4 +1,4 @@
-import type { ClosingLaw } from '@types/content';
+import type { ClosingLaw } from '@ltypes/content';
 
 export const CLOSING_LAWS: ClosingLaw[] = [
   {

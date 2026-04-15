@@ -1,14 +1,35 @@
 /**
  * Tipos gerados pelo Supabase CLI.
- * Rodar `pnpm supabase:types` para regerar ap\u00f3s mudan\u00e7as em migrations.
  *
- * Por enquanto, stub m\u00ednimo para o client compilar antes de rodar Supabase local.
+ * Este arquivo \u00e9 um stub. Para usar tipos reais do banco, rode:
+ *   pnpm supabase:types
+ *
+ * Ele sobrescreve este arquivo com o shape das tabelas. At\u00e9 l\u00e1, usamos um
+ * shape permissivo que evita erros de TS em .insert/.update/.rpc.
  */
-export type Database = {
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+type Row = Record<string, any>;
+
+interface PermissiveTable {
+  Row: Row;
+  Insert: Row;
+  Update: Row;
+  Relationships: [];
+}
+
+interface PermissiveFunction {
+  Args: Row;
+  Returns: any;
+}
+
+export interface Database {
   public: {
-    Tables: Record<string, never>;
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
-    Enums: Record<string, never>;
+    Tables: Record<string, PermissiveTable>;
+    Views: Record<string, { Row: Row }>;
+    Functions: Record<string, PermissiveFunction>;
+    Enums: Record<string, string>;
+    CompositeTypes: Record<string, Row>;
   };
-};
+}

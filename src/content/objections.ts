@@ -1,4 +1,4 @@
-import type { Objection } from '@types/content';
+import type { Objection } from '@ltypes/content';
 
 export const OBJECTIONS: Objection[] = [
   {

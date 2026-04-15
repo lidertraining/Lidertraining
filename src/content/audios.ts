@@ -1,4 +1,4 @@
-import type { AudioTrack } from '@types/content';
+import type { AudioTrack } from '@ltypes/content';
 
 export const AUDIOS: AudioTrack[] = [
   { id: 'a1', title: 'Boas-vindas \u00e0 LiderTraining', durationSeconds: 420 },

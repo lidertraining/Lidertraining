@@ -74,7 +74,7 @@ export function NetworkPage() {
                 <NetworkNode
                   key={m.id}
                   member={m}
-                  children={grandchildren}
+                  nested={grandchildren}
                   allMembers={members}
                 />
               );

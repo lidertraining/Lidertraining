@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@shared/providers/AuthProvider';
+import { useAuth } from '@shared/hooks/useAuth';
 import { listAudios, markAudioComplete } from '../api/audios';
 import { useAddXP } from '@features/gamification/hooks/useAddXP';
 

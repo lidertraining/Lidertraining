@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Lead } from '@types/domain';
+import type { Lead } from '@ltypes/domain';
 import { useLeads } from '../hooks/useLeads';
 import { AddLeadForm } from '../components/AddLeadForm';
 import { LeadCard } from '../components/LeadCard';

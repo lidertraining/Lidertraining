@@ -9,7 +9,7 @@ import { SignupSchema, type SignupInput } from '../schemas';
 import { Button } from '@shared/ui/Button';
 import { Input } from '@shared/ui/Input';
 import { Card } from '@shared/ui/Card';
-import { useToast } from '@shared/providers/ToastProvider';
+import { useToast } from '@shared/hooks/useToast';
 import { ROUTES } from '@config/routes';
 
 export function InviteLandingPage() {

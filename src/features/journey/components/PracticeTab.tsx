@@ -1,4 +1,4 @@
-import type { JourneyStep } from '@types/content';
+import type { JourneyStep } from '@ltypes/content';
 import { Card } from '@shared/ui/Card';
 import { Icon } from '@shared/ui/Icon';
 import { Button } from '@shared/ui/Button';

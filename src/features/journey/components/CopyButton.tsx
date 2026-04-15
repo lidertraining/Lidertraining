@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Icon } from '@shared/ui/Icon';
 import { cn } from '@lib/cn';
-import { useToast } from '@shared/providers/ToastProvider';
+import { useToast } from '@shared/hooks/useToast';
 
 interface CopyButtonProps {
   text: string;

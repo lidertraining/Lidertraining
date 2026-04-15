@@ -1,5 +1,5 @@
 import { Icon } from '@shared/ui/Icon';
-import { useToast } from '@shared/providers/ToastProvider';
+import { useToast } from '@shared/hooks/useToast';
 import { cn } from '@lib/cn';
 
 interface MemberActionsRowProps {

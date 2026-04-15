@@ -1,4 +1,4 @@
-import type { JourneyStep } from '@types/content';
+import type { JourneyStep } from '@ltypes/content';
 
 /**
  * Fallback dos 11 passos da jornada (migrado do HTML original).

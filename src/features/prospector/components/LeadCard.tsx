@@ -1,4 +1,4 @@
-import type { Lead } from '@types/domain';
+import type { Lead } from '@ltypes/domain';
 import { Card } from '@shared/ui/Card';
 import { Icon } from '@shared/ui/Icon';
 import { StatusChip } from '@shared/ui/StatusChip';

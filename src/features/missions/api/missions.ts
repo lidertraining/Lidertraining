@@ -1,5 +1,5 @@
 import { supabase } from '@lib/supabase';
-import type { Mission, MissionType } from '@types/domain';
+import type { Mission, MissionType } from '@ltypes/domain';
 
 interface MissionWithProgress extends Mission {
   progress: number;

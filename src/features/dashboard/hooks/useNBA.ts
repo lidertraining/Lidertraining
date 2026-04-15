@@ -1,4 +1,4 @@
-import type { Profile } from '@types/domain';
+import type { Profile } from '@ltypes/domain';
 import { ROUTES, buildRoute } from '@config/routes';
 
 export interface NBA {

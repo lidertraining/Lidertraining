@@ -1,6 +1,6 @@
 import { supabase } from '@lib/supabase';
 import { AUDIOS } from '@content/audios';
-import type { AudioTrack } from '@types/content';
+import type { AudioTrack } from '@ltypes/content';
 
 export interface AudioWithProgress extends AudioTrack {
   completed: boolean;

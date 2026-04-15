@@ -1,4 +1,4 @@
-import type { CareerLevel } from '@types/content';
+import type { CareerLevel } from '@ltypes/content';
 
 /** N\u00edveis de carreira, XP threshold e visual. */
 export const CAREER: CareerLevel[] = [

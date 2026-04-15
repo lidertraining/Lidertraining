@@ -1,4 +1,4 @@
-import { useAuth } from '@shared/providers/AuthProvider';
+import { useAuth } from '@shared/hooks/useAuth';
 import { useProfile } from '@shared/hooks/useProfile';
 import { Button } from '@shared/ui/Button';
 import { Card } from '@shared/ui/Card';

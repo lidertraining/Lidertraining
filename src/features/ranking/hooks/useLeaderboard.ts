@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import type { League } from '@types/domain';
+import type { League } from '@ltypes/domain';
 import { getWeeklyLeaderboard } from '../api/leaderboard';
 
 export function useLeaderboard(league: League) {

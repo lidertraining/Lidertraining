@@ -1,4 +1,4 @@
-import type { LeadStatus, TeamStatus } from '@types/domain';
+import type { LeadStatus, TeamStatus } from '@ltypes/domain';
 import { cn } from '@lib/cn';
 
 type Status = LeadStatus | TeamStatus;
