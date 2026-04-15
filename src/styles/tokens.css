@@ -1,0 +1,171 @@
+/**
+ * CSS tokens — parte que n\u00e3o cabe no Tailwind.
+ * Glass morphism (backdrop-filter), delays escalonados e radii.
+ */
+:root {
+  --page-max: 500px;
+  --nav-h: 58px;
+  --hdr-h: 54px;
+}
+
+/* Glass morphism */
+.glass {
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  background: rgba(32, 31, 33, 0.88);
+}
+
+.glass-lite {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(42, 42, 44, 0.6);
+}
+
+/* Surfaces (atalhos) */
+.surface {
+  background: #2a2a2c;
+  border-radius: 16px;
+}
+
+.surface-sm {
+  background: #2a2a2c;
+  border-radius: 12px;
+}
+
+/* Delay escalonado para anima\u00e7\u00f5es em cascata */
+.d0 {
+  animation-delay: 0s;
+}
+.d1 {
+  animation-delay: 0.06s;
+  opacity: 0;
+}
+.d2 {
+  animation-delay: 0.12s;
+  opacity: 0;
+}
+.d3 {
+  animation-delay: 0.18s;
+  opacity: 0;
+}
+.d4 {
+  animation-delay: 0.24s;
+  opacity: 0;
+}
+.d5 {
+  animation-delay: 0.3s;
+  opacity: 0;
+}
+.d6 {
+  animation-delay: 0.36s;
+  opacity: 0;
+}
+
+/* Streak gradient text */
+.streak-grad {
+  background: linear-gradient(135deg, #ff6b35, #ffd700);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* XP badge */
+.xp-badge {
+  background: rgba(110, 33, 141, 0.25);
+  color: #edb1ff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+/* Status chips (mant\u00e9m classes hist\u00f3ricas do HTML) */
+.st-hot {
+  background: rgba(255, 107, 53, 0.12);
+  color: #ff6b35;
+}
+.st-warm {
+  background: rgba(255, 215, 0, 0.12);
+  color: #ffd700;
+}
+.st-cold {
+  background: rgba(65, 105, 225, 0.12);
+  color: #4169e1;
+}
+.st-closed {
+  background: rgba(80, 200, 120, 0.12);
+  color: #50c878;
+}
+.st-active {
+  background: rgba(80, 200, 120, 0.12);
+  color: #50c878;
+}
+.st-risk {
+  background: rgba(255, 107, 53, 0.12);
+  color: #ff6b35;
+}
+.st-inactive {
+  background: rgba(152, 141, 158, 0.12);
+  color: #988d9e;
+}
+
+/* Progress bar */
+.bar-track {
+  width: 100%;
+  height: 6px;
+  background: #353437;
+  border-radius: 99px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.bar-sm .bar-track {
+  height: 4px;
+}
+.bar-xs .bar-track {
+  height: 3px;
+}
+
+/* Tap feedback */
+.tap {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.tap:active {
+  transform: scale(0.97);
+  opacity: 0.85;
+}
+.tap:hover {
+  transform: translateY(-1px);
+}
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(237, 177, 255, 0.12);
+}
+
+/* Material Symbols */
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+  font-size: 20px;
+  vertical-align: middle;
+}
+.material-symbols-outlined.filled {
+  font-variation-settings:
+    'FILL' 1,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+}
+
+/* Serif helper */
+.serif {
+  font-family: 'Playfair Display', serif;
+}
