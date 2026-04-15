@@ -47,6 +47,21 @@ Para testar o fluxo de cadastro por convite, use o código **`DEMO2026`**
 http://localhost:5173/signup/DEMO2026
 ```
 
+### Setup em projeto Supabase hospedado (alternativa ao local)
+
+Se você não quer rodar Docker, crie um projeto na nuvem da Supabase:
+
+```bash
+# 1) Gere um Personal Access Token em:
+#    https://supabase.com/dashboard/account/tokens
+# 2) Rode:
+pnpm setup:online
+# O script pede o token, lista suas orgs, cria o projeto, aplica as
+# 4 migrations, (opcional) seed, e popula .env.local automaticamente.
+# 3) Revogue o token em seguida (o script lembra você disso).
+pnpm dev
+```
+
 ### Comandos úteis
 
 | Script | O que faz |
@@ -55,7 +70,8 @@ http://localhost:5173/signup/DEMO2026
 | `pnpm build` | Build de produção (tsc + vite) |
 | `pnpm typecheck` | Roda `tsc --noEmit` |
 | `pnpm lint` | ESLint |
-| `pnpm setup` | Supabase: start + reset + gen types |
+| `pnpm setup` | Supabase local: start + reset + gen types |
+| `pnpm setup:online` | Cria projeto Supabase hospedado via Management API |
 | `pnpm supabase:status` | Mostra URL/keys do Supabase local |
 | `pnpm supabase:reset` | Recria o banco e reaplica migrations |
 | `pnpm supabase:types` | Regera `src/types/database.ts` |
