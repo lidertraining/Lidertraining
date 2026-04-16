@@ -109,8 +109,130 @@ Você não pode vender o que não usa. Seu primeiro pedido é o gatilho do passo
     tip: 'Se orçamento tá apertado, conversa com seu upline sobre o pedido mínimo. O importante é dar o primeiro passo.',
   },
 
-  { id: 5, title: 'Agende sua primeira apresentação', rewardXP: 100 },
-  { id: 6, title: 'Convide 3 pessoas', rewardXP: 150 },
-  { id: 7, title: 'Participe de uma reunião online', rewardXP: 50 },
-  { id: 8, title: 'Complete a avaliação de scout', rewardXP: 100 },
+  {
+    id: 5,
+    title: 'Agende sua primeira apresentação',
+    rewardXP: 100,
+    body: `**Assistir à apresentação do seu upline é o atalho.**
+
+Antes de tentar apresentar sozinho, você precisa ver alguém fazer. Uma apresentação bem-feita, assistida com atenção, te poupa 3 meses de erro por tentativa.
+
+### Como agendar
+
+1. Fale com seu upline e escolha uma apresentação que ele ou outro líder vá fazer essa semana.
+2. Convide pelo menos 1 dos seus 50 leads pra assistir junto.
+3. Marca data e horário no calendário.
+
+### Sua função na apresentação assistida
+
+- Assistir em silêncio (não interrompa, não complemente)
+- Anotar as frases que funcionaram
+- Observar como o lead reagiu em cada parte
+- Ficar até o final, inclusive no fechamento
+
+Depois, 10 minutos pra debrief: o que funcionou, o que não funcionou, o que você replicaria.`,
+    checklist: [
+      'Conversei com meu upline sobre horário',
+      'Convidei 1 lead da minha lista',
+      'Marquei no calendário',
+      'Assisti a apresentação inteira',
+      'Fiz debrief de 10 min com meu upline',
+    ],
+    tip: 'Grave a apresentação (com autorização) pra assistir de novo. Segunda assistência você vê o dobro.',
+  },
+
+  {
+    id: 6,
+    title: 'Convide 3 pessoas',
+    rewardXP: 150,
+    body: `**Convidar destrava o medo.**
+
+O primeiro convite é o mais difícil. O terceiro já começa a parecer natural. Por isso a meta do FIR é **3 convites** — pra você atravessar a barreira mental.
+
+### Como escolher os 3
+
+- **1 quente:** alguém que você tem certeza que vai topar ouvir (família ou melhor amigo).
+- **1 morno:** alguém que você não fala há uns meses mas tem boa relação.
+- **1 "medo":** alguém que você tá adiando — aquele nome que você sempre pulou na lista.
+
+Os 3 juntos te fazem aprender o máximo.
+
+### Use o script do Passo 7 da Jornada
+
+Não invente. Use o script "direto" ou "ponte" que a Jornada ensinou. Objetivo é **marcar horário**, não explicar o negócio.`,
+    checklist: [
+      'Convidei 1 pessoa quente',
+      'Convidei 1 pessoa morna',
+      'Convidei 1 pessoa "medo"',
+      'Registrei cada resposta no Prospector',
+      'Marquei pelo menos 1 apresentação',
+    ],
+    tip: 'Mande áudio no WhatsApp — o tom transmite entusiasmo que texto não transmite. E áudio cria compromisso: você não cancela depois.',
+  },
+
+  {
+    id: 7,
+    title: 'Participe de uma reunião online',
+    rewardXP: 50,
+    body: `**Reunião de time é onde a energia acontece.**
+
+Semana sem reunião de time é como academia sem espelho — você treina, mas não vê a diferença. A reunião é onde você:
+
+- Ouve depoimento real de quem tá rendendo
+- Aprende uma ferramenta nova do mês
+- Se reconecta com o propósito depois da semana desgastante
+- Descobre eventos, turmas e lançamentos que impactam sua rede
+
+### O que levar
+
+- Caderno (digital ou papel)
+- Lista de dúvidas acumuladas na semana
+- 1 pergunta pra fazer (mesmo que pareça boba)
+
+Participe com câmera aberta sempre que possível. Quem fica de câmera fechada desaparece.`,
+    checklist: [
+      'Descobri o dia e hora da próxima reunião',
+      'Bloqueei na agenda',
+      'Participei do início ao fim',
+      'Fiz pelo menos 1 pergunta',
+      'Anotei 1 ensinamento pra aplicar na semana',
+    ],
+    tip: 'Se a reunião do seu time tá fraca, peça ao upline o link de uma reunião "cross" (de outro time da empresa). Energia diferente.',
+  },
+
+  {
+    id: 8,
+    title: 'Complete a avaliação de scout',
+    rewardXP: 100,
+    body: `**Scout é o raio-x do seu começo.**
+
+Scout é uma autoavaliação de 10 eixos — do quanto você tá dando em cada dimensão do negócio. Não é nota — é **espelho**. Serve pra você e pro seu upline saberem onde acelerar.
+
+### Os 10 eixos
+
+1. **Clareza de sonho** (passo 1)
+2. **Tamanho da lista** (passo 2)
+3. **Domínio do produto** (passo 4)
+4. **Domínio da história** (passo 3)
+5. **Frequência de prospecção** (passo 6)
+6. **Taxa de agendamento** (passo 7)
+7. **Qualidade de apresentação** (passo 8)
+8. **Postura no fechamento** (passo 9)
+9. **Consistência de follow-up** (passo 10)
+10. **Capacidade de duplicação** (passo 11)
+
+Você se dá de 0 a 10 em cada. Seja honesto. O time pega essa régua e usa pro próximo 1x1.
+
+### Após o scout
+
+O upline monta com você um plano de 30 dias focado nos **2 eixos mais baixos**. Foco em ponto fraco acelera mais do que reforço em ponto forte.`,
+    checklist: [
+      'Avaliei os 10 eixos de 0 a 10',
+      'Fui honesto nas notas baixas',
+      'Identifiquei meus 2 eixos prioritários',
+      'Agendei 1x1 com meu upline pra montar plano de 30 dias',
+      'Registrei o scout no perfil',
+    ],
+    tip: 'Refaça o scout a cada 30 dias. Ver a evolução dos números motiva mais que qualquer discurso.',
+  },
 ];
