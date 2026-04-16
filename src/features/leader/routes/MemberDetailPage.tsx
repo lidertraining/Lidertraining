@@ -14,6 +14,7 @@ import { ActivityDot } from '../components/ActivityDot';
 import { MemberActionsRow } from '../components/MemberActionsRow';
 import { FIR_STEPS } from '@content/firSteps';
 import { formatXP } from '@lib/format';
+import { buildWaURL, formatPhoneBR } from '@lib/phone';
 import { cn } from '@lib/cn';
 import { useToast } from '@shared/hooks/useToast';
 import {
@@ -100,6 +101,32 @@ export function MemberDetailPage() {
           <ActivityDot daysSinceActive={member.daysSinceActive} className="mt-2 justify-center" />
         </div>
       </Card>
+
+      {/* CTA WhatsApp direto */}
+      {member.phone && (
+        <a
+          href={buildWaURL(
+            member.phone,
+            `Oi ${member.name.split(' ')[0]}! Tudo bem? Queria falar com você sobre a sua jornada.`,
+          )}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="tap flex items-center justify-between rounded-card bg-em/15 px-4 py-3 text-em hover:bg-em/25"
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-em/30">
+              <Icon name="chat" filled className="!text-[20px]" />
+            </div>
+            <div>
+              <div className="text-sm font-semibold">
+                Falar com {member.name.split(' ')[0]} no WhatsApp
+              </div>
+              <div className="text-[11px] opacity-80">{formatPhoneBR(member.phone)}</div>
+            </div>
+          </div>
+          <Icon name="chevron_right" className="!text-[18px]" />
+        </a>
+      )}
 
       {/* Ações */}
       <MemberActionsRow memberName={member.name} />

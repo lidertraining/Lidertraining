@@ -5,6 +5,7 @@ export interface TeamLearningMember {
   id: string;
   uplineId: string | null;
   name: string;
+  phone: string | null;
   level: UserLevel;
   depth: number;
   journeyStep: number;
@@ -27,6 +28,7 @@ function map(row: any): TeamLearningMember {
     id: row.id,
     uplineId: row.upline_id,
     name: row.name,
+    phone: row.phone ?? null,
     level: row.level,
     depth: row.depth,
     journeyStep: row.journey_step,

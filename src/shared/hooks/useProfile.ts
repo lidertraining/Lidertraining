@@ -35,6 +35,7 @@ function mapProfile(row: any): Profile {
     id: row.id,
     uplineId: row.upline_id,
     name: row.name,
+    phone: row.phone ?? null,
     avatarUrl: row.avatar_url,
     xp: row.xp,
     level: row.level,

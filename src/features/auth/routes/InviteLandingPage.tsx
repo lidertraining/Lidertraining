@@ -89,6 +89,14 @@ export function InviteLandingPage() {
           error={errors.email?.message}
         />
         <Input
+          type="tel"
+          placeholder="WhatsApp (DDD + número)"
+          autoComplete="tel"
+          inputMode="numeric"
+          {...register('phone')}
+          error={errors.phone?.message}
+        />
+        <Input
           type="password"
           placeholder="Senha (mín. 6 caracteres)"
           autoComplete="new-password"
