@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { Header } from './Header';
 import { BottomNav } from './BottomNav';
+import { DailyPillModal } from '@shared/ui/DailyPillModal';
 
 export function AppShell() {
   return (
@@ -13,6 +14,7 @@ export function AppShell() {
         <Outlet />
       </main>
       <BottomNav />
+      <DailyPillModal />
     </div>
   );
 }
