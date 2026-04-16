@@ -15,6 +15,7 @@ export function ContactImporter() {
   const { mutateAsync: createLead } = useCreateLead();
   const { toast } = useToast();
   const [importing, setImporting] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const supportsNative = hasContactPicker();
 
   const importContacts = async (contacts: PickedContact[]) => {
@@ -92,6 +93,42 @@ export function ContactImporter() {
           Arquivo .vcf
         </Button>
       </div>
+
+      <button
+        type="button"
+        onClick={() => setShowHelp((v) => !v)}
+        className="tap flex items-center justify-between text-[11px] font-semibold text-am"
+      >
+        <span>Como exportar meus contatos</span>
+        <Icon name={showHelp ? 'expand_less' : 'expand_more'} className="!text-[16px]" />
+      </button>
+
+      {showHelp && (
+        <div className="flex flex-col gap-3 rounded-card bg-sf-top/40 p-3 text-[11px] leading-relaxed text-on-2">
+          <div>
+            <div className="mb-1 font-semibold text-am">iPhone</div>
+            <ol className="list-decimal space-y-0.5 pl-4 text-on-3">
+              <li>Abra o app <strong>Contatos</strong>.</li>
+              <li>Toque em <strong>Listas</strong> → escolha a lista desejada.</li>
+              <li>Toque em <strong>Exportar</strong> → <strong>Salvar em Arquivos</strong>.</li>
+              <li>Volte aqui, toque em <strong>Arquivo .vcf</strong> e escolha o arquivo.</li>
+            </ol>
+          </div>
+          <div>
+            <div className="mb-1 font-semibold text-am">Android</div>
+            <ol className="list-decimal space-y-0.5 pl-4 text-on-3">
+              <li>Abra <strong>Contatos</strong> (Google).</li>
+              <li>Menu → <strong>Selecionar</strong> → marque contatos.</li>
+              <li>Menu → <strong>Compartilhar</strong> → <strong>Salvar no Drive/Arquivos</strong>.</li>
+              <li>Volte aqui, toque em <strong>Arquivo .vcf</strong> e escolha o arquivo.</li>
+            </ol>
+          </div>
+          <div className="text-[10px] text-on-3">
+            Se o botão abrir a galeria de fotos, é porque o celular ainda não gerou o .vcf.
+            Exporte primeiro seguindo os passos acima.
+          </div>
+        </div>
+      )}
 
       <p className="text-[10px] text-on-3">
         Seus contatos são salvos apenas na sua conta. Ninguém mais tem acesso.
