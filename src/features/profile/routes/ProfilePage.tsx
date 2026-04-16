@@ -8,6 +8,7 @@ import { Input } from '@shared/ui/Input';
 import { Avatar } from '@shared/ui/Avatar';
 import { Icon } from '@shared/ui/Icon';
 import { ScoutRadar } from '@shared/ui/ScoutRadar';
+import { BadgeGrid } from '@shared/ui/BadgeGrid';
 import { ProgressBar } from '@shared/ui/ProgressBar';
 import { supabase } from '@lib/supabase';
 import { formatPhoneBR, normalizePhone } from '@lib/phone';
@@ -103,6 +104,26 @@ export function ProfilePage() {
         <StatMini icon="bolt" value={profile?.energy ?? 0} label="Energia" color="or" />
         <StatMini icon="groups" value={profile?.teamCount ?? 0} label="Equipe" color="am" />
       </div>
+
+      {/* Conquistas */}
+      <Card variant="surface-sm" className="flex flex-col gap-3 p-4">
+        <div className="flex items-center gap-2">
+          <Icon name="emoji_events" filled className="!text-[18px] text-am" />
+          <div className="flex-1 text-sm font-semibold">Conquistas</div>
+        </div>
+        <BadgeGrid
+          context={{
+            xp: profile?.xp ?? 0,
+            streak: profile?.streak ?? 0,
+            firStep: profile?.firStep ?? 0,
+            firCompleted: profile?.firCompleted ?? false,
+            journeyStep: profile?.journeyStep ?? 0,
+            teamCount: profile?.teamCount ?? 0,
+            contacts: profile?.contacts ?? 0,
+            sales: profile?.sales ?? 0,
+          }}
+        />
+      </Card>
 
       {/* Scout Radar */}
       <Card variant="surface-sm" className="flex flex-col gap-3 p-4">
