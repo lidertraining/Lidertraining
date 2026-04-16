@@ -14,6 +14,7 @@ import { AgentsTab } from '../components/AgentsTab';
 import { completeJourneyStep } from '../api/journey';
 import { useToast } from '@shared/hooks/useToast';
 import { ROUTES } from '@config/routes';
+import { isStepDone } from '@lib/bitmask';
 
 type TabId = 'aprender' | 'tarefas' | 'praticar' | 'agentes';
 
@@ -36,8 +37,8 @@ export function JourneyStepPage() {
 
   const sid = Number(stepId);
   const step = steps.find((s) => s.id === sid);
-  const isCurrent = profile?.journeyStep === sid;
-  const isDone = (profile?.journeyStep ?? 0) > sid;
+  const mask = profile?.journeyDoneMask ?? 0;
+  const isDone = isStepDone(mask, sid);
 
   if (!step) {
     return (
@@ -80,7 +81,7 @@ export function JourneyStepPage() {
         {tab === 'agentes' && <AgentsTab />}
       </div>
 
-      {isCurrent && (
+      {!isDone && (
         <Button
           variant="ge"
           fullWidth

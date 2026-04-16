@@ -28,8 +28,10 @@ export interface Profile {
   weeklyXP: number;
   // progress
   journeyStep: number;
+  journeyDoneMask: number;
   firCompleted: boolean;
   firStep: number;
+  firDoneMask: number;
   onboarded: boolean;
   // business metrics
   contacts: number;
