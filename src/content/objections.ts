@@ -7,9 +7,9 @@ export const OBJECTIONS: Objection[] = [
       'Por isso mesmo! Quando começamos, eu também não tinha. Justamente essa falta foi o que me fez entrar. Qual seria um valor que você considera investir no seu futuro?',
   },
   {
-    objection: 'Isso é pir\u00e2mide?',
+    objection: 'Isso é pirâmide?',
     response:
-      'Entendo a preocupação. Pir\u00e2mides são ilegais justamente porque não há produto real. A [empresa] tem [X anos], vende produtos consumidos por milhões. Você ganha comercializando, não indicando pessoas.',
+      'Entendo a preocupação. Pirâmides são ilegais justamente porque não há produto real. A [empresa] tem [X anos], vende produtos consumidos por milhões. Você ganha comercializando, não indicando pessoas.',
   },
   {
     objection: 'Não tenho tempo',

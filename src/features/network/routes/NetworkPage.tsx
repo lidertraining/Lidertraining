@@ -21,7 +21,7 @@ export function NetworkPage() {
       <BackButton to={ROUTES.LEADER} label="Líder" />
 
       <header className="animate-fade-up">
-        <div className="text-sm text-on-3">\u00c1rvore genealógica</div>
+        <div className="text-sm text-on-3">Árvore genealógica</div>
         <h1 className="serif text-3xl font-bold">Sua Rede</h1>
       </header>
 

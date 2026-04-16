@@ -18,7 +18,7 @@ export function PromotionZones() {
           <Icon name="arrow_downward" filled className="!text-[16px] text-rb" />
         </div>
         <div className="flex-1">
-          <div className="text-xs font-semibold">\u00daltimos 3 descem</div>
+          <div className="text-xs font-semibold">Últimos 3 descem</div>
           <div className="text-[10px] text-on-3">Liga anterior</div>
         </div>
       </Card>

@@ -27,7 +27,7 @@ export function useMarkAudioComplete() {
     },
     onSuccess: (title) => {
       qc.invalidateQueries({ queryKey: ['audios'] });
-      addXP({ amount: 25, reason: `\u00c1udio: ${title}` });
+      addXP({ amount: 25, reason: `Áudio: ${title}` });
     },
   });
 }

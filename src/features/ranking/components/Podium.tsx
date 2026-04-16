@@ -9,9 +9,9 @@ interface PodiumProps {
 }
 
 const PLACES = [
-  { idx: 1, h: 'h-24', bg: 'bg-on-3', label: '2\u00ba', emoji: '\u{1F948}' }, // 2nd
-  { idx: 0, h: 'h-32', bg: 'bg-gg', label: '1\u00ba', emoji: '\u{1F947}' }, // 1st
-  { idx: 2, h: 'h-20', bg: 'bg-or', label: '3\u00ba', emoji: '\u{1F949}' }, // 3rd
+  { idx: 1, h: 'h-24', bg: 'bg-on-3', label: '2º', emoji: '🥈' }, // 2nd
+  { idx: 0, h: 'h-32', bg: 'bg-gg', label: '1º', emoji: '🥇' }, // 1st
+  { idx: 2, h: 'h-20', bg: 'bg-or', label: '3º', emoji: '🥉' }, // 3rd
 ];
 
 export function Podium({ entries, currentUserId }: PodiumProps) {

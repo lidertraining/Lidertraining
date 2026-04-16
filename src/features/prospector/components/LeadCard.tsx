@@ -39,7 +39,7 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
           </div>
           <div className="mt-0.5 text-[10px] text-on-3">
             {lead.lastContact
-              ? `\u00daltimo contato ${relativeTime(lead.lastContact)}`
+              ? `Último contato ${relativeTime(lead.lastContact)}`
               : `Criado ${relativeTime(lead.createdAt)}`}
           </div>
         </div>

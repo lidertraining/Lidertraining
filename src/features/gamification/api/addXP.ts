@@ -1,7 +1,7 @@
 import { supabase } from '@lib/supabase';
 
 /**
- * \u00danico canal para conceder XP ao usuário.
+ * Único canal para conceder XP ao usuário.
  * Chama a RPC add_xp que atualiza profiles, promove nível se aplicável,
  * cria notificações e insere evento no feed.
  */

@@ -13,7 +13,7 @@ export function AudioList() {
   return (
     <section className="flex flex-col gap-3">
       <div className="flex items-end justify-between">
-        <h2 className="serif text-lg font-bold">\u00c1udios obrigatórios</h2>
+        <h2 className="serif text-lg font-bold">Áudios obrigatórios</h2>
         <span className="text-xs text-on-3">
           {done} / {data.length}
         </span>
