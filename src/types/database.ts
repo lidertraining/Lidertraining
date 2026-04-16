@@ -1,10 +1,10 @@
 /**
  * Tipos gerados pelo Supabase CLI.
  *
- * Este arquivo \u00e9 um stub. Para usar tipos reais do banco, rode:
+ * Este arquivo é um stub. Para usar tipos reais do banco, rode:
  *   pnpm supabase:types
  *
- * Ele sobrescreve este arquivo com o shape das tabelas. At\u00e9 l\u00e1, usamos um
+ * Ele sobrescreve este arquivo com o shape das tabelas. Até lá, usamos um
  * shape permissivo que evita erros de TS em .insert/.update/.rpc.
  */
 

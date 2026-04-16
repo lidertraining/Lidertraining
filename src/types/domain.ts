@@ -1,5 +1,5 @@
 /**
- * Tipos de dom\u00ednio do LiderTraining.
+ * Tipos de domínio do LiderTraining.
  * Espelha o shape do state "S" do HTML original, tipado.
  */
 

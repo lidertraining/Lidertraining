@@ -40,7 +40,7 @@ export function Header() {
         {/* Notif + Avatar */}
         <div className="flex items-center gap-3">
           <button
-            aria-label="Notifica\u00e7\u00f5es"
+            aria-label="Notificações"
             onClick={() => setNotifOpen(true)}
             className="tap relative text-on-2"
           >

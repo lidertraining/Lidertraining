@@ -20,11 +20,11 @@ export function TeamMemberCard({ member }: TeamMemberCardProps) {
           <div className="truncate text-sm font-semibold">{member.name}</div>
           <div className="flex items-center gap-2 text-[11px] text-on-3">
             <span>{member.level}</span>
-            <span>\u00b7</span>
+            <span>·</span>
             <span>Passo {member.journeyStep + 1}</span>
             {member.teamCount > 0 && (
               <>
-                <span>\u00b7</span>
+                <span>·</span>
                 <span>{member.teamCount} equipe</span>
               </>
             )}

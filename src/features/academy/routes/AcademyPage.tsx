@@ -10,7 +10,7 @@ export function AcademyPage() {
   return (
     <div className="flex flex-col gap-6 pt-2">
       <header className="animate-fade-up">
-        <div className="text-sm text-on-3">Base s\u00f3lida de forma\u00e7\u00e3o</div>
+        <div className="text-sm text-on-3">Base sólida de formação</div>
         <h1 className="serif text-3xl font-bold">Academia</h1>
       </header>
 

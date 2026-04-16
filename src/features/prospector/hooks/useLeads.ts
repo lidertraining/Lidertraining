@@ -24,7 +24,7 @@ export function useCreateLead() {
 
   return useMutation({
     mutationFn: async (input: CreateLeadInput) => {
-      if (!uid) throw new Error('Sem sess\u00e3o');
+      if (!uid) throw new Error('Sem sessão');
       return createLead(uid, input);
     },
     onSuccess: (lead) => {

@@ -1,4 +1,4 @@
-/** Retorna "agora h\u00e1 pouco", "2 min", "3 h", "2 d". */
+/** Retorna "agora há pouco", "2 min", "3 h", "2 d". */
 export function relativeTime(iso: string | null | undefined): string {
   if (!iso) return '';
   const diff = Date.now() - new Date(iso).getTime();

@@ -17,10 +17,10 @@ export function CopyButton({ text, className, label = 'Copiar' }: CopyButtonProp
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
-      toast('Copiado para a \u00e1rea de transfer\u00eancia', 'success', 'content_copy');
+      toast('Copiado para a área de transferência', 'success', 'content_copy');
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast('N\u00e3o foi poss\u00edvel copiar', 'error');
+      toast('Não foi possível copiar', 'error');
     }
   };
 

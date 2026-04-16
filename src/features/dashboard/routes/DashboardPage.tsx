@@ -16,7 +16,7 @@ export function DashboardPage() {
   const nba = useNBA(profile);
 
   if (isLoading || !profile) {
-    return <div className="pt-8 text-center text-sm text-on-3">Carregando\u2026</div>;
+    return <div className="pt-8 text-center text-sm text-on-3">Carregando…</div>;
   }
 
   return (

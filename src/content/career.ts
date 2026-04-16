@@ -1,6 +1,6 @@
 import type { CareerLevel } from '@ltypes/content';
 
-/** N\u00edveis de carreira, XP threshold e visual. */
+/** Níveis de carreira, XP threshold e visual. */
 export const CAREER: CareerLevel[] = [
   { name: 'Master', xp: 0, color: 'on-3', icon: 'workspace_premium' },
   { name: 'Prata', xp: 2000, color: 'on-2', icon: 'workspace_premium' },
@@ -9,7 +9,7 @@ export const CAREER: CareerLevel[] = [
   { name: 'Elite', xp: 20000, color: 'am', icon: 'military_tech' },
 ];
 
-/** Retorna n\u00edvel atual e pr\u00f3ximo dado o XP. */
+/** Retorna nível atual e próximo dado o XP. */
 export function getCareerProgress(xp: number) {
   let current = CAREER[0]!;
   let next: CareerLevel | null = null;

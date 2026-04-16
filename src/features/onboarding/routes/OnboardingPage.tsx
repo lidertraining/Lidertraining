@@ -58,7 +58,7 @@ export function OnboardingPage() {
           autoFocus
         />
         <Button onClick={onContinue} disabled={!name.trim() || submitting} fullWidth>
-          {submitting ? 'Salvando\u2026' : 'Continuar'}
+          {submitting ? 'Salvando…' : 'Continuar'}
         </Button>
       </div>
     </div>

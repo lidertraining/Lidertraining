@@ -7,7 +7,7 @@ import {
   listClosingScripts,
 } from '../api/journey';
 
-const LONG_STALE = 1000 * 60 * 60; // 1h \u2014 conte\u00fado muda pouco
+const LONG_STALE = 1000 * 60 * 60; // 1h — conteúdo muda pouco
 
 export function useJourneySteps() {
   return useQuery({

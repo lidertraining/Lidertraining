@@ -40,14 +40,14 @@ export function ProspectorPage() {
         <LeadFilters active={filter} onChange={setFilter} leads={leads} />
 
         {isLoading ? (
-          <div className="py-6 text-center text-xs text-on-3">Carregando leads\u2026</div>
+          <div className="py-6 text-center text-xs text-on-3">Carregando leads…</div>
         ) : filtered.length === 0 ? (
           <EmptyState
             icon="person_search"
             title={filter === 'todos' ? 'Sem leads ainda' : 'Sem leads neste status'}
             description={
               filter === 'todos'
-                ? 'Adicione seu primeiro contato acima para come\u00e7ar.'
+                ? 'Adicione seu primeiro contato acima para começar.'
                 : 'Tente outro filtro ou adicione um novo lead.'
             }
           />

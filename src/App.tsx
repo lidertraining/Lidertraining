@@ -60,7 +60,7 @@ export default function App() {
     <ErrorBoundary>
       <Suspense fallback={<PageSpinner />}>
         <Routes>
-          {/* P\u00fablicas */}
+          {/* Públicas */}
           <Route path={ROUTES.LOGIN} element={<LoginPage />} />
           <Route path={ROUTES.SIGNUP} element={<InviteLandingPage />} />
 

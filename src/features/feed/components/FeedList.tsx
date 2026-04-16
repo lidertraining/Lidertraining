@@ -12,7 +12,7 @@ export function FeedList({ limit = 10 }: FeedListProps) {
   const { data = [], isLoading } = useFeed(limit);
 
   if (isLoading) {
-    return <div className="py-6 text-center text-xs text-on-3">Carregando feed\u2026</div>;
+    return <div className="py-6 text-center text-xs text-on-3">Carregando feed…</div>;
   }
 
   if (data.length === 0) {
@@ -20,7 +20,7 @@ export function FeedList({ limit = 10 }: FeedListProps) {
       <EmptyState
         icon="dynamic_feed"
         title="Feed vazio"
-        description="Conclua miss\u00f5es e seus eventos aparecer\u00e3o aqui."
+        description="Conclua missões e seus eventos aparecerão aqui."
       />
     );
   }

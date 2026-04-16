@@ -8,7 +8,7 @@ import { cn } from '@lib/cn';
 interface LeaderboardListProps {
   entries: LeaderboardEntry[];
   currentUserId?: string;
-  startAt?: number; // index inicial (padr\u00e3o 3, depois do p\u00f3dio)
+  startAt?: number; // index inicial (padrão 3, depois do pódio)
 }
 
 export function LeaderboardList({ entries, currentUserId, startAt = 3 }: LeaderboardListProps) {
@@ -38,7 +38,7 @@ export function LeaderboardList({ entries, currentUserId, startAt = 3 }: Leaderb
             </div>
             <Avatar name={e.name} size="sm" />
             <div className="min-w-0 flex-1">
-              <div className="truncate text-sm font-semibold">{isMe ? 'Voc\u00ea' : e.name}</div>
+              <div className="truncate text-sm font-semibold">{isMe ? 'Você' : e.name}</div>
               <div className="text-[11px] text-on-3">{e.level}</div>
             </div>
             <div className="text-right">

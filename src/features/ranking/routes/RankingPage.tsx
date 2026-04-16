@@ -16,19 +16,19 @@ export function RankingPage() {
   return (
     <div className="flex flex-col gap-5 pt-2">
       <header className="animate-fade-up">
-        <div className="text-sm text-on-3">Competi\u00e7\u00e3o semanal</div>
+        <div className="text-sm text-on-3">Competição semanal</div>
         <h1 className="serif text-3xl font-bold">Ranking</h1>
       </header>
 
       <LeagueSelector active={league} onChange={setLeague} />
 
       {isLoading ? (
-        <div className="py-6 text-center text-xs text-on-3">Carregando ranking\u2026</div>
+        <div className="py-6 text-center text-xs text-on-3">Carregando ranking…</div>
       ) : entries.length === 0 ? (
         <EmptyState
           icon="emoji_events"
           title="Sem participantes nesta liga"
-          description="Volte depois que a semana come\u00e7ar."
+          description="Volte depois que a semana começar."
         />
       ) : (
         <>

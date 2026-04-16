@@ -19,7 +19,7 @@ export function CommissionSimulator({ profile }: CommissionSimulatorProps) {
       <div className="flex items-center gap-2 text-on-3">
         <Icon name="payments" className="!text-[16px]" />
         <span className="text-[11px] font-semibold uppercase tracking-wider">
-          Comiss\u00e3o do m\u00eas
+          Comissão do mês
         </span>
       </div>
 
@@ -37,7 +37,7 @@ export function CommissionSimulator({ profile }: CommissionSimulatorProps) {
       <ProgressBar value={pct} fillClassName="bg-gg" />
 
       <div className="flex items-center justify-between text-[11px]">
-        <span className="text-on-3">Projetada p/ fim do m\u00eas</span>
+        <span className="text-on-3">Projetada p/ fim do mês</span>
         <span className="font-semibold text-em">{formatBRL(projected)}</span>
       </div>
     </Card>

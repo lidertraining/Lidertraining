@@ -42,7 +42,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   const value: ToastContextValue = {
     toast: push,
-    xp: (amount, reason) => push(`+${amount} XP${reason ? ` \u00b7 ${reason}` : ''}`, 'xp', 'bolt'),
+    xp: (amount, reason) => push(`+${amount} XP${reason ? ` · ${reason}` : ''}`, 'xp', 'bolt'),
   };
 
   return (

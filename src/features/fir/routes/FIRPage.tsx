@@ -26,11 +26,11 @@ export function FIRPage() {
       await advanceFIR(stepId, rewardXP, title);
       qc.invalidateQueries({ queryKey: ['profile'] });
       if (stepId >= 8) {
-        toast('FIR conclu\u00eddo! Bora pro dashboard', 'success', 'celebration');
+        toast('FIR concluído! Bora pro dashboard', 'success', 'celebration');
         setTimeout(() => nav(ROUTES.DASHBOARD), 600);
       }
     } catch (err) {
-      toast(err instanceof Error ? err.message : 'Erro ao avan\u00e7ar', 'error');
+      toast(err instanceof Error ? err.message : 'Erro ao avançar', 'error');
     } finally {
       setSubmittingId(null);
     }
@@ -40,8 +40,8 @@ export function FIRPage() {
     <div className="mx-auto min-h-dvh max-w-page bg-sf-void px-4 py-6">
       <header className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="serif text-2xl font-bold">FIR \u2014 Primeiros Passos</h1>
-          <p className="text-xs text-on-3">{current} de 8 etapas conclu\u00eddas</p>
+          <h1 className="serif text-2xl font-bold">FIR — Primeiros Passos</h1>
+          <p className="text-xs text-on-3">{current} de 8 etapas concluídas</p>
         </div>
         <button
           onClick={() => nav(ROUTES.DASHBOARD)}

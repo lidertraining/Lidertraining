@@ -58,17 +58,17 @@ export function TasksTab({ stepId }: TasksTabProps) {
           <Icon name="edit_note" filled className="!text-[20px] text-am" />
           <div className="flex-1 serif text-base font-bold">Caderno do passo</div>
           <span className="text-[10px] text-on-3">
-            {saving ? 'Salvando\u2026' : savedAt ? 'Salvo' : ''}
+            {saving ? 'Salvando…' : savedAt ? 'Salvo' : ''}
           </span>
         </div>
         <Textarea
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder="Escreva aqui suas reflexões, listas e comprometimentos deste passo\u2026"
+          placeholder="Escreva aqui suas reflexões, listas e comprometimentos deste passo…"
           rows={8}
         />
         <p className="text-[11px] text-on-3">
-          Salvamento autom\u00e1tico. Volte a qualquer momento e continue.
+          Salvamento automático. Volte a qualquer momento e continue.
         </p>
       </Card>
     </div>

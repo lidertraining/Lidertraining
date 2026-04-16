@@ -6,8 +6,8 @@ import { formatDuration } from '@lib/format';
 import { useEffect, useState } from 'react';
 
 /**
- * START 48h: desafio inicial dos primeiros 2 dias p\u00f3s cadastro.
- * Conclu\u00eddo se firStep >= 3 antes do prazo.
+ * START 48h: desafio inicial dos primeiros 2 dias pós cadastro.
+ * Concluído se firStep >= 3 antes do prazo.
  */
 export function Start48hPanel() {
   const { data: profile } = useProfile();
@@ -45,7 +45,7 @@ export function Start48hPanel() {
         </div>
       </div>
       <p className="text-xs text-on-2">
-        Complete as 3 primeiras etapas do FIR em 48 horas para ganhar um b\u00f4nus.
+        Complete as 3 primeiras etapas do FIR em 48 horas para ganhar um bônus.
       </p>
       <ProgressBar value={Math.min(100, (profile.firStep / 3) * 100)} size="sm" fillClassName="bg-gg" />
       <div className="flex items-center gap-1 text-[11px]">

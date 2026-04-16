@@ -35,7 +35,7 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
             <StatusChip status={lead.status} />
           </div>
           <div className="mt-0.5 truncate text-[11px] text-on-3">
-            {lead.source} \u00b7 {lead.step ?? 'Novo contato'}
+            {lead.source} · {lead.step ?? 'Novo contato'}
           </div>
           <div className="mt-0.5 text-[10px] text-on-3">
             {lead.lastContact

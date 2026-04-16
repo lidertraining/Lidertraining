@@ -34,7 +34,7 @@ export function InviteLandingPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-dvh items-center justify-center text-on-3">
-        Validando convite\u2026
+        Validando convite…
       </div>
     );
   }
@@ -103,7 +103,7 @@ export function InviteLandingPage() {
           error={errors.confirm?.message}
         />
         <Button type="submit" fullWidth disabled={submitting}>
-          {submitting ? 'Criando conta\u2026' : 'Criar conta'}
+          {submitting ? 'Criando conta…' : 'Criar conta'}
         </Button>
       </form>
 

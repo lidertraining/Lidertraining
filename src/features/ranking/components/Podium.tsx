@@ -39,7 +39,7 @@ export function Podium({ entries, currentUserId }: PodiumProps) {
               </span>
             </div>
             <div className="max-w-full truncate text-center text-[11px] font-semibold">
-              {isMe ? 'Voc\u00ea' : entry.name}
+              {isMe ? 'Você' : entry.name}
             </div>
             <div className="text-[10px] text-am">{formatXP(entry.weeklyXP)} XP</div>
             <div

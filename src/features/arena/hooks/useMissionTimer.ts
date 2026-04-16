@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-/** Retorna segundos restantes at\u00e9 expiresAt, atualiza a cada segundo. */
+/** Retorna segundos restantes até expiresAt, atualiza a cada segundo. */
 export function useMissionTimer(expiresAt: string | null): number {
   const [remaining, setRemaining] = useState(() => calcRemaining(expiresAt));
 

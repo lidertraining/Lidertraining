@@ -4,8 +4,8 @@ import { Icon } from '@shared/ui/Icon';
 import { cn } from '@lib/cn';
 
 /**
- * Fluxo 21 dias: marca os dias em que o usu\u00e1rio esteve ativo.
- * Aproximado via streak (simplifica\u00e7\u00e3o; h\u00e1 espa\u00e7o para log de atividade real).
+ * Fluxo 21 dias: marca os dias em que o usuário esteve ativo.
+ * Aproximado via streak (simplificação; há espaço para log de atividade real).
  */
 export function TwentyOneDaysGrid() {
   const { data: profile } = useProfile();
@@ -36,7 +36,7 @@ export function TwentyOneDaysGrid() {
         })}
       </div>
       <p className="text-[11px] text-on-3">
-        Mantenha-se ativo 21 dias seguidos para consolidar o h\u00e1bito.
+        Mantenha-se ativo 21 dias seguidos para consolidar o hábito.
       </p>
     </Card>
   );

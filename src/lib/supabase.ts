@@ -5,8 +5,8 @@ import { env } from './env';
 /**
  * Client do Supabase.
  *
- * A tipagem gen\u00e9rica `createClient<Database>(...)` est\u00e1 desativada enquanto
- * `src/types/database.ts` \u00e9 um stub. Para habilitar tipos fortes:
+ * A tipagem genérica `createClient<Database>(...)` está desativada enquanto
+ * `src/types/database.ts` é um stub. Para habilitar tipos fortes:
  *
  *   1. pnpm setup                  (sobe Supabase local + aplica migrations)
  *   2. pnpm supabase:types         (gera src/types/database.ts real)

@@ -10,7 +10,7 @@ export function ClosingLawsPanel() {
       <div>
         <h3 className="serif text-base font-bold">As 3 Leis do Fechamento</h3>
         <p className="text-xs text-on-3">
-          Domine essas tr\u00eas e voc\u00ea fecha sem parecer vender.
+          Domine essas três e você fecha sem parecer vender.
         </p>
       </div>
       {laws.map((l, i) => (
@@ -33,7 +33,7 @@ export function ClosingLawsPanel() {
           </div>
           <p className="text-sm text-on-2">{l.description}</p>
           <div className="rounded-card-sm bg-sf-hi p-3 text-xs italic text-on-3">
-            \u201C{l.example}\u201D
+            “{l.example}”
           </div>
         </Card>
       ))}

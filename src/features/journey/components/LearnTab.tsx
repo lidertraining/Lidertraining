@@ -47,7 +47,7 @@ export function LearnTab({ step }: LearnTabProps) {
             variant="surface"
             onClick={() => addXP({ amount: 10, reason: 'Flashcards revisados' })}
           >
-            Revisei \u00b7 +10 XP
+            Revisei · +10 XP
           </Button>
         </div>
         <p className="text-xs text-on-3">

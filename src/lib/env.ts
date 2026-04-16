@@ -10,8 +10,8 @@ const EnvSchema = z.object({
 function parseEnv() {
   const parsed = EnvSchema.safeParse(import.meta.env);
   if (!parsed.success) {
-    console.error('\u274c Env inv\u00e1lida:', parsed.error.flatten().fieldErrors);
-    throw new Error('Vari\u00e1veis de ambiente inv\u00e1lidas. Cheque .env.local');
+    console.error('❌ Env inválida:', parsed.error.flatten().fieldErrors);
+    throw new Error('Variáveis de ambiente inválidas. Cheque .env.local');
   }
   return parsed.data;
 }

@@ -3,7 +3,7 @@ import { useAuth } from '@shared/hooks/useAuth';
 import { supabase } from '@lib/supabase';
 import type { Profile } from '@ltypes/domain';
 
-/** Query do profile do usu\u00e1rio autenticado. */
+/** Query do profile do usuário autenticado. */
 export function useProfile() {
   const { session } = useAuth();
   const userId = session?.user.id;
@@ -22,7 +22,7 @@ export function useProfile() {
       if (error) throw error;
       if (!data) return null;
 
-      // Mapeia snake_case do Postgres para camelCase do dom\u00ednio
+      // Mapeia snake_case do Postgres para camelCase do domínio
       return mapProfile(data);
     },
     staleTime: 1000 * 30,

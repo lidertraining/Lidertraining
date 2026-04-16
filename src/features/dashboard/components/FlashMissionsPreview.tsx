@@ -12,15 +12,15 @@ export function FlashMissionsPreview() {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <h2 className="serif text-lg font-bold">Miss\u00f5es Flash</h2>
+        <h2 className="serif text-lg font-bold">Missões Flash</h2>
         <Link to={ROUTES.ARENA} className="text-xs font-semibold text-am">
-          Ver todas \u2192
+          Ver todas →
         </Link>
       </div>
 
       {flashMissions.length === 0 ? (
         <Card variant="surface-sm" className="p-4 text-center text-sm text-on-3">
-          Sem miss\u00f5es flash ativas agora.
+          Sem missões flash ativas agora.
         </Card>
       ) : (
         flashMissions.map((m) => {

@@ -29,7 +29,7 @@ export function VIP600Card() {
         </div>
         <ProgressBar value={pct} fillClassName="bg-gp" />
         <p className="text-[11px] text-on-3">
-          Mantenha o ritmo consumindo e compartilhando produtos todo m\u00eas.
+          Mantenha o ritmo consumindo e compartilhando produtos todo mês.
         </p>
       </Card>
     </section>

@@ -8,9 +8,9 @@ export interface InviteInfo {
 }
 
 /**
- * Valida um c\u00f3digo de convite e retorna nome do patrocinador.
- * Requer uma view p\u00fablica public_invites que exp\u00f5e somente campos n\u00e3o-sens\u00edveis.
- * No MVP, retornamos algo razo\u00e1vel mesmo sem a view pronta.
+ * Valida um código de convite e retorna nome do patrocinador.
+ * Requer uma view pública public_invites que expõe somente campos não-sensíveis.
+ * No MVP, retornamos algo razoável mesmo sem a view pronta.
  */
 export async function validateInvite(code: string): Promise<InviteInfo> {
   const { data, error } = await supabase

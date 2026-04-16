@@ -27,7 +27,7 @@ export function PracticeTab({ step }: PracticeTabProps) {
           </div>
         </div>
         <p className="text-sm text-on-2">
-          Pratique {step.name.toLowerCase()} em um cen\u00e1rio simulado. Sem press\u00e3o,
+          Pratique {step.name.toLowerCase()} em um cenário simulado. Sem pressão,
           sem julgamento.
         </p>
         <Button
@@ -35,7 +35,7 @@ export function PracticeTab({ step }: PracticeTabProps) {
           leftIcon={<Icon name="play_arrow" filled className="!text-[18px]" />}
           onClick={() => addXP({ amount: 15, reason: 'Simulador praticado' })}
         >
-          Iniciar pr\u00e1tica \u00b7 +15 XP
+          Iniciar prática · +15 XP
         </Button>
       </Card>
 

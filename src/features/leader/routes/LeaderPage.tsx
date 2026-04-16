@@ -15,8 +15,8 @@ export function LeaderPage() {
   return (
     <div className="flex flex-col gap-5 pt-2">
       <header className="animate-fade-up">
-        <div className="text-sm text-on-3">Gest\u00e3o da sua equipe</div>
-        <h1 className="serif text-3xl font-bold">L\u00edder</h1>
+        <div className="text-sm text-on-3">Gestão da sua equipe</div>
+        <h1 className="serif text-3xl font-bold">Líder</h1>
       </header>
 
       <TeamStats members={members} />
@@ -27,9 +27,9 @@ export function LeaderPage() {
             <Icon name="account_tree" filled className="!text-[20px] text-white" />
           </div>
           <div className="flex-1">
-            <div className="serif text-base font-bold">Ver \u00e1rvore da rede</div>
+            <div className="serif text-base font-bold">Ver árvore da rede</div>
             <div className="text-[11px] text-on-3">
-              At\u00e9 6 n\u00edveis de profundidade
+              Até 6 níveis de profundidade
             </div>
           </div>
           <Icon name="chevron_right" className="!text-[18px] text-on-3" />
@@ -45,12 +45,12 @@ export function LeaderPage() {
         </div>
 
         {isLoading ? (
-          <div className="py-6 text-center text-xs text-on-3">Carregando equipe\u2026</div>
+          <div className="py-6 text-center text-xs text-on-3">Carregando equipe…</div>
         ) : direct.length === 0 ? (
           <EmptyState
             icon="group_add"
             title="Equipe vazia"
-            description="Compartilhe seu c\u00f3digo de convite no seu perfil para come\u00e7ar a construir sua rede."
+            description="Compartilhe seu código de convite no seu perfil para começar a construir sua rede."
           />
         ) : (
           <div className="flex flex-col gap-2">

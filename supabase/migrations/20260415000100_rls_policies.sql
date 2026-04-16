@@ -39,7 +39,7 @@ create policy profiles_update_self on profiles for update
 
 -- Revogar acesso global a UPDATE, conceder apenas colunas permitidas
 revoke update on profiles from authenticated;
-grant update (name, avatar_url, comm_goal, onboarded) on profiles to authenticated;
+grant update (name, avatar_url, comm_goal, onboarded, fir_step, fir_completed, streak_freeze_active) on profiles to authenticated;
 
 -- ------------------------------------------------------------
 -- INVITE CODES

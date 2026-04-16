@@ -21,7 +21,7 @@ export function NetworkNode({ member, nested = [], allMembers }: NetworkNodeProp
         <div className="min-w-0 flex-1">
           <div className="truncate text-xs font-semibold">{member.name}</div>
           <div className="text-[10px] text-on-3">
-            {member.level} \u00b7 {formatXP(member.xp)} XP
+            {member.level} · {formatXP(member.xp)} XP
           </div>
         </div>
         <div

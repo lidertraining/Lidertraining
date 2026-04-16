@@ -31,7 +31,7 @@ export class ErrorBoundary extends Component<Props, State> {
           <Icon name="error" filled className="!text-5xl text-rb" />
           <h1 className="serif text-2xl font-bold">Algo deu errado</h1>
           <p className="max-w-xs text-sm text-on-3">
-            N\u00f3s registramos o erro. Tente recarregar a p\u00e1gina.
+            Nós registramos o erro. Tente recarregar a página.
           </p>
           <Button onClick={() => window.location.reload()}>Recarregar</Button>
           <button onClick={this.reset} className="text-xs text-on-3 hover:text-on">
