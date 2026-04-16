@@ -5,12 +5,49 @@ import { Textarea } from '@shared/ui/Textarea';
 import { Card } from '@shared/ui/Card';
 import { Icon } from '@shared/ui/Icon';
 import { useToast } from '@shared/hooks/useToast';
+import type { JourneyStep } from '@ltypes/content';
 
 interface TasksTabProps {
   stepId: number;
+  step?: JourneyStep;
 }
 
-export function TasksTab({ stepId }: TasksTabProps) {
+/**
+ * Persiste as tarefas marcadas em localStorage por (stepId, index).
+ * É reset-ável: não é fonte de verdade, só ajuda o usuário a acompanhar visualmente.
+ */
+function useLocalChecklist(stepId: number, length: number) {
+  const key = `lt_step_checklist_${stepId}`;
+  const [checked, setChecked] = useState<boolean[]>(() => {
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        const arr = JSON.parse(raw) as boolean[];
+        if (Array.isArray(arr) && arr.length === length) return arr;
+      }
+    } catch {
+      /* empty */
+    }
+    return Array(length).fill(false);
+  });
+
+  const toggle = (i: number) => {
+    setChecked((prev) => {
+      const next = prev.slice();
+      next[i] = !next[i];
+      try {
+        localStorage.setItem(key, JSON.stringify(next));
+      } catch {
+        /* empty */
+      }
+      return next;
+    });
+  };
+
+  return { checked, toggle };
+}
+
+export function TasksTab({ stepId, step }: TasksTabProps) {
   const qc = useQueryClient();
   const { toast } = useToast();
   const { data: initial = '' } = useQuery({
@@ -23,13 +60,15 @@ export function TasksTab({ stepId }: TasksTabProps) {
   const timer = useRef<number | null>(null);
   const lastSaved = useRef<string>(initial);
 
-  // Sincroniza valor inicial quando chega do server
+  const tasks = step?.tasks ?? [];
+  const { checked, toggle } = useLocalChecklist(stepId, tasks.length);
+  const doneCount = checked.filter(Boolean).length;
+
   useEffect(() => {
     setValue(initial);
     lastSaved.current = initial;
   }, [initial]);
 
-  // Autosave debounced
   useEffect(() => {
     if (value === lastSaved.current) return;
     if (timer.current) window.clearTimeout(timer.current);
@@ -52,7 +91,62 @@ export function TasksTab({ stepId }: TasksTabProps) {
   }, [value, stepId, qc, toast]);
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
+      {/* Lista de tarefas prontas */}
+      {tasks.length > 0 && (
+        <Card variant="surface" className="flex flex-col gap-3 p-5">
+          <div className="flex items-center gap-2">
+            <Icon name="checklist" filled className="!text-[20px] text-em" />
+            <div className="flex-1 serif text-base font-bold">
+              Sua checklist deste passo
+            </div>
+            <span className="rounded-chip bg-em/20 px-2 py-0.5 text-[10px] font-semibold text-em">
+              {doneCount}/{tasks.length}
+            </span>
+          </div>
+          <ol className="flex flex-col gap-3">
+            {tasks.map((task, i) => {
+              const isChecked = checked[i] ?? false;
+              return (
+                <li key={i} className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => toggle(i)}
+                    aria-label={`Marcar tarefa ${i + 1}`}
+                    className={
+                      'tap mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md transition ' +
+                      (isChecked
+                        ? 'bg-em text-white'
+                        : 'border-2 border-sf-top bg-sf-void text-transparent')
+                    }
+                  >
+                    <Icon name="check" filled className="!text-[16px]" />
+                  </button>
+                  <div className="flex-1">
+                    <div
+                      className={
+                        'text-sm font-semibold text-on ' +
+                        (isChecked ? 'line-through opacity-60' : '')
+                      }
+                    >
+                      {i + 1}. {task.title}
+                    </div>
+                    {task.detail && (
+                      <div className="mt-0.5 text-[11px] text-on-3">{task.detail}</div>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+          <p className="text-[10px] italic text-on-3">
+            Checklist é apenas sua referência pessoal. A conclusão real do passo é via botão
+            "Concluir passo" no rodapé.
+          </p>
+        </Card>
+      )}
+
+      {/* Caderno do passo */}
       <Card variant="surface" className="flex flex-col gap-2 p-4">
         <div className="flex items-center gap-2">
           <Icon name="edit_note" filled className="!text-[20px] text-am" />

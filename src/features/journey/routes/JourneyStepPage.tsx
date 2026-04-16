@@ -76,7 +76,7 @@ export function JourneyStepPage() {
 
       <div>
         {tab === 'aprender' && <LearnTab step={step} />}
-        {tab === 'tarefas' && <TasksTab stepId={sid} />}
+        {tab === 'tarefas' && <TasksTab stepId={sid} step={step} />}
         {tab === 'praticar' && <PracticeTab step={step} />}
         {tab === 'agentes' && <AgentsTab />}
       </div>
