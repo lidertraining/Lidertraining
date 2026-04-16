@@ -464,8 +464,195 @@ Primeira abordagem dura **no máximo 3 minutos**. Seu objetivo não é vender �
       'Não anotar a resposta. Em 30 dias você esquece quem disse o quê.',
     ],
   },
-  { id: 6, name: 'Convite', icon: 'mail', color: 'am', description: 'Chame para conhecer' },
-  { id: 7, name: 'Apresentação', icon: 'co_present', color: 'am', description: '4 formas de mostrar' },
+  {
+    id: 6,
+    name: 'Convite',
+    icon: 'mail',
+    color: 'am',
+    description: 'Chame para conhecer',
+    goal: 'Conduzir um convite em 3 minutos que gera curiosidade, marca horário e mantém postura profissional.',
+    timeMinutes: 25,
+    body: `**O convite é a venda da apresentação — não do negócio.**
+
+Confundir isso é o erro número 1 da prospecção. Você não convence ninguém em 3 minutos de WhatsApp. Você **convida pra ver** com calma. Se o convite for bem feito, a apresentação faz o resto.
+
+### Os 4 tipos de convite
+
+**1. Direto (para listas quentes)**
+> "Vou direto: tô num projeto que já rendeu X pra mim. Lembrei de você. Posso te mostrar 20 minutos?"
+
+Funciona com gente próxima que já confia em você. Evite floreios.
+
+**2. Indireto (para mornos)**
+> "Você conhece alguém que tá buscando renda extra? Tô montando um time e posso te mandar as infos pra você indicar."
+
+Se a pessoa estiver interessada, ela mesma vai perguntar "tem pra mim também?".
+
+**3. Ponte (para curiosos)**
+> "Vou te mandar um vídeo de 4 minutos. Se fizer sentido, a gente conversa. Se não fizer, tudo bem."
+
+Dá controle ao lead. Diminui a guarda.
+
+**4. Convite social (para eventos)**
+> "Vai ter um evento online sobre empreendedorismo digital semana que vem. Colei seu nome na lista. Topa aparecer 1 hora?"
+
+Coloca você como curador, não como vendedor.
+
+### Os 5 passos de todo convite
+
+1. **Contexto curto** (1 frase): "lembrei de você / vi o post / vi que você tá procurando algo novo"
+2. **Motivo** (1 frase): "tô num projeto que tá dando muito certo"
+3. **Convite** (1 frase): "quero te mostrar"
+4. **Timing** (pergunta fechada): "amanhã ou terça?"
+5. **Confirmação** (nunca feche sem confirmar): "beleza, mando o link pouco antes"
+
+### Regra da escassez honesta
+
+"Tenho 2 vagas na turma dessa semana." Se for verdade, use. Se for mentira, **não use** — queima a confiança pra sempre.`,
+    tasks: [
+      {
+        title: 'Escolher seu tipo preferido de convite (1 dos 4)',
+        detail: 'Qual combina mais com sua personalidade? Treine esse primeiro.',
+      },
+      {
+        title: 'Fazer 5 convites reais esta semana',
+        detail: 'Use o script escolhido. Meta: 3 agendamentos confirmados.',
+      },
+      {
+        title: 'Praticar com cônjuge/amigo antes do real',
+        detail: 'Role-play de 10 minutos. Ajusta o tom até soar natural.',
+      },
+      {
+        title: 'Registrar objeções encontradas',
+        detail: 'Anote cada "não posso hoje", "me manda link", "não tenho tempo". Vira material do passo 9.',
+      },
+    ],
+    scripts: [
+      {
+        scenario: 'Convite direto — áudio no WhatsApp',
+        text: 'Oi [nome], tudo bem? Tô super animado com um projeto novo que entrei e lembrei de você. Eu não te falo em áudio à toa — é que eu acho que pode ter muito a ver com seu momento. Queria te mostrar, são uns 20 minutos. Amanhã de manhã ou terça à noite, qual fica melhor?',
+      },
+      {
+        scenario: 'Se perguntar "do que se trata?"',
+        text: 'É uma área que eu nunca tinha pensado mas tá mudando minha vida financeira. Justamente por isso eu não consigo explicar em uma mensagem — merece tempo pra você decidir com calma. São 20 minutos. Topa?',
+      },
+      {
+        scenario: 'Se pedir pra mandar vídeo',
+        text: 'Eu vou te mandar sim — mas deixa eu te explicar por que funciona melhor a gente conversar antes. Se eu mandar o vídeo agora, você vai assistir sozinho, ficar com dúvida e me responder em 3 dias. Se a gente conversar 20 min antes, eu vejo se faz sentido pra você e não perdemos tempo.',
+      },
+    ],
+    examples: [
+      'Clarice convidou 50 pessoas em 10 dias — 30 marcaram. O segredo: enviava áudio, não texto. Áudio transmite entusiasmo.',
+      'Pedro usou o convite "ponte" por 3 meses. Taxa de retorno: 22%. Trocou pro "direto" — pulou pra 48%. Descobriu que sua autenticidade funciona melhor no direto.',
+    ],
+    mistakes: [
+      'Mandar texto longo explicando o negócio. O convite é curto. Explicação é na apresentação.',
+      'Perguntar "você tem interesse?". O lead responde "não" por reflexo. Pergunte sobre horário: "manhã ou tarde?"',
+      'Insistir depois de 3 "nãos". Marca pra daqui 60 dias. Muita coisa muda em 2 meses.',
+    ],
+  },
+
+  {
+    id: 7,
+    name: 'Apresentação',
+    icon: 'co_present',
+    color: 'am',
+    description: '4 formas de mostrar',
+    goal: 'Fazer uma apresentação que conduza o lead naturalmente ao "sim" — sem precisar convencer, sem parecer pressão.',
+    timeMinutes: 60,
+    body: `**Apresentação não é palestra. É conversa com estrutura.**
+
+O lead não quer assistir — quer **se ver** no plano. Sua função é conduzir pra ele enxergar onde ele se encaixa. Isso muda tudo na forma de apresentar.
+
+### Os 4 formatos (escolha o certo)
+
+**1. Presencial 1 a 1** — melhor conversão, mas demora. Use com leads quentes e estratégicos (líder em potencial, investidor).
+
+**2. Online 1 a 1 (Zoom/Meet)** — 60% da conversão de presencial, 10x mais escala. **É o padrão moderno.**
+
+**3. Vídeo de apresentação gravado** — baixa conversão (5-8%), mas filtra interessados. Use como primeira barreira: quem assistir vira 1 a 1.
+
+**4. Evento em grupo (ao vivo ou webinar)** — alta energia, prova social, prazo. Bom pra prospectos conhecidos que precisam de empurrão.
+
+### Estrutura universal (45-60 min)
+
+1. **Abertura (5 min):** rapport + expectativa. "O que você faz hoje? Por que topou ouvir?"
+2. **Sua história (5 min):** os 3 atos do passo 3.
+3. **Contexto do mercado (10 min):** por que agora, por que nesse setor. Dados.
+4. **A empresa (10 min):** quem somos, tempo, números. Credibilidade.
+5. **O plano (15 min):** como funciona. Exemplo com nomes e números reais. Desenhar no papel.
+6. **A carreira (5 min):** onde a pessoa pode chegar. Níveis. Pessoas que chegaram.
+7. **Chamada pra ação (5 min):** "faz sentido pra você?" → direciona pro passo 10.
+
+### Regra da pergunta ativa
+
+A cada 5 minutos, pare e pergunte:
+- "Até aqui fez sentido?"
+- "Você consegue imaginar isso na sua rotina?"
+- "Esse número é interessante pra você?"
+
+Apresentação sem pergunta vira monólogo. Monólogo perde venda.
+
+### Visuais que funcionam
+
+- Papel e caneta (mostra que você pensou pra ele)
+- Slide de 10 a 15 páginas (não 50)
+- Screenshot de ganhos reais (com consentimento)
+- Vídeo curto (30-60s) com depoimento
+
+### Encerrando sem pressão
+
+Nunca termine com "e aí?". Termine com **escolha binária**:
+> "Eu tenho 2 perguntas pra te fazer antes de você decidir. Pode ser?"
+
+Isso puxa a pessoa pro fechamento (passo 9) naturalmente.`,
+    tasks: [
+      {
+        title: 'Escolher seu formato preferido (dos 4)',
+        detail: 'Online 1 a 1 costuma ser o melhor ponto de partida.',
+      },
+      {
+        title: 'Treinar a apresentação 3x antes da primeira real',
+        detail: 'Primeira no espelho, segunda com cônjuge, terceira pro seu upline dar feedback.',
+      },
+      {
+        title: 'Montar seu kit de slides/anotações',
+        detail: 'Use o material oficial da empresa. Adapta linguagem pro seu estilo.',
+      },
+      {
+        title: 'Agendar 3 apresentações da lista atual',
+        detail: 'Meta: 1 sim, 1 pensa, 1 não. Qualquer distribuição é aprendizado.',
+      },
+      {
+        title: 'Gravar sua apresentação (áudio)',
+        detail: 'Com autorização do lead. Depois escuta e marca onde você perdeu atenção.',
+      },
+    ],
+    scripts: [
+      {
+        scenario: 'Abertura padrão',
+        text: 'Antes de começar, me conta: o que te fez topar esse papo? ... [escuta] ... Isso que você falou é exatamente o que eu vou te mostrar como resolver. Vou dividir em 4 blocos, leva uns 40 minutos, pode ser?',
+      },
+      {
+        scenario: 'Transição pro plano (depois da história)',
+        text: 'Agora que você sabe minha história, deixa eu te mostrar o sistema que tornou isso possível — que é o mesmo sistema que pode fazer isso por você.',
+      },
+      {
+        scenario: 'Encerramento com binária',
+        text: 'Tem duas perguntas que eu preciso te fazer antes de a gente se despedir — pode ser? [aguarda sim] Primeira: no que eu te mostrei, o que mais chamou sua atenção? Segunda: o que te impede de começar hoje?',
+      },
+    ],
+    examples: [
+      'André fez 18 apresentações no primeiro mês: 4 sins, 8 "vou pensar", 6 nãos. Taxa de conversão imediata: 22%. Dos 8 "vou pensar", 3 fecharam em 30 dias.',
+      'Paula só faz online 1 a 1. Média: 45 min por apresentação, 38% de conversão. Ela faz 5 por semana — isso dá 8 novos consultores/mês.',
+    ],
+    mistakes: [
+      'Mostrar números demais. O lead desconecta após o 3º gráfico. Um bom plano cabe em 3 slides.',
+      'Vomitar informação da empresa. Ninguém compra empresa — compra oportunidade pessoal.',
+      'Apresentar sem pergunta. Se você falou 30 min sem ouvir o lead, já perdeu.',
+      'Não marcar o passo seguinte ao final. "Vou te mandar mais infos" = nunca mais fala com a pessoa.',
+    ],
+  },
   { id: 8, name: 'Fechamento', icon: 'handshake', color: 'gd', description: 'As 3 Leis' },
   { id: 9, name: 'Acompanhamento', icon: 'schedule', color: 'em', description: 'Follow-up eficiente' },
   { id: 10, name: 'Duplicação', icon: 'group_add', color: 'em', description: 'Ensine quem entrou' },
