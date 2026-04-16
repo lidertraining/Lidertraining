@@ -8,7 +8,7 @@ const ITEMS = [
   { to: ROUTES.JOURNEY, icon: 'map', label: 'Jornada', end: false },
   { to: ROUTES.PROSPECTOR, icon: 'person_add', label: 'Leads', end: false },
   { to: ROUTES.ACADEMY, icon: 'school', label: 'Academia', end: false },
-  { to: ROUTES.RANKING, icon: 'emoji_events', label: 'Ranking', end: false },
+  { to: ROUTES.LEADER, icon: 'groups', label: 'Líder', end: false },
 ] as const;
 
 export function BottomNav() {
