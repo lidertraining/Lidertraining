@@ -19,7 +19,7 @@ export function Logo({ size = 'md', className }: LogoProps) {
       alt="LiderTraining"
       className={cn(
         IMG_SIZES[size],
-        'object-contain mix-blend-lighten',
+        'rounded-lg object-contain mix-blend-lighten',
         className,
       )}
     />
