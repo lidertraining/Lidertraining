@@ -4,9 +4,9 @@ import { ROUTES } from '@config/routes';
 
 const ACTIONS = [
   { to: ROUTES.PROSPECTOR, icon: 'person_add', label: 'Lead' },
-  { to: ROUTES.JOURNEY, icon: 'route', label: 'Jornada' },
-  { to: ROUTES.ACADEMY, icon: 'headphones', label: 'Academia' },
-  { to: ROUTES.LEADER, icon: 'groups', label: 'Equipe' },
+  { to: ROUTES.ARENA, icon: 'sports_martial_arts', label: 'Arena' },
+  { to: ROUTES.RANKING, icon: 'emoji_events', label: 'Ranking' },
+  { to: ROUTES.NETWORK, icon: 'account_tree', label: 'Rede' },
 ];
 
 export function QuickActions() {

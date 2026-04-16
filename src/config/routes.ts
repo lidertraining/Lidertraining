@@ -15,7 +15,7 @@ export const ROUTES = {
   PROFILE: '/profile',
 } as const;
 
-/** Helpers para construir URLs din\u00e2micas. */
+/** Helpers para construir URLs dinâmicas. */
 export const buildRoute = {
   signup: (code: string) => `/signup/${encodeURIComponent(code)}`,
   journeyStep: (stepId: number | string) => `/journey/${stepId}`,
