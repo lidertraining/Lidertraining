@@ -14,6 +14,7 @@ export interface Profile {
   id: string;
   uplineId: string | null;
   name: string;
+  phone: string | null;
   avatarUrl: string | null;
   // gamification
   xp: number;

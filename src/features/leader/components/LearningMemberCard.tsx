@@ -6,6 +6,7 @@ import { Icon } from '@shared/ui/Icon';
 import { LearningMiniBar } from './LearningMiniBar';
 import { ActivityDot } from './ActivityDot';
 import { formatXP } from '@lib/format';
+import { buildWaURL } from '@lib/phone';
 
 interface LearningMemberCardProps {
   member: TeamLearningMember;
@@ -41,7 +42,21 @@ export function LearningMemberCard({ member }: LearningMemberCardProps) {
               <span className="text-am font-semibold">{formatXP(member.xp)} XP</span>
             </div>
           </div>
-          <ActivityDot daysSinceActive={member.daysSinceActive} />
+          <div className="flex items-center gap-2">
+            <ActivityDot daysSinceActive={member.daysSinceActive} />
+            {member.phone && (
+              <a
+                href={buildWaURL(member.phone, `Oi ${member.name.split(' ')[0]}, tudo bem?`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                aria-label={`Falar com ${member.name} no WhatsApp`}
+                className="tap flex h-8 w-8 items-center justify-center rounded-full bg-em/15 text-em hover:bg-em/25"
+              >
+                <Icon name="chat" filled className="!text-[16px]" />
+              </a>
+            )}
+          </div>
         </div>
 
         {/* Barras de progresso */}

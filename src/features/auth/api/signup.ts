@@ -10,7 +10,13 @@ interface SignupWithInviteInput extends SignupInput {
  * 1) auth.signUp cria registro em auth.users
  * 2) RPC signup_with_invite cria perfil com upline_id do patrocinador
  */
-export async function signupWithInvite({ email, password, name, code }: SignupWithInviteInput) {
+export async function signupWithInvite({
+  email,
+  password,
+  name,
+  phone,
+  code,
+}: SignupWithInviteInput) {
   const { data: authData, error: authError } = await supabase.auth.signUp({ email, password });
   if (authError) throw authError;
   if (!authData.user) throw new Error('Falha ao criar usuário');
@@ -18,6 +24,7 @@ export async function signupWithInvite({ email, password, name, code }: SignupWi
   const { data: profile, error: rpcError } = await supabase.rpc('signup_with_invite', {
     p_code: code,
     p_name: name,
+    p_phone: phone,
   });
   if (rpcError) throw rpcError;
 
