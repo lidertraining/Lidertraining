@@ -10,6 +10,7 @@ import { Button } from '@shared/ui/Button';
 import { Input } from '@shared/ui/Input';
 import { Card } from '@shared/ui/Card';
 import { useToast } from '@shared/hooks/useToast';
+import { Logo } from '@shared/ui/Logo';
 import { ROUTES } from '@config/routes';
 
 export function InviteLandingPage() {
@@ -43,8 +44,8 @@ export function InviteLandingPage() {
       invite?.reason === 'expired'
         ? 'Este convite expirou'
         : invite?.reason === 'exhausted'
-          ? 'Este convite j\u00e1 foi usado'
-          : 'Convite inv\u00e1lido ou inexistente';
+          ? 'Este convite já foi usado'
+          : 'Convite inválido ou inexistente';
     return (
       <div className="mx-auto flex min-h-dvh max-w-page flex-col items-center justify-center gap-4 px-6">
         <Card variant="surface" className="w-full p-6 text-center">
@@ -59,7 +60,7 @@ export function InviteLandingPage() {
     setSubmitting(true);
     try {
       await signupWithInvite({ ...values, code });
-      toast('Conta criada! Bem-vindo \u00e0 equipe', 'success', 'celebration');
+      toast('Conta criada! Bem-vindo à equipe', 'success', 'celebration');
       nav(ROUTES.ONBOARDING);
     } catch (err) {
       toast(err instanceof Error ? err.message : 'Erro ao criar conta', 'error', 'error');
@@ -70,10 +71,10 @@ export function InviteLandingPage() {
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-page flex-col gap-6 px-6 py-12">
-      <div className="text-center">
-        <h1 className="serif text-3xl font-bold">LiderTraining</h1>
-        <p className="mt-2 text-sm text-on-3">
-          Voc\u00ea foi convidado por{' '}
+      <div className="flex flex-col items-center gap-3 text-center">
+        <Logo size="lg" />
+        <p className="text-sm text-on-3">
+          Você foi convidado por{' '}
           <strong className="text-am">{invite.ownerName}</strong>
         </p>
       </div>
@@ -82,14 +83,14 @@ export function InviteLandingPage() {
         <Input placeholder="Seu nome" {...register('name')} error={errors.name?.message} />
         <Input
           type="email"
-          placeholder="Email"
+          placeholder="E-mail"
           autoComplete="email"
           {...register('email')}
           error={errors.email?.message}
         />
         <Input
           type="password"
-          placeholder="Senha (m\u00edn. 6)"
+          placeholder="Senha (mín. 6 caracteres)"
           autoComplete="new-password"
           {...register('password')}
           error={errors.password?.message}
@@ -107,7 +108,7 @@ export function InviteLandingPage() {
       </form>
 
       <p className="text-center text-[11px] text-on-3">
-        Ao criar uma conta voc\u00ea concorda com os termos da plataforma.
+        Ao criar uma conta você concorda com os termos da plataforma.
       </p>
     </div>
   );

@@ -4,7 +4,7 @@ import { Icon } from '@shared/ui/Icon';
 import { cn } from '@lib/cn';
 
 const ITEMS = [
-  { to: ROUTES.DASHBOARD, icon: 'home', label: 'Home', end: true },
+  { to: ROUTES.DASHBOARD, icon: 'home', label: 'Início', end: true },
   { to: ROUTES.JOURNEY, icon: 'map', label: 'Jornada', end: false },
   { to: ROUTES.PROSPECTOR, icon: 'person_add', label: 'Leads', end: false },
   { to: ROUTES.ACADEMY, icon: 'school', label: 'Academia', end: false },

@@ -7,6 +7,7 @@ import { login } from '../api/login';
 import { Button } from '@shared/ui/Button';
 import { Input } from '@shared/ui/Input';
 import { useToast } from '@shared/hooks/useToast';
+import { Logo } from '@shared/ui/Logo';
 import { ROUTES } from '@config/routes';
 
 export function LoginPage() {
@@ -35,15 +36,12 @@ export function LoginPage() {
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-page flex-col items-center justify-center gap-8 px-6 py-12">
-      <div className="text-center">
-        <h1 className="serif text-4xl font-bold">LiderTraining</h1>
-        <p className="mt-2 text-sm text-on-3">Plataforma Elite</p>
-      </div>
+      <Logo size="lg" />
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex w-full flex-col gap-4">
         <Input
           type="email"
-          placeholder="Email"
+          placeholder="E-mail"
           autoComplete="email"
           {...register('email')}
           error={errors.email?.message}
@@ -64,7 +62,7 @@ export function LoginPage() {
         Recebeu um convite? Use o link que seu patrocinador enviou.
         <br />
         <Link to={ROUTES.DASHBOARD} className="text-am hover:underline">
-          Voltar ao in\u00edcio
+          Voltar ao início
         </Link>
       </p>
     </div>
