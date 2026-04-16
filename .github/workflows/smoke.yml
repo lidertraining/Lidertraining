@@ -1,0 +1,97 @@
+name: Smoke Test (deploy + Supabase)
+
+# Roda quando a gente quer: manual ou após push em main
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    env:
+      APP_URL: https://lidertraining.vercel.app
+      SUPABASE_URL: https://xpnnzjmyuforwsccvkta.supabase.co
+      SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhwbm56am15dWZvcndzY2N2a3RhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNjAwODAsImV4cCI6MjA5MTgzNjA4MH0.HzqBe9tOi0bVRy0IMfPz0SVMiqfjZgxUvjEnZVBTPKw
+
+    steps:
+      - name: Aguardar propagação do Vercel
+        run: sleep 15
+
+      # ============ APP (Vercel) ============
+      - name: "🌐 App / root"
+        run: |
+          echo "GET $APP_URL/"
+          CODE=$(curl -s -o /tmp/root.html -w "%{http_code}" "$APP_URL/")
+          echo "HTTP: $CODE"
+          test "$CODE" = "200" || exit 1
+          # Deve ser o HTML do Vite, não a 404 da Vercel
+          grep -q 'id="root"' /tmp/root.html && echo "  ✓ tem <div id=root>" || (echo "  ✗ HTML errado"; cat /tmp/root.html; exit 1)
+          grep -q 'LiderTraining' /tmp/root.html && echo "  ✓ título LiderTraining"
+
+      - name: "🌐 App / login (SPA rewrite)"
+        run: |
+          CODE=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL/login")
+          echo "HTTP: $CODE"
+          test "$CODE" = "200" || exit 1
+          echo "  ✓ rewrite funcionando"
+
+      - name: "🌐 App / signup/DEMO2026 (SPA rewrite com param)"
+        run: |
+          CODE=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL/signup/DEMO2026")
+          echo "HTTP: $CODE"
+          test "$CODE" = "200" || exit 1
+          echo "  ✓ rewrite com params OK"
+
+      # ============ SUPABASE ============
+      - name: "📦 Supabase / REST ping"
+        run: |
+          CODE=$(curl -s -o /dev/null -w "%{http_code}" -H "apikey: $SUPABASE_ANON_KEY" "$SUPABASE_URL/rest/v1/")
+          echo "HTTP: $CODE"
+          test "$CODE" = "200" -o "$CODE" = "404" || exit 1
+          echo "  ✓ REST acessível"
+
+      - name: "📦 Supabase / journey_steps (esperado: 11)"
+        run: |
+          COUNT=$(curl -s -H "apikey: $SUPABASE_ANON_KEY" -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            "$SUPABASE_URL/rest/v1/journey_steps?select=id" | jq length)
+          echo "Retornou $COUNT linhas"
+          test "$COUNT" = "11" || (echo "❌ esperava 11 passos"; exit 1)
+          echo "  ✓ 11 passos seedados"
+
+      - name: "📦 Supabase / audios (esperado: 8)"
+        run: |
+          COUNT=$(curl -s -H "apikey: $SUPABASE_ANON_KEY" -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            "$SUPABASE_URL/rest/v1/audios?select=id" | jq length)
+          echo "Retornou $COUNT"
+          test "$COUNT" = "8" || (echo "❌ esperava 8 áudios"; exit 1)
+          echo "  ✓ 8 áudios"
+
+      - name: "📦 Supabase / invite DEMO2026"
+        run: |
+          COUNT=$(curl -s -H "apikey: $SUPABASE_ANON_KEY" -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            "$SUPABASE_URL/rest/v1/invite_codes?select=code&code=eq.DEMO2026" | jq length)
+          test "$COUNT" = "1" \
+            && echo "  ✓ DEMO2026 existe" \
+            || echo "  ⚠️ DEMO2026 não encontrado — seed.sql não aplicado. Não bloqueia."
+
+      - name: "📦 Supabase / RPC is_ancestor_of registrada"
+        run: |
+          CODE=$(curl -s -o /tmp/rpc.json -w "%{http_code}" \
+            -X POST -H "apikey: $SUPABASE_ANON_KEY" -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{"ancestor":"00000000-0000-0000-0000-000000000000","descendant":"00000000-0000-0000-0000-000000000000"}' \
+            "$SUPABASE_URL/rest/v1/rpc/is_ancestor_of")
+          echo "HTTP: $CODE"
+          test "$CODE" = "200" || (echo "❌ RPC não existe"; cat /tmp/rpc.json; exit 1)
+          echo "  ✓ function existe"
+
+      # ============ AUTH ============
+      - name: "🔐 Auth settings (checa Site URL)"
+        run: |
+          SETTINGS=$(curl -s -H "apikey: $SUPABASE_ANON_KEY" "$SUPABASE_URL/auth/v1/settings")
+          echo "$SETTINGS" | jq -c '{external_email_enabled, mailer_autoconfirm, site_url: .url}' || echo "$SETTINGS"
+
+      # ============ RESUMO ============
+      - name: "🎉 Tudo OK"
+        run: echo "App + Supabase conectados e funcionando."
