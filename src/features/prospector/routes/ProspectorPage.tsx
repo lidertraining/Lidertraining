@@ -6,6 +6,7 @@ import { LeadCard } from '../components/LeadCard';
 import { LeadModal } from '../components/LeadModal';
 import { LeadFilters, type FilterValue } from '../components/LeadFilters';
 import { IcebreakerCarousel } from '../components/IcebreakerCarousel';
+import { ContactImporter } from '../components/ContactImporter';
 import { EmptyState } from '@shared/ui/EmptyState';
 import { StatCard } from '@shared/ui/StatCard';
 
@@ -33,6 +34,8 @@ export function ProspectorPage() {
       </div>
 
       <IcebreakerCarousel />
+
+      <ContactImporter />
 
       <AddLeadForm />
 
