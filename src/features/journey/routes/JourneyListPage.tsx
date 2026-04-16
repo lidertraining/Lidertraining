@@ -5,14 +5,16 @@ import { Card } from '@shared/ui/Card';
 import { Icon } from '@shared/ui/Icon';
 import { ProgressBar } from '@shared/ui/ProgressBar';
 import { buildRoute } from '@config/routes';
+import { isStepDone, countDone } from '@lib/bitmask';
 import { cn } from '@lib/cn';
 
 export function JourneyListPage() {
   const { data: profile } = useProfile();
   const { data: steps = [] } = useJourneySteps();
+  const mask = profile?.journeyDoneMask ?? 0;
   const current = profile?.journeyStep ?? 0;
 
-  const completed = steps.filter((s) => s.id < current).length;
+  const completed = countDone(mask);
   const total = steps.length;
   const progressPct = total > 0 ? (completed / total) * 100 : 0;
 
@@ -21,6 +23,7 @@ export function JourneyListPage() {
       <header className="animate-fade-up">
         <div className="text-sm text-on-3">Trilha completa</div>
         <h1 className="serif text-3xl font-bold">Sua Jornada</h1>
+        <p className="mt-1 text-[11px] text-on-3">Faça os passos na ordem que preferir.</p>
       </header>
 
       <Card variant="surface" className="flex flex-col gap-2 p-4">
@@ -35,19 +38,14 @@ export function JourneyListPage() {
 
       <div className="flex flex-col gap-2">
         {steps.map((step) => {
-          const done = step.id < current;
-          const isCurrent = step.id === current;
-          const locked = step.id > current;
+          const done = isStepDone(mask, step.id);
+          const isCurrent = !done && step.id === current;
 
           return (
             <Link
               key={step.id}
-              to={locked ? '#' : buildRoute.journeyStep(step.id)}
-              aria-disabled={locked}
-              onClick={(e) => {
-                if (locked) e.preventDefault();
-              }}
-              className={cn('tap block', locked && 'cursor-not-allowed opacity-50')}
+              to={buildRoute.journeyStep(step.id)}
+              className="tap block"
             >
               <Card
                 variant="surface-sm"
@@ -64,8 +62,6 @@ export function JourneyListPage() {
                 >
                   {done ? (
                     <Icon name="check" filled className="!text-[20px] text-white" />
-                  ) : locked ? (
-                    <Icon name="lock" className="!text-[18px] text-on-3" />
                   ) : (
                     <Icon name={step.icon} filled className="!text-[22px] text-white" />
                   )}
@@ -76,13 +72,18 @@ export function JourneyListPage() {
                       Passo {step.id + 1}
                     </span>
                     {isCurrent && (
-                      <span className="xp-badge !px-2 !py-0.5 text-[9px]">ATUAL</span>
+                      <span className="xp-badge !px-2 !py-0.5 text-[9px]">SUGERIDO</span>
+                    )}
+                    {done && (
+                      <span className="rounded-chip bg-em/20 px-2 py-0.5 text-[9px] font-semibold text-em">
+                        FEITO
+                      </span>
                     )}
                   </div>
                   <div className="serif text-base font-bold">{step.name}</div>
                   <div className="text-[11px] text-on-3">{step.description}</div>
                 </div>
-                {!locked && <Icon name="chevron_right" className="!text-[18px] text-on-3" />}
+                <Icon name="chevron_right" className="!text-[18px] text-on-3" />
               </Card>
             </Link>
           );

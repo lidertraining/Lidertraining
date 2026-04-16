@@ -1,18 +1,13 @@
 import { supabase } from '@lib/supabase';
-import { addXP } from '@features/gamification/api/addXP';
 
 /**
- * Avança uma etapa do FIR, concede XP via RPC e marca fir_completed quando atinge 8.
+ * Marca um passo do FIR como concluído (em qualquer ordem).
+ * A RPC é idempotente: se o passo já estava marcado, não concede XP de novo.
  */
-export async function advanceFIR(nextStep: number, rewardXP: number, title: string) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Sem sessão');
-
-  const updates: Record<string, unknown> = { fir_step: nextStep };
-  if (nextStep >= 8) updates.fir_completed = true;
-
-  const { error } = await supabase.from('profiles').update(updates).eq('id', user.id);
+export async function advanceFIR(stepId: number, rewardXP: number, _title: string) {
+  const { error } = await supabase.rpc('complete_fir_step', {
+    p_step: stepId,
+    p_reward: rewardXP,
+  });
   if (error) throw error;
-
-  await addXP(rewardXP, `FIR: ${title}`);
 }
