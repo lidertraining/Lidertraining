@@ -840,5 +840,101 @@ Use o **Prospector do app** pra anotar cada contato. Campo "Próximo follow-up" 
       'Tratar follow-up como "perseguição". É cuidado. A diferença é: você entrega valor, não cobra.',
     ],
   },
-  { id: 10, name: 'Duplicação', icon: 'group_add', color: 'em', description: 'Ensine quem entrou' },
+  {
+    id: 10,
+    name: 'Duplicação',
+    icon: 'group_add',
+    color: 'em',
+    description: 'Ensine quem entrou',
+    goal: 'Transformar sua rede em um sistema que cresce sem depender de você — formando líderes que formam líderes.',
+    timeMinutes: 60,
+    body: `**Você não constrói uma rede. Você constrói líderes que constroem a rede.**
+
+Se você precisa estar em toda venda, em toda apresentação, em todo fechamento — você não tem um negócio; tem um emprego autônomo. O jogo muda no dia em que você forma a primeira pessoa capaz de formar outra.
+
+### A lei da duplicação
+
+**Se não pode ser duplicado por qualquer pessoa, não serve.**
+
+Tudo o que você faz tem que ser **simples, transmissível e repetível**. Scripts complicados, técnicas geniais, métodos exclusivos — isso não duplica. Se é difícil pra você, é impossível pra quem entrou semana passada.
+
+### Os 5 blocos do sistema duplicável
+
+**1. Onboarding padrão (FIR — os primeiros 7 dias)**
+Toda pessoa nova passa pelo mesmo caminho: boas-vindas, lista, história, primeiro pedido, primeira apresentação assistida, primeiro convite feito. Sem improvisar.
+
+**2. 1x1 semanal**
+Você conversa 30-45 min com cada líder direto uma vez por semana. Sempre mesmo roteiro: celebrar, revisar números, planejar, ajustar, comprometer.
+
+**3. Reunião de time mensal**
+Uma hora com todo o time ativo. Reconhecimento, ensino, meta. Padronizada — seu líder faz igual no time dele.
+
+**4. Biblioteca de materiais**
+Áudios, vídeos, scripts, slides. **Uma pasta compartilhada com tudo organizado**. Se o novo consultor tem que pedir cada material, não duplica.
+
+**5. Régua de recompensa**
+Todo mundo tem metas claras mensais. Quem bate, ganha reconhecimento público (live, stories, troféu). O que é reconhecido é repetido.
+
+### Os 3 perfis da sua equipe
+
+**Builders (10%):** constroem equipe. Foque 70% do seu tempo aqui. Eles vão trazer 80% do resultado.
+
+**Sellers (30%):** vendem produto mas não constroem. Apoie com material comercial, não force liderança.
+
+**Users (60%):** compram pra si. Mantenha como clientes fidelizados. Não desperdice tempo cobrando recrutamento deles.
+
+### A teoria das 10 gerações
+
+O que você faz nas 3 primeiras gerações define o que acontece nas 10 seguintes. Se a sua geração 1 tá malformada, a 10 vai ser um caos. Invista em **profundidade**, não só em largura.
+
+### A síndrome do herói
+
+Seu instinto vai ser "deixa que eu faço pra ficar mais rápido". Toda vez que você resolve pela sua líder, você atrasa a formação dela em 1 mês. Ensine e solte.`,
+    tasks: [
+      {
+        title: 'Identificar seus 3 potenciais líderes (builders)',
+        detail: 'Abra o Líder do app. Veja quem tem streak, XP semanal alto, indica gente. Foca neles.',
+      },
+      {
+        title: 'Montar biblioteca compartilhada do time',
+        detail: 'Google Drive com pastas: 00-Onboarding, 01-Scripts, 02-Apresentações, 03-Áudios, 04-Cases. Cada consultor novo recebe o link no dia 1.',
+      },
+      {
+        title: 'Implementar o 1x1 semanal com os 3 builders',
+        detail: 'Dia e horário fixos. 30-45 min. Mesmo roteiro toda semana.',
+      },
+      {
+        title: 'Criar a reunião mensal do time',
+        detail: 'Primeira sexta do mês, 20h, Zoom. Reconhecer quem bateu, ensinar uma ferramenta, fechar com meta.',
+      },
+      {
+        title: 'Definir régua de reconhecimento mensal',
+        detail: '3 níveis: bateu meta mínima, bateu meta plus, bateu meta elite. Cada nível tem um reconhecimento claro.',
+      },
+    ],
+    scripts: [
+      {
+        scenario: 'Primeira conversa de duplicação',
+        text: 'Oi [nome], percebi que você tá fazendo um trabalho muito bom. Queria te propor algo: vamos marcar 30 minutos toda semana pra eu te ajudar a acelerar ainda mais. Sem custo, sem pressão — só pra a gente construir juntos. Topa? Que dia e hora funciona melhor pra você?',
+      },
+      {
+        scenario: 'Roteiro padrão do 1x1 semanal',
+        text: '1) Celebrar uma vitória da semana (5 min). 2) Revisar os números (10 min: contatos, apresentações, fechamentos, pedidos). 3) Planejar próxima semana (10 min: meta de cada indicador). 4) Um ensino/ferramenta nova (10 min). 5) Compromisso final por escrito (5 min).',
+      },
+      {
+        scenario: 'Soltar sem abandonar',
+        text: 'A partir dessa semana quero que você comece a fazer a apresentação sozinha. Eu vou ficar assistindo em silêncio pra dar feedback depois. Errar é parte do processo — eu errei muito também. Topa?',
+      },
+    ],
+    examples: [
+      'Nathália treinou 3 builders no primeiro ano. Ano 2, cada uma delas treinou mais 2. Ano 3, time passou de 15 pra 120 sem ela vender mais — só formando.',
+      'Eduardo queria controlar tudo. Ano 1 cresceu rápido; ano 2 estagnou porque ele era o gargalo. Largou o controle, ensinou sua líder a fazer tudo que ele fazia. Ano 3 voltou a crescer — sem ele estar em cada venda.',
+    ],
+    mistakes: [
+      'Fazer pelos outros "porque é mais rápido". Duplicação é lenta no início pra ser rápida depois.',
+      'Tentar duplicar seu jeito exato. Cada pessoa tem estilo. Duplique sistema, não personalidade.',
+      'Focar em largura (muitos diretos) ignorando profundidade. Líder sem apoio vira ex-líder em 90 dias.',
+      'Não ter reunião de time. Consultor solitário desanima. Time conectado dura.',
+    ],
+  },
 ];
