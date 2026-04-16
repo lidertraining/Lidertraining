@@ -94,7 +94,7 @@ export function TasksTab({ stepId, step }: TasksTabProps) {
     <div className="flex flex-col gap-4">
       {/* Lista de tarefas prontas */}
       {tasks.length > 0 && (
-        <Card variant="surface" className="flex flex-col gap-3 p-5" glow="em">
+        <Card variant="surface" className="flex flex-col gap-3 p-5">
           <div className="flex items-center gap-2">
             <Icon name="checklist" filled className="!text-[20px] text-em" />
             <div className="flex-1 serif text-base font-bold">
