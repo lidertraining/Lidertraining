@@ -7,6 +7,7 @@ import { Button } from '@shared/ui/Button';
 import { Tabs } from '@shared/ui/Tabs';
 import { Icon } from '@shared/ui/Icon';
 import { BackButton } from '@shared/layout/BackButton';
+import { Confetti } from '@shared/ui/Confetti';
 import { LearnTab } from '../components/LearnTab';
 import { TasksTab } from '../components/TasksTab';
 import { PracticeTab } from '../components/PracticeTab';
@@ -34,6 +35,7 @@ export function JourneyStepPage() {
   const { data: steps = [] } = useJourneySteps();
   const [tab, setTab] = useState<TabId>('aprender');
   const [finalizing, setFinalizing] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const sid = Number(stepId);
   const step = steps.find((s) => s.id === sid);
@@ -51,8 +53,9 @@ export function JourneyStepPage() {
     try {
       await completeJourneyStep(sid);
       qc.invalidateQueries({ queryKey: ['profile'] });
+      setShowConfetti(true);
       toast('Passo concluído! +100 XP', 'xp', 'star');
-      setTimeout(() => nav(ROUTES.JOURNEY), 400);
+      setTimeout(() => nav(ROUTES.JOURNEY), 1500);
     } catch (err) {
       toast(err instanceof Error ? err.message : 'Erro ao concluir', 'error');
     } finally {
@@ -62,6 +65,7 @@ export function JourneyStepPage() {
 
   return (
     <div className="flex flex-col gap-4 pt-2">
+      <Confetti active={showConfetti} />
       <BackButton to={ROUTES.JOURNEY} label="Todos os passos" />
 
       <header className="animate-fade-up">
