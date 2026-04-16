@@ -3,7 +3,7 @@ import forms from '@tailwindcss/forms';
 import containerQueries from '@tailwindcss/container-queries';
 
 /**
- * Design tokens migrados do prot\u00f3tipo HTML original (reference/index.html.html).
+ * Design tokens migrados do protótipo HTML original (reference/index.html.html).
  * Paleta "amethyst / gold / emerald" preservada 1:1.
  */
 export default {

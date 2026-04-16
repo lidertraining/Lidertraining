@@ -1,5 +1,5 @@
 /**
- * CSS tokens — parte que n\u00e3o cabe no Tailwind.
+ * CSS tokens — parte que não cabe no Tailwind.
  * Glass morphism (backdrop-filter), delays escalonados e radii.
  */
 :root {
@@ -32,7 +32,7 @@
   border-radius: 12px;
 }
 
-/* Delay escalonado para anima\u00e7\u00f5es em cascata */
+/* Delay escalonado para animações em cascata */
 .d0 {
   animation-delay: 0s;
 }
@@ -79,7 +79,7 @@
   border-radius: 99px;
 }
 
-/* Status chips (mant\u00e9m classes hist\u00f3ricas do HTML) */
+/* Status chips (mantém classes históricas do HTML) */
 .st-hot {
   background: rgba(255, 107, 53, 0.12);
   color: #ff6b35;
