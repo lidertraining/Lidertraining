@@ -1,4 +1,5 @@
 import { supabase } from '@lib/supabase';
+import { unescapeRow, unescapeUnicode } from '@lib/unescape';
 import { STEPS } from '@content/steps';
 import { OBJECTIONS } from '@content/objections';
 import { ICEBREAKERS } from '@content/icebreakers';
@@ -9,6 +10,7 @@ import type { JourneyStep, Objection, ClosingLaw, ClosingScript } from '@ltypes/
 /**
  * Carrega os passos da jornada do Supabase.
  * Em caso de falha (p.ex. tabela ainda sem seed), retorna o fallback local.
+ * Decodifica escapes \uXXXX em strings que vieram literais do banco.
  */
 export async function listJourneySteps(): Promise<JourneyStep[]> {
   const { data, error } = await supabase
@@ -16,7 +18,7 @@ export async function listJourneySteps(): Promise<JourneyStep[]> {
     .select('id, name, icon, color, description')
     .order('id');
   if (error || !data || data.length === 0) return STEPS;
-  return data as JourneyStep[];
+  return (data as JourneyStep[]).map((r) => unescapeRow(r));
 }
 
 export async function listObjections(): Promise<Objection[]> {
@@ -25,13 +27,13 @@ export async function listObjections(): Promise<Objection[]> {
     .select('objection, response')
     .order('order_idx');
   if (error || !data || data.length === 0) return OBJECTIONS;
-  return data as Objection[];
+  return (data as Objection[]).map((r) => unescapeRow(r));
 }
 
 export async function listIcebreakers(): Promise<string[]> {
   const { data, error } = await supabase.from('icebreakers').select('text').order('order_idx');
   if (error || !data || data.length === 0) return ICEBREAKERS;
-  return data.map((r) => r.text);
+  return data.map((r) => unescapeUnicode(r.text));
 }
 
 export async function listClosingLaws(): Promise<ClosingLaw[]> {
@@ -40,7 +42,7 @@ export async function listClosingLaws(): Promise<ClosingLaw[]> {
     .select('name, description, icon, example')
     .order('order_idx');
   if (error || !data || data.length === 0) return CLOSING_LAWS;
-  return data as ClosingLaw[];
+  return (data as ClosingLaw[]).map((r) => unescapeRow(r));
 }
 
 export async function listClosingScripts(): Promise<ClosingScript[]> {
@@ -49,7 +51,7 @@ export async function listClosingScripts(): Promise<ClosingScript[]> {
     .select('name, template')
     .order('order_idx');
   if (error || !data || data.length === 0) return CLOSING_SCRIPTS;
-  return data as ClosingScript[];
+  return (data as ClosingScript[]).map((r) => unescapeRow(r));
 }
 
 export async function getStepNotes(stepId: number): Promise<string> {

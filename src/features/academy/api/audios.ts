@@ -1,4 +1,5 @@
 import { supabase } from '@lib/supabase';
+import { unescapeUnicode } from '@lib/unescape';
 import { AUDIOS } from '@content/audios';
 import type { AudioTrack } from '@ltypes/content';
 
@@ -17,7 +18,7 @@ export async function listAudios(userId: string): Promise<AudioWithProgress[]> {
       ? AUDIOS
       : audiosRes.data.map((r) => ({
           id: r.id,
-          title: r.title,
+          title: unescapeUnicode(r.title),
           durationSeconds: r.duration_seconds,
           url: r.url ?? undefined,
         }));
