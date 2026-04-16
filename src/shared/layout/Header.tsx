@@ -7,12 +7,14 @@ import { useProfile } from '@shared/hooks/useProfile';
 import { formatXP } from '@lib/format';
 import { useNotifications } from '@features/notifications/hooks/useNotifications';
 import { NotificationsModal } from '@features/notifications/components/NotificationsModal';
+import { StreakFreezeModal } from '@shared/ui/StreakFreezeModal';
 import { cn } from '@lib/cn';
 
 export function Header() {
   const { data: profile } = useProfile();
   const { unreadCount } = useNotifications();
   const [notifOpen, setNotifOpen] = useState(false);
+  const [freezeOpen, setFreezeOpen] = useState(false);
 
   const energy = profile?.energy ?? 0;
   const maxEnergy = profile?.maxEnergy ?? 5;
@@ -49,10 +51,12 @@ export function Header() {
             <span className="text-[10px] font-bold text-on-3">{energy}</span>
           </div>
 
-          {/* Streak flame */}
-          <div
+          {/* Streak flame (click abre freeze modal) */}
+          <button
+            type="button"
+            onClick={() => setFreezeOpen(true)}
             className={cn(
-              'flex items-center gap-1 rounded-chip px-2 py-0.5',
+              'tap flex items-center gap-1 rounded-chip px-2 py-0.5',
               streak > 0 ? 'bg-or/15' : 'bg-sf-top',
             )}
           >
@@ -73,7 +77,7 @@ export function Header() {
             >
               {streak}
             </span>
-          </div>
+          </button>
         </div>
 
         {/* Level + XP badge */}
@@ -120,6 +124,7 @@ export function Header() {
       </header>
 
       <NotificationsModal open={notifOpen} onClose={() => setNotifOpen(false)} />
+      <StreakFreezeModal open={freezeOpen} onClose={() => setFreezeOpen(false)} />
     </>
   );
 }
