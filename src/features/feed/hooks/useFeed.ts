@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@lib/supabase';
 import { useAuth } from '@shared/hooks/useAuth';
@@ -10,6 +10,7 @@ export function useFeed(limit = 20) {
   const { session } = useAuth();
   const qc = useQueryClient();
   const uid = session?.user.id;
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   const query = useQuery<FeedEvent[]>({
     queryKey: ['feed', uid, limit],
@@ -19,18 +20,28 @@ export function useFeed(limit = 20) {
 
   useEffect(() => {
     if (!uid) return;
-    const ch = supabase
-      .channel(`feed:${uid}`)
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'feed_events' },
-        () => {
-          qc.invalidateQueries({ queryKey: ['feed'] });
-        },
-      )
-      .subscribe();
+
+    try {
+      const ch = supabase
+        .channel(`feed:${uid}:${Date.now()}`)
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'feed_events' },
+          () => {
+            qc.invalidateQueries({ queryKey: ['feed'] });
+          },
+        )
+        .subscribe();
+      channelRef.current = ch;
+    } catch {
+      // Realtime não é crítico
+    }
+
     return () => {
-      supabase.removeChannel(ch);
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current);
+        channelRef.current = null;
+      }
     };
   }, [uid, qc]);
 
