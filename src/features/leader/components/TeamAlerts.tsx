@@ -25,7 +25,7 @@ export function TeamAlerts({ members }: TeamAlertsProps) {
   return (
     <div className="flex flex-col gap-2">
       <h3 className="text-[10px] font-semibold uppercase tracking-wider text-or">
-        Alertas autom\u00e1ticos
+        Alertas automáticos
       </h3>
       {atRisk.map((m) => (
         <Card
@@ -39,7 +39,7 @@ export function TeamAlerts({ members }: TeamAlertsProps) {
           <div className="flex-1">
             <div className="text-sm font-semibold">{m.name}</div>
             <div className="text-[11px] text-on-3">
-              Streak perdido \u00b7 {m.xp} XP total
+              Streak perdido · {m.xp} XP total
             </div>
           </div>
           <Icon name="chevron_right" className="!text-[18px] text-on-3" />

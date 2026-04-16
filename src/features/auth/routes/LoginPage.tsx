@@ -54,7 +54,7 @@ export function LoginPage() {
           error={errors.password?.message}
         />
         <Button type="submit" fullWidth disabled={submitting}>
-          {submitting ? 'Entrando\u2026' : 'Entrar'}
+          {submitting ? 'Entrando…' : 'Entrar'}
         </Button>
       </form>
 

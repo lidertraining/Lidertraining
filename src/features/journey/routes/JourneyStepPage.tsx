@@ -41,7 +41,7 @@ export function JourneyStepPage() {
 
   if (!step) {
     return (
-      <div className="pt-6 text-center text-sm text-on-3">Passo n\u00e3o encontrado</div>
+      <div className="pt-6 text-center text-sm text-on-3">Passo não encontrado</div>
     );
   }
 
@@ -50,7 +50,7 @@ export function JourneyStepPage() {
     try {
       await completeJourneyStep(sid);
       qc.invalidateQueries({ queryKey: ['profile'] });
-      toast('Passo conclu\u00eddo! +100 XP', 'xp', 'star');
+      toast('Passo concluído! +100 XP', 'xp', 'star');
       setTimeout(() => nav(ROUTES.JOURNEY), 400);
     } catch (err) {
       toast(err instanceof Error ? err.message : 'Erro ao concluir', 'error');
@@ -88,14 +88,14 @@ export function JourneyStepPage() {
           disabled={finalizing}
           leftIcon={<Icon name="check_circle" filled className="!text-[18px]" />}
         >
-          {finalizing ? 'Conclu\u00edndo\u2026' : 'Concluir passo \u00b7 +100 XP'}
+          {finalizing ? 'Concluíndo…' : 'Concluir passo · +100 XP'}
         </Button>
       )}
 
       {isDone && (
         <div className="flex items-center justify-center gap-2 rounded-card bg-em/15 py-3 text-sm font-semibold text-em">
           <Icon name="verified" filled className="!text-[18px]" />
-          Passo conclu\u00eddo
+          Passo concluído
         </div>
       )}
     </div>

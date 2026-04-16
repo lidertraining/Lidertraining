@@ -21,7 +21,7 @@ export function useMarkAudioComplete() {
 
   return useMutation({
     mutationFn: async ({ audioId, title }: { audioId: string; title: string }) => {
-      if (!uid) throw new Error('Sem sess\u00e3o');
+      if (!uid) throw new Error('Sem sessão');
       await markAudioComplete(uid, audioId);
       return title;
     },

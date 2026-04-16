@@ -5,7 +5,7 @@ import { useToast } from '@shared/hooks/useToast';
 const AGENTS = [
   { id: 'coach', icon: 'support_agent', name: 'Coach Virtual', desc: 'Feedback em tempo real' },
   { id: 'scripts', icon: 'edit_document', name: 'Gerador de Scripts', desc: 'Personalizado por persona' },
-  { id: 'objections', icon: 'psychology', name: 'Analisador de Objeções', desc: 'Trate cada d\u00favida do lead' },
+  { id: 'objections', icon: 'psychology', name: 'Analisador de Objeções', desc: 'Trate cada dúvida do lead' },
 ];
 
 export function AgentsTab() {
@@ -14,7 +14,7 @@ export function AgentsTab() {
   return (
     <div className="flex flex-col gap-3">
       <p className="text-xs text-on-3">
-        Agentes de IA para acelerar sua pr\u00e1tica. Em breve.
+        Agentes de IA para acelerar sua prática. Em breve.
       </p>
       {AGENTS.map((a) => (
         <Card key={a.id} variant="surface-sm" className="flex items-center gap-3 p-4">

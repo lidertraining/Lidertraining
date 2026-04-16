@@ -1,4 +1,4 @@
-/** Tipos do conte\u00fado est\u00e1tico (passos, objeções, scripts, \u00e1udios, etc.). */
+/** Tipos do conteúdo estático (passos, objeções, scripts, áudios, etc.). */
 
 export interface JourneyStep {
   id: number;

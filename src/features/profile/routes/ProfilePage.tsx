@@ -27,7 +27,7 @@ export function ProfilePage() {
       </div>
 
       <p className="mt-4 text-center text-[11px] text-on-3">
-        Scout, streak freeze e configura\u00e7\u00f5es chegam em breve.
+        Scout, streak freeze e configurações chegam em breve.
       </p>
     </div>
   );

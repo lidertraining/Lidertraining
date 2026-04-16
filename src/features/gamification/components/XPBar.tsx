@@ -17,7 +17,7 @@ export function XPBar({ xp }: XPBarProps) {
           <Icon name={current.icon} filled className={`text-${current.color}`} />
           <div>
             <div className="text-[10px] font-semibold uppercase tracking-wider text-on-3">
-              N\u00edvel atual
+              Nível atual
             </div>
             <div className="serif text-lg font-bold">{current.name}</div>
           </div>
@@ -26,7 +26,7 @@ export function XPBar({ xp }: XPBarProps) {
           <div className="text-xs text-on-3">
             {formatXP(xp)} XP{next && ` / ${formatXP(next.xp)}`}
           </div>
-          {next && <div className="text-[10px] text-am">{next.name} \u2192</div>}
+          {next && <div className="text-[10px] text-am">{next.name} →</div>}
         </div>
       </div>
       <ProgressBar value={progress} fillClassName="bg-gp" />

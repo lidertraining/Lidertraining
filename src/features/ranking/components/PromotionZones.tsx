@@ -10,7 +10,7 @@ export function PromotionZones() {
         </div>
         <div className="flex-1">
           <div className="text-xs font-semibold">Top 5 sobem</div>
-          <div className="text-[10px] text-on-3">Pr\u00f3xima liga</div>
+          <div className="text-[10px] text-on-3">Próxima liga</div>
         </div>
       </Card>
       <Card variant="surface-sm" className="flex items-center gap-2 p-3">

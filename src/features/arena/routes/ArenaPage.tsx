@@ -15,19 +15,19 @@ export function ArenaPage() {
   return (
     <div className="flex flex-col gap-6 pt-2">
       <header className="animate-fade-up">
-        <div className="text-sm text-on-3">Miss\u00f5es e conquistas</div>
+        <div className="text-sm text-on-3">Missões e conquistas</div>
         <h1 className="serif text-3xl font-bold">Arena</h1>
       </header>
 
       <Start48hPanel />
 
       {isLoading ? (
-        <div className="py-6 text-center text-xs text-on-3">Carregando miss\u00f5es\u2026</div>
+        <div className="py-6 text-center text-xs text-on-3">Carregando missões…</div>
       ) : (
         <>
           {flash.length > 0 && (
             <section className="flex flex-col gap-3">
-              <h2 className="serif text-lg font-bold">Miss\u00f5es flash</h2>
+              <h2 className="serif text-lg font-bold">Missões flash</h2>
               {flash.map((m) => (
                 <FlashMissionCard key={m.id} mission={m} />
               ))}
@@ -55,8 +55,8 @@ export function ArenaPage() {
           {missions.length === 0 && (
             <EmptyState
               icon="stadium"
-              title="Nenhuma miss\u00e3o ativa"
-              description="Novas miss\u00f5es aparecem semanalmente."
+              title="Nenhuma missão ativa"
+              description="Novas missões aparecem semanalmente."
             />
           )}
         </>

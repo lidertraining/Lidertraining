@@ -9,7 +9,7 @@ export function RequireAuth() {
   if (loading) {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-sf-void text-on-3">
-        Carregando\u2026
+        Carregando…
       </div>
     );
   }

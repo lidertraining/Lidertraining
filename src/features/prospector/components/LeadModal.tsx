@@ -51,7 +51,7 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
             <option value="frio">Frio</option>
             <option value="morno">Morno</option>
             <option value="quente">Quente</option>
-            <option value="fechado">Fechado \u00b7 +50 XP</option>
+            <option value="fechado">Fechado · +50 XP</option>
           </Select>
         </label>
 
@@ -64,13 +64,13 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
 
         <label className="flex flex-col gap-1">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-on-3">
-            Anota\u00e7\u00f5es
+            Anotações
           </span>
           <Textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={4}
-            placeholder="Contexto, pr\u00f3ximos passos, objeções levantadas\u2026"
+            placeholder="Contexto, próximos passos, objeções levantadas…"
           />
         </label>
 
@@ -79,7 +79,7 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
             Cancelar
           </Button>
           <Button variant="gp" onClick={save} disabled={updating} className="flex-1">
-            {updating ? 'Salvando\u2026' : 'Salvar'}
+            {updating ? 'Salvando…' : 'Salvar'}
           </Button>
         </div>
 
@@ -89,7 +89,7 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
           className="tap mt-2 flex items-center justify-center gap-1 text-xs font-semibold text-rb"
         >
           <Icon name="delete" className="!text-[14px]" />
-          {confirmDelete ? (deleting ? 'Removendo\u2026' : 'Confirmar remo\u00e7\u00e3o') : 'Remover lead'}
+          {confirmDelete ? (deleting ? 'Removendo…' : 'Confirmar remoção') : 'Remover lead'}
         </button>
       </div>
     </Modal>

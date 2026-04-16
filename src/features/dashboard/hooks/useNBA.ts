@@ -11,8 +11,8 @@ export interface NBA {
 }
 
 /**
- * Next Best Action \u2014 sugere a a\u00e7\u00e3o de maior impacto dado o estado atual.
- * Prioridade: FIR \u2192 streak em risco \u2192 passo atual da jornada \u2192 prospec\u00e7\u00e3o.
+ * Next Best Action — sugere a ação de maior impacto dado o estado atual.
+ * Prioridade: FIR → streak em risco → passo atual da jornada → prospecção.
  */
 export function useNBA(profile: Profile | null | undefined): NBA | null {
   if (!profile) return null;
@@ -31,7 +31,7 @@ export function useNBA(profile: Profile | null | undefined): NBA | null {
   if (profile.streak === 0) {
     return {
       title: 'Reinicie seu streak',
-      description: 'Adicione 1 lead hoje para come\u00e7ar uma nova sequ\u00eancia.',
+      description: 'Adicione 1 lead hoje para começar uma nova sequência.',
       cta: 'Prospectar',
       icon: 'local_fire_department',
       href: ROUTES.PROSPECTOR,
@@ -52,8 +52,8 @@ export function useNBA(profile: Profile | null | undefined): NBA | null {
 
   if (profile.journeyStep < 10) {
     return {
-      title: `Pr\u00f3ximo passo da Jornada`,
-      description: `Continue o programa onde voc\u00ea parou.`,
+      title: `Próximo passo da Jornada`,
+      description: `Continue o programa onde você parou.`,
       cta: 'Ir para a jornada',
       icon: 'route',
       href: buildRoute.journeyStep(profile.journeyStep),

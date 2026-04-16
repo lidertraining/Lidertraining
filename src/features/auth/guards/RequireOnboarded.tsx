@@ -9,7 +9,7 @@ export function RequireOnboarded() {
   if (isLoading) {
     return (
       <div className="flex min-h-dvh items-center justify-center bg-sf-void text-on-3">
-        Carregando perfil\u2026
+        Carregando perfil…
       </div>
     );
   }

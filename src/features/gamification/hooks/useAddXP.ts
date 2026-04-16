@@ -7,7 +7,7 @@ interface AddXPInput {
   reason?: string;
 }
 
-/** Muta\u00e7\u00e3o para conceder XP com toast autom\u00e1tico e invalida\u00e7\u00e3o do profile. */
+/** Mutação para conceder XP com toast automático e invalidação do profile. */
 export function useAddXP() {
   const qc = useQueryClient();
   const { xp: xpToast } = useToast();

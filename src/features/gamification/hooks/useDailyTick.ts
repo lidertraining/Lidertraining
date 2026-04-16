@@ -5,8 +5,8 @@ import { useAuth } from '@shared/hooks/useAuth';
 
 /**
  * Dispara no mount do app autenticado:
- * 1) tick_streak \u2014 incrementa streak se for novo dia
- * 2) refill_energy \u2014 recarrega energia baseado em horas passadas
+ * 1) tick_streak — incrementa streak se for novo dia
+ * 2) refill_energy — recarrega energia baseado em horas passadas
  */
 export function useDailyTick() {
   const { session } = useAuth();
@@ -20,7 +20,7 @@ export function useDailyTick() {
         await Promise.all([tickStreak(), refillEnergy()]);
         if (!cancelled) qc.invalidateQueries({ queryKey: ['profile'] });
       } catch {
-        // Silencioso: n\u00e3o \u00e9 cr\u00edtico; se falhar, tenta de novo no pr\u00f3ximo mount
+        // Silencioso: não é crítico; se falhar, tenta de novo no próximo mount
       }
     })();
     return () => {

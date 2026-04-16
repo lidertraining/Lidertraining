@@ -44,8 +44,8 @@ export function NotificationsModal({ open, onClose }: NotificationsModalProps) {
       {data.length === 0 ? (
         <EmptyState
           icon="notifications_off"
-          title="Nenhuma notifica\u00e7\u00e3o"
-          description="Voc\u00ea est\u00e1 em dia. Continue o bom trabalho!"
+          title="Nenhuma notificação"
+          description="Você está em dia. Continue o bom trabalho!"
         />
       ) : (
         <div className="flex max-h-[60vh] flex-col gap-2 overflow-y-auto">

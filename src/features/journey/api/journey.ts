@@ -71,7 +71,7 @@ export async function saveStepNotes(stepId: number, content: string): Promise<vo
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) throw new Error('Sem sess\u00e3o');
+  if (!user) throw new Error('Sem sessão');
   const { error } = await supabase
     .from('step_notes')
     .upsert({ user_id: user.id, step_id: stepId, content }, { onConflict: 'user_id,step_id' });

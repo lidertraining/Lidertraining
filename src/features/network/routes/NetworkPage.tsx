@@ -18,10 +18,10 @@ export function NetworkPage() {
 
   return (
     <div className="flex flex-col gap-5 pt-2">
-      <BackButton to={ROUTES.LEADER} label="L\u00edder" />
+      <BackButton to={ROUTES.LEADER} label="Líder" />
 
       <header className="animate-fade-up">
-        <div className="text-sm text-on-3">\u00c1rvore geneal\u00f3gica</div>
+        <div className="text-sm text-on-3">\u00c1rvore genealógica</div>
         <h1 className="serif text-3xl font-bold">Sua Rede</h1>
       </header>
 
@@ -37,36 +37,36 @@ export function NetworkPage() {
           <Icon name="bar_chart" filled className="!text-[18px] text-gd" />
           <div>
             <div className="text-[10px] text-on-3">Profundidade</div>
-            <div className="text-base font-bold">{maxDepth} n\u00edveis</div>
+            <div className="text-base font-bold">{maxDepth} níveis</div>
           </div>
         </Card>
       </div>
 
       {isLoading ? (
-        <div className="py-6 text-center text-xs text-on-3">Carregando rede\u2026</div>
+        <div className="py-6 text-center text-xs text-on-3">Carregando rede…</div>
       ) : members.length === 0 ? (
         <EmptyState
           icon="account_tree"
           title="Rede vazia"
-          description="Sua \u00e1rvore aparece aqui quando voc\u00ea patrocinar seu primeiro consultor."
+          description="Sua árvore aparece aqui quando você patrocinar seu primeiro consultor."
         />
       ) : (
         <section className="flex flex-col gap-2">
-          {/* Raiz = voc\u00ea */}
+          {/* Raiz = você */}
           {profile && (
             <Card variant="surface" className="flex items-center gap-3 p-3" glow="am">
               <Avatar name={profile.name} size="md" />
               <div className="flex-1">
-                <div className="text-sm font-bold">{profile.name} (voc\u00ea)</div>
+                <div className="text-sm font-bold">{profile.name} (você)</div>
                 <div className="text-[10px] text-on-3">
-                  {profile.level} \u00b7 {formatXP(profile.xp)} XP
+                  {profile.level} · {formatXP(profile.xp)} XP
                 </div>
               </div>
               <Icon name="workspace_premium" filled className="!text-[18px] text-am" />
             </Card>
           )}
 
-          {/* Primeira gera\u00e7\u00e3o ancorada em voc\u00ea */}
+          {/* Primeira geração ancorada em você */}
           <div className="ml-5 flex flex-col gap-1.5 border-l-2 border-am-darker/30 pl-3">
             {direct.map((m) => {
               const grandchildren = members.filter((x) => x.uplineId === m.id);

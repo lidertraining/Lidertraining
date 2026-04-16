@@ -7,8 +7,8 @@ interface PagePlaceholderProps {
 }
 
 /**
- * Placeholder usado pelas p\u00e1ginas ainda n\u00e3o implementadas (Fase 1+).
- * Mant\u00e9m layout consist\u00eante at\u00e9 cada feature ser migrada.
+ * Placeholder usado pelas páginas ainda não implementadas (Fase 1+).
+ * Mantém layout consistênte até cada feature ser migrada.
  */
 export function PagePlaceholder({ title, icon, description }: PagePlaceholderProps) {
   return (
@@ -16,8 +16,8 @@ export function PagePlaceholder({ title, icon, description }: PagePlaceholderPro
       <h1 className="serif mb-4 text-2xl font-bold">{title}</h1>
       <EmptyState
         icon={icon}
-        title={`${title} em constru\u00e7\u00e3o`}
-        description={description ?? 'Esta tela ser\u00e1 implementada em uma pr\u00f3xima fase da reestrutura\u00e7\u00e3o.'}
+        title={`${title} em construção`}
+        description={description ?? 'Esta tela será implementada em uma próxima fase da reestruturação.'}
       />
     </div>
   );

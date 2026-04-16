@@ -51,13 +51,13 @@ export function AddLeadForm() {
         <Select {...register('source')}>
           <option>Lista quente</option>
           <option>Instagram</option>
-          <option>Indica\u00e7\u00e3o</option>
+          <option>Indicação</option>
           <option>Evento</option>
           <option>Facebook</option>
           <option>WhatsApp</option>
         </Select>
         <Button type="submit" disabled={isPending} fullWidth>
-          {isPending ? 'Adicionando\u2026' : 'Adicionar \u00b7 +15 XP'}
+          {isPending ? 'Adicionando…' : 'Adicionar · +15 XP'}
         </Button>
       </form>
     </Card>

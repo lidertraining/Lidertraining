@@ -10,7 +10,7 @@ export function IcebreakerCarousel() {
     <section className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
         <Icon name="bolt" filled className="!text-[18px] text-or" />
-        <h2 className="serif text-base font-bold">Quebra-gelos r\u00e1pidos</h2>
+        <h2 className="serif text-base font-bold">Quebra-gelos rápidos</h2>
       </div>
       <div className="no-scroll -mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
         {items.slice(0, 6).map((t, i) => (

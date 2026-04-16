@@ -31,7 +31,7 @@ export function NBACard({ nba }: NBACardProps) {
           </div>
           <div className="flex-1">
             <div className="text-[10px] font-bold uppercase tracking-wider text-white/70">
-              Pr\u00f3xima melhor a\u00e7\u00e3o
+              Próxima melhor ação
             </div>
             <div className="serif text-lg font-bold">{nba.title}</div>
             <div className="mt-0.5 text-xs text-white/85">{nba.description}</div>
