@@ -653,7 +653,192 @@ Isso puxa a pessoa pro fechamento (passo 9) naturalmente.`,
       'Não marcar o passo seguinte ao final. "Vou te mandar mais infos" = nunca mais fala com a pessoa.',
     ],
   },
-  { id: 8, name: 'Fechamento', icon: 'handshake', color: 'gd', description: 'As 3 Leis' },
-  { id: 9, name: 'Acompanhamento', icon: 'schedule', color: 'em', description: 'Follow-up eficiente' },
+  {
+    id: 8,
+    name: 'Fechamento',
+    icon: 'handshake',
+    color: 'gd',
+    description: 'As 3 Leis',
+    goal: 'Conduzir o lead à decisão com naturalidade — sem pressão, sem chantagem, com autoridade.',
+    timeMinutes: 30,
+    body: `**Fechamento não é vender — é ajudar a decidir.**
+
+Quem chegou até aqui já viu valor. Seu trabalho agora é **remover atrito**, não empurrar. Fechamento forçado dura 30 dias; fechamento natural dura 3 anos.
+
+### As 3 Leis do Fechamento
+
+**Lei 1 — A Pergunta conduz.**
+Quem pergunta, conduz. Nunca termine afirmando. Termine com pergunta de múltipla escolha — nunca de sim/não.
+
+❌ "Você quer entrar?" → resposta: "vou pensar"
+✅ "Prefere começar com o kit básico ou o kit completo?" → resposta: uma das duas
+
+**Lei 2 — A Perspectiva motiva.**
+Faça o lead enxergar 12 meses, 24 meses, 36 meses adiante. Sonho virando imagem.
+
+> "Imagina daqui a 1 ano. Mesma rotina, mesma renda. Ou: daqui a 1 ano, com esse projeto nos trilhos, você pagando a escola da sua filha sem apertar o orçamento. Qual desses cenários você prefere?"
+
+**Lei 3 — A Urgência fecha.**
+Sem urgência, o lead posterga eternamente. Urgência pode ser externa (oferta, turma, bônus) ou interna (dor, tempo passando, concorrência).
+
+> "Essa turma de onboarding fecha sexta — depois a próxima só em 30 dias. Faz mais sentido entrar com a gente agora ou esperar um mês?"
+
+### Os 4 tipos de fechamento
+
+**1. Direto** — "Vamos começar?"
+Funciona com lead decidido. Evite com inseguro.
+
+**2. Consultivo** — "Com base no que você me contou, o kit X é o que mais faz sentido. Vamos?"
+Gera segurança. Use quando o lead pediu conselho.
+
+**3. Alternativo** — "Kit A ou kit B? Começar essa semana ou na próxima?"
+Pergunta que já assume o sim.
+
+**4. Recapitulação** — "Deixa eu recapitular: você me disse que quer X, Y, Z. Isso aqui resolve os três. Faz sentido começar?"
+Força coerência: o lead já disse o que quer.
+
+### Tratando objeções no fechamento
+
+Objeção no momento do fechamento não é "não" — é "me convence melhor". Use o método **Sinto–Senti–Percebi**:
+
+> "Entendo como você se sente. Muita gente se sentiu igual no começo. Mas o que elas perceberam depois foi..."
+
+Isso transforma objeção em testemunho.
+
+### A regra do silêncio
+
+Depois de fazer a pergunta de fechamento, **cale a boca**. Quem fala primeiro perde. Deixa o lead processar e responder.`,
+    tasks: [
+      {
+        title: 'Memorizar as 3 Leis',
+        detail: 'Pergunta · Perspectiva · Urgência. Pratique uma por vez até virar reflexo.',
+      },
+      {
+        title: 'Escolher seu fechamento favorito (dos 4)',
+        detail: 'Depende do estilo do lead — mas comece pelo que soa mais natural pra você.',
+      },
+      {
+        title: 'Praticar as 3 objeções mais frequentes',
+        detail: 'Use a aba Praticar. Dinheiro, tempo, cônjuge — cobre 80% das objeções reais.',
+      },
+      {
+        title: 'Fazer 3 fechamentos reais essa semana',
+        detail: 'Meta: 1 fechou, 1 pensa, 1 não. Qualquer resultado é aprendizado.',
+      },
+    ],
+    scripts: [
+      {
+        scenario: 'Fechamento alternativo clássico',
+        text: 'Beleza, com base no que a gente conversou, faz mais sentido você começar com o kit Start ou o kit Pro? O Start tem menos produto, mas já te dá a bonificação. O Pro é quem já quer acelerar.',
+      },
+      {
+        scenario: 'Fechamento com perspectiva',
+        text: 'Fecha os olhos 5 segundos comigo. Imagina você daqui a 12 meses — sua rotina de hoje, do jeito que tá. Agora imagina com essa renda extra rodando, com o time formado. Qual desses cenários você escolhe hoje?',
+      },
+      {
+        scenario: 'Tratando "preciso pensar"',
+        text: 'Claro, pensar é importante. Me ajuda: o que você precisa pensar exatamente? Se for dinheiro, a gente vê juntos. Se for o cônjuge, eu falo com ele contigo. Se for tempo, a gente ajusta o plano. Em qual dessas caixas você encaixa?',
+      },
+    ],
+    examples: [
+      'Rosa usa só o fechamento por recapitulação. Taxa: 31%. Segredo: anota tudo o lead diz durante a apresentação e devolve no fim.',
+      'Marcelo descobriu que o silêncio era o problema: fechava perfeito mas já começava a falar de novo 3 segundos depois, quebrando o raciocínio do lead. Calou — pulou de 18% pra 35%.',
+    ],
+    mistakes: [
+      'Perguntar "e aí, o que achou?" no final. Pergunta aberta = respostá evasiva. Use binárias.',
+      'Descontar antes do lead pedir. "Vou te dar um desconto" = você parece desesperado.',
+      'Tratar objeção como obstáculo. Objeção é pedido de mais informação — responda e devolva pergunta.',
+      'Negociar o "vou pensar" como se fosse "não". Marque retorno em 48h e siga adiante.',
+    ],
+  },
+
+  {
+    id: 9,
+    name: 'Acompanhamento',
+    icon: 'schedule',
+    color: 'em',
+    description: 'Follow-up eficiente',
+    goal: 'Transformar o "vou pensar" em "vamos começar" — sem aporrinhar, com cadência profissional.',
+    timeMinutes: 30,
+    body: `**A fortuna está no follow-up.**
+
+80% das vendas acontecem entre o 5º e o 12º contato. 80% dos consultores desistem depois do 2º. Perceba a matemática: quem tem paciência de seguir até o 5º contato fica com praticamente toda a venda.
+
+### A cadência dos 7 contatos
+
+**Contato 1 (dia 0):** Apresentação + envio de material-resumo.
+**Contato 2 (dia 1):** Pergunta simples. "Conseguiu dar uma olhada? Tem alguma dúvida?"
+**Contato 3 (dia 3):** Valor novo. Manda um áudio, um case, um vídeo curto. Nada de cobrança.
+**Contato 4 (dia 7):** Pergunta de decisão. "Consegue me dizer se você tá mais pro sim ou pro não?"
+**Contato 5 (dia 14):** Novo ângulo. Mostre um resultado que mudou a percepção dele sobre o negócio.
+**Contato 6 (dia 30):** Reconexão pessoal. "E aí, como tá tudo?" — sem agenda comercial.
+**Contato 7 (dia 60):** Nova abordagem. "Situações mudam. Tá querendo ouvir de novo com calma?"
+
+### As 3 regras do bom follow-up
+
+1. **Nunca cobre.** "Não respondeu ainda?" = queima a relação.
+2. **Sempre entregue valor.** Cada contato tem que ter algo novo: uma ideia, um case, uma notícia.
+3. **Tenha prazo.** Depois de 3 follow-ups sem resposta, vá pro último: "vou parar de te mandar mensagem pra não ser chato. Quando sentir vontade, me chama." A pessoa ou responde ou sai da lista — os dois são resultados bons.
+
+### Acompanhando o "sim"
+
+O novo consultor é 3x mais frágil que um lead. Follow-up agora é ainda mais importante:
+
+- **Dia 1 pós-cadastro:** mensagem de boas-vindas + 3 primeiros passos claros.
+- **Dia 3:** checar se fez o pedido do kit.
+- **Dia 7:** primeiro 1x1 semanal.
+- **Dia 21:** review do primeiro resultado. Celebrar.
+- **Dia 30:** avaliar se tá ativo. Se não, "reativação carinhosa" antes de perder.
+
+### Ferramentas de cadência
+
+Use o **Prospector do app** pra anotar cada contato. Campo "Próximo follow-up" = data no calendário. Se não tá anotado, não existe.`,
+    tasks: [
+      {
+        title: 'Abrir o CRM (Prospector) e definir próximo passo de cada lead',
+        detail: 'Cada lead precisa ter data no campo "próximo contato". Sem data, o lead evapora.',
+      },
+      {
+        title: 'Montar sua biblioteca de follow-up (áudios, vídeos, cases)',
+        detail: '10-15 peças curtas que você envia conforme o momento do lead.',
+      },
+      {
+        title: 'Aplicar a cadência dos 7 em 3 leads "vou pensar"',
+        detail: 'Teste por 30 dias. Registre qual contato gerou resposta. Isso vira seu playbook.',
+      },
+      {
+        title: 'Criar rotina semanal de follow-up',
+        detail: 'Bloco fixo na agenda — tipo terça 19h — só pra tocar leads em aberto.',
+      },
+    ],
+    scripts: [
+      {
+        scenario: 'Follow-up de valor (contato 3)',
+        text: 'Oi [nome]! Lembrei de você agora. Ouvi um áudio que eu acho que tem muito a ver com o que a gente conversou — quer que eu te mande?',
+      },
+      {
+        scenario: 'Pergunta de decisão (contato 4)',
+        text: 'Oi [nome], beleza? Pra eu saber como te ajudar melhor: você tá mais pro sim, mais pro não ou ainda tá 50/50? Qualquer resposta é tranquila, só quero saber pra não te atrapalhar.',
+      },
+      {
+        scenario: 'Último follow-up (contato 7+)',
+        text: 'Oi [nome], vou parar de te mandar mensagem sobre isso pra não ser chato. Se um dia você quiser conversar de novo, é só me chamar. Torço muito por você de qualquer jeito.',
+      },
+      {
+        scenario: 'Acompanhando novo consultor dia 7',
+        text: 'Oi! Uma semana já. Como tá se sentindo? Conseguiu fazer a lista? Vamos marcar nosso primeiro 1x1 — amanhã 20h ou quinta 19h?',
+      },
+    ],
+    examples: [
+      'Pedro quase fechou com o Fábio, mas Fábio disse "vou pensar". Pedro fez follow-up nos dias 1, 3, 7 e 14. No 14º, Fábio topou — disse que ninguém nunca tinha acompanhado ele assim.',
+      'Denise perdeu 3 meses esperando lead responder. Depois que montou a cadência dos 7, tempo médio de fechamento caiu pra 11 dias.',
+    ],
+    mistakes: [
+      'Parar depois do segundo contato. 80% dos sins vêm do 5º em diante.',
+      'Mandar áudio cobrando. "E aí, decidiu?" = queima. Pergunte algo útil.',
+      'Não anotar no CRM. Se não tá anotado, vai esquecer.',
+      'Tratar follow-up como "perseguição". É cuidado. A diferença é: você entrega valor, não cobra.',
+    ],
+  },
   { id: 10, name: 'Duplicação', icon: 'group_add', color: 'em', description: 'Ensine quem entrou' },
 ];
