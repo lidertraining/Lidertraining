@@ -312,8 +312,158 @@ Se a empresa tem um "kit consultor" ou "kit de uso pessoal", compra. Isso não �
       'Não documentar. Experiência não-registrada vira esquecimento em 30 dias.',
     ],
   },
-  { id: 4, name: 'Aprenda a Contar', icon: 'psychology', color: 'am', description: 'Storytelling de impacto' },
-  { id: 5, name: 'Prospecção', icon: 'person_search', color: 'am', description: 'Como abordar' },
+  {
+    id: 4,
+    name: 'Aprenda a Contar',
+    icon: 'psychology',
+    color: 'am',
+    description: 'Storytelling de impacto',
+    goal: 'Transformar informação técnica em história que emociona e move à ação.',
+    timeMinutes: 35,
+    body: `**Fato informa. História muda a vida.**
+
+Dizer "a empresa paga 30% de bônus por indicação" é informação. Dizer "a Rose indicou a prima de manhã e à noite já tinha R$ 420 na conta" é história. A segunda vende 10x mais.
+
+### Estrutura AIDA em storytelling
+
+- **A (Atenção):** comece com uma frase que quebra o piloto automático. "Olha o que aconteceu com a Rose ontem..."
+- **I (Interesse):** dê o contexto humano. Quem é a Rose, como tava antes, o que estava em jogo.
+- **D (Desejo):** mostre a transformação. Detalhes sensoriais: o que ela sentiu, o que a família disse.
+- **A (Ação):** convide a pessoa pra própria história. "Topa a gente fazer o mesmo teste com você?"
+
+### Gatilhos mentais que funcionam
+
+1. **Prova social:** "mais de 400 pessoas do nosso time fizeram isso"
+2. **Escassez:** "essa turma de onboarding fecha sexta"
+3. **Autoridade:** cite quem já fez (seu upline, alguém conhecido)
+4. **Reciprocidade:** entregue valor primeiro (áudio, e-book, dica) — aí convida
+5. **Coerência:** "você mesmo disse que queria mais tempo com os filhos"
+
+### Regra dos números pequenos
+
+Seja específico. "R$ 2.487 no primeiro mês" vale mais que "dá pra ganhar uns 2 mil". Números exatos parecem verdadeiros.
+
+### Pratique em voz alta
+
+Uma história contada na cabeça soa pronta. Contada na boca, você descobre onde trava. Grave 3 histórias diferentes e ouça cada uma.`,
+    tasks: [
+      {
+        title: 'Escolher 3 histórias da sua equipe',
+        detail: 'Uma de dinheiro, uma de tempo, uma de superação pessoal.',
+      },
+      {
+        title: 'Escrever cada uma na fórmula AIDA',
+        detail: 'Máximo 2 minutos de fala por história. Cronometre.',
+      },
+      {
+        title: 'Gravar áudio das 3 no WhatsApp',
+        detail: 'Mande pra você mesmo. Ouça. O que te emocionou? O que soou mecânico?',
+      },
+      {
+        title: 'Anotar 5 gatilhos que você usa naturalmente',
+        detail: 'Escolha os 5 mais autênticos pra sua personalidade. Não force os outros.',
+      },
+    ],
+    scripts: [
+      {
+        scenario: 'História de dinheiro',
+        text: 'Quer ver o que aconteceu na semana passada? A Carol fechou uma venda de R$ 890 num almoço de domingo. Ela mesma me mostrou a transferência. O que isso paga? Dois meses de escola do filho dela. Isso no tempo que a gente gasta tomando café.',
+      },
+      {
+        scenario: 'História de tempo',
+        text: 'O Marcelo era motorista de aplicativo. Trabalhava 14 horas por dia. Entrou no projeto há 8 meses. Mês passado ele largou o carro. Hoje ele busca o filho na escola toda tarde.',
+      },
+    ],
+    examples: [
+      'Em uma live de recrutamento, quem conta 3 histórias reais converte 40% a mais que quem só mostra slides do plano.',
+      'A "história da tia que não acreditava" virou lendária num time — contada do mesmo jeito por 50 consultores, recrutou mais gente que qualquer outra.',
+    ],
+    mistakes: [
+      'Inventar história. Uma mentira descoberta derruba anos de credibilidade.',
+      'Contar história sem nome. "Uma pessoa aí fez" não cola. Nome, idade, cidade.',
+      'Entregar o número antes da emoção. Emoção primeiro, número depois.',
+    ],
+  },
+
+  {
+    id: 5,
+    name: 'Prospecção',
+    icon: 'person_search',
+    color: 'am',
+    description: 'Como abordar',
+    goal: 'Abordar leads da sua lista com postura de profissional — sem desespero, sem script robótico, sem medo de "não".',
+    timeMinutes: 45,
+    body: `**Prospecção é um número, não uma emoção.**
+
+Você não está pedindo favor. Você está oferecendo uma oportunidade que mudou sua vida — e só vai mudar a vida de quem estiver pronto. Sua missão é descobrir quem está pronto **hoje**.
+
+### A matemática do funil
+
+Para cada 100 abordagens → 50 topam ouvir → 20 assistem a apresentação → 8 topam começar → 3 ficam ativos nos 6 primeiros meses.
+
+Esses números são **estatística**, não sorte. Se você ama os 3 ativos, precisa amar os 97 que disseram "não". Todo "não" te aproxima do "sim".
+
+### As 2 posturas fatais
+
+1. **Desespero:** "Por favor, ouve só 5 minutos". O lead sente que você precisa da venda. Fecha a porta.
+2. **Arrogância:** "Vou te dar a chance da sua vida". Parece guru. Fecha a porta.
+
+**Postura certa:** "Acho que pode ter a ver com você — mas só se for a hora. Se não for, sem problema."
+
+### Os 3 tipos de abordagem
+
+**Quente (lista A):** pessoas com quem você fala há menos de 30 dias. Aborde direto, sem rodeio. "Vou ser direto: tô num projeto novo e lembrei de você. Posso te mostrar?"
+
+**Morno (lista B):** pessoas que você conhece mas não fala há meses. Quebra-gelo primeiro ("Oi! Lembrei de você hoje, como você tá?"), depois aborda.
+
+**Frio (lista C):** pessoas de redes sociais, conhecidos de conhecidos. Aborde com conexão primeiro. Curta 3 posts, comente um. Depois manda DM.
+
+### A regra dos 3 minutos
+
+Primeira abordagem dura **no máximo 3 minutos**. Seu objetivo não é vender — é **marcar a apresentação**. Não apresente o plano em DM. Marca hora pra conversar com calma.`,
+    tasks: [
+      {
+        title: 'Separar sua lista em A/B/C (quente/morno/frio)',
+        detail: 'Abra o Prospector e classifique cada lead. Vai te ajudar no abordagem certa.',
+      },
+      {
+        title: 'Abordar 10 leads quentes esta semana',
+        detail: 'Use o script direto. Meta: 5 agendamentos de apresentação.',
+      },
+      {
+        title: 'Abordar 10 leads mornos com quebra-gelo',
+        detail: 'Comece reconectando. Só aborda o negócio se o rapport responder bem.',
+      },
+      {
+        title: 'Anotar cada resposta no CRM',
+        detail: 'Topou, marcou, não topou, tá pensando — tudo. Você vai voltar em 30 dias nos "tá pensando".',
+      },
+    ],
+    scripts: [
+      {
+        scenario: 'Abordagem quente direta',
+        text: 'Oi [nome], tô num projeto novo e fiquei pensando em você. Quero marcar 20 minutos com você pra te mostrar. Amanhã de manhã ou terça à tarde, qual fica melhor?',
+      },
+      {
+        scenario: 'Abordagem morna com quebra-gelo',
+        text: 'Oi [nome]! Sumimos, né? Lembrei de você essa semana, como vc tá? Os meninos? ... [espera responder, conversa 2-3 trocas] ... Olha, tô envolvido num projeto novo que achei a sua cara. Topa eu te mostrar em 20 minutos?',
+      },
+      {
+        scenario: 'Resposta a "me manda um resumo por aqui"',
+        text: 'Eu até te mandaria, mas é injusto com você — é melhor explicado em conversa porque tem números e sua dúvida merece resposta na hora. 20 minutos no zoom, sexta às 19h?',
+      },
+    ],
+    examples: [
+      'Lucas abordou 142 pessoas em 3 meses. 89 não toparam. 53 assistiram. 14 entraram. Dessas 14, hoje 6 são líderes.',
+      'Fabíola começou pelos "impossíveis" — quem ela achava que nunca topava. 40% toparam ouvir. O "impossível" era cabeça dela.',
+    ],
+    mistakes: [
+      'Apresentar o plano em DM. Você queima a munição sem marcar apresentação.',
+      'Perguntar "tá a fim de uma renda extra?" como primeira frase. Soa vendedor.',
+      'Parar de abordar depois de 3 "nãos" seguidos. Você está no começo do funil, não no fim.',
+      'Não anotar a resposta. Em 30 dias você esquece quem disse o quê.',
+    ],
+  },
   { id: 6, name: 'Convite', icon: 'mail', color: 'am', description: 'Chame para conhecer' },
   { id: 7, name: 'Apresentação', icon: 'co_present', color: 'am', description: '4 formas de mostrar' },
   { id: 8, name: 'Fechamento', icon: 'handshake', color: 'gd', description: 'As 3 Leis' },
