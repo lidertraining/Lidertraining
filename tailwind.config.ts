@@ -102,6 +102,14 @@ export default {
           '0%': { transform: 'translateY(0) rotate(0)', opacity: '1' },
           '100%': { transform: 'translateY(-40px) rotate(360deg)', opacity: '0' },
         },
+        'confetti-fall': {
+          '0%': { transform: 'translateY(-10vh) translateX(0) rotate(0)', opacity: '1' },
+          '100%': {
+            transform:
+              'translateY(110vh) translateX(var(--confetti-x, 50px)) rotate(var(--confetti-rot, 720deg))',
+            opacity: '0',
+          },
+        },
         pulseSoft: {
           '0%,100%': { opacity: '.6' },
           '50%': { opacity: '1' },
@@ -115,6 +123,7 @@ export default {
         shake: 'shake .4s ease',
         float: 'float 3s ease-in-out infinite',
         confetti: 'confetti 1s ease forwards',
+        'confetti-fall': 'confetti-fall 3s ease-out forwards',
         'pulse-soft': 'pulseSoft 2s ease-in-out infinite',
       },
     },
