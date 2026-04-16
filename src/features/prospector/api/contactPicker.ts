@@ -67,7 +67,8 @@ export function pickVCFFile(): Promise<PickedContact[]> {
   return new Promise((resolve) => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.vcf,.vcard';
+    // MIME types cobrem iOS/Android; extensões como fallback pra Desktop.
+    input.accept = 'text/vcard,text/x-vcard,text/directory,text/plain,.vcf,.vcard';
     input.onchange = async () => {
       const file = input.files?.[0];
       if (!file) {
