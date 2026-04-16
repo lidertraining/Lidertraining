@@ -6,6 +6,7 @@ import { IcebreakerList } from './IcebreakerList';
 import { ClosingLawsPanel } from './ClosingLawsPanel';
 import { ClosingScriptsPanel } from './ClosingScriptsPanel';
 import { ObjectionsPanel } from './ObjectionsPanel';
+import { ContactImporter } from '@features/prospector/components/ContactImporter';
 import { useAddXP } from '@features/gamification/hooks/useAddXP';
 
 interface LearnTabProps {
@@ -55,6 +56,16 @@ export function LearnTab({ step }: LearnTabProps) {
         </p>
       </Card>
 
+      {step.id === 1 && (
+        <div className="flex flex-col gap-2">
+          <h3 className="serif text-base font-bold">Monte sua lista</h3>
+          <p className="text-xs text-on-3">
+            Importe seus contatos do celular para começar. Cada contato vira um
+            lead no seu Prospector com +15 XP.
+          </p>
+          <ContactImporter />
+        </div>
+      )}
       {step.id === 6 && <IcebreakerList />}
       {step.id === 8 && (
         <>
