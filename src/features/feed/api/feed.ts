@@ -1,4 +1,5 @@
 import { supabase } from '@lib/supabase';
+import { unescapeUnicode } from '@lib/unescape';
 import type { FeedEvent } from '@ltypes/domain';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -6,8 +7,8 @@ function mapFeedEvent(row: any): FeedEvent {
   return {
     id: row.id,
     userId: row.user_id,
-    actorName: row.actor_name,
-    action: row.action,
+    actorName: unescapeUnicode(row.actor_name),
+    action: unescapeUnicode(row.action),
     icon: row.icon,
     createdAt: row.created_at,
   };

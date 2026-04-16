@@ -1,4 +1,5 @@
 import { supabase } from '@lib/supabase';
+import { unescapeUnicode } from '@lib/unescape';
 import type { Mission, MissionType } from '@ltypes/domain';
 
 interface MissionWithProgress extends Mission {
@@ -11,8 +12,8 @@ interface MissionWithProgress extends Mission {
 function mapMission(row: any): MissionWithProgress {
   return {
     id: row.id,
-    name: row.name,
-    description: row.description,
+    name: unescapeUnicode(row.name),
+    description: unescapeUnicode(row.description),
     type: row.type as MissionType,
     target: row.target,
     rewardXP: row.reward_xp,

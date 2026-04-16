@@ -1,4 +1,5 @@
 import { supabase } from '@lib/supabase';
+import { unescapeUnicode } from '@lib/unescape';
 import type { Notification, NotifType } from '@ltypes/domain';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -7,7 +8,7 @@ function mapNotification(row: any): Notification {
     id: row.id,
     userId: row.user_id,
     type: row.type as NotifType,
-    message: row.message,
+    message: unescapeUnicode(row.message),
     icon: row.icon,
     read: row.read,
     createdAt: row.created_at,
