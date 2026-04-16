@@ -48,6 +48,11 @@ const ArenaPage = lazy(() =>
 const LeaderPage = lazy(() =>
   import('@features/leader/routes/LeaderPage').then((m) => ({ default: m.LeaderPage })),
 );
+const MemberDetailPage = lazy(() =>
+  import('@features/leader/routes/MemberDetailPage').then((m) => ({
+    default: m.MemberDetailPage,
+  })),
+);
 const NetworkPage = lazy(() =>
   import('@features/network/routes/NetworkPage').then((m) => ({ default: m.NetworkPage })),
 );
@@ -80,6 +85,7 @@ export default function App() {
                 <Route path={ROUTES.RANKING} element={<RankingPage />} />
                 <Route path={ROUTES.ARENA} element={<ArenaPage />} />
                 <Route path={ROUTES.LEADER} element={<LeaderPage />} />
+                <Route path="/leader/team/:id" element={<MemberDetailPage />} />
                 <Route path={ROUTES.NETWORK} element={<NetworkPage />} />
                 <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
               </Route>
