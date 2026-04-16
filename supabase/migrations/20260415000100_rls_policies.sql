@@ -50,6 +50,10 @@ create policy invite_owner_full on invite_codes for all
   using (owner_id = auth.uid())
   with check (owner_id = auth.uid());
 
+-- Visitantes (anon) e autenticados precisam validar códigos na tela de signup
+create policy invite_public_validate on invite_codes
+  for select to anon, authenticated using (true);
+
 -- ------------------------------------------------------------
 -- LEADS
 -- ------------------------------------------------------------
