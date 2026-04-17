@@ -4,6 +4,7 @@ import { useStreakMilestones } from '@features/gamification/hooks/useStreakMiles
 import { HeroGreeting } from '../components/HeroGreeting';
 import { NBACard } from '../components/NBACard';
 import { TodayCard } from '../components/TodayCard';
+import { WeeklyRecap } from '../components/WeeklyRecap';
 import { StatsGrid } from '../components/StatsGrid';
 import { CommissionSimulator } from '../components/CommissionSimulator';
 import { PersonalGoalCard } from '../components/PersonalGoalCard';
@@ -26,6 +27,8 @@ export function DashboardPage() {
   return (
     <div className="flex flex-col gap-5 pt-2">
       <HeroGreeting name={profile.name} />
+
+      <WeeklyRecap profile={profile} />
 
       <NBACard nba={nba} />
 
