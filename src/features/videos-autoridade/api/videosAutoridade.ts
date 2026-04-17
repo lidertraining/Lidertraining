@@ -86,6 +86,7 @@ export async function criarVideo(payload: Partial<VideoAutoridade> & {
   autoridade_id: string;
   url_original: string;
   titulo: string;
+  criado_por?: string | null;
 }) {
   const { data, error } = await supabase
     .from('videos_autoridade')
