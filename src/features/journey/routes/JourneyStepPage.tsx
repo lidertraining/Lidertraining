@@ -40,14 +40,25 @@ export function JourneyStepPage() {
   useEffect(() => {
     if (!profile?.id) return;
     (async () => {
-      const { data } = await supabase
-        .from('progresso_jornada')
-        .select('dados')
-        .eq('usuario_id', profile.id)
-        .eq('passo_num', sid)
-        .maybeSingle();
-      if (data?.dados && typeof data.dados === 'object') {
-        setDados(data.dados as Record<string, unknown>);
+      try {
+        const { data, error } = await supabase
+          .from('progresso_jornada')
+          .select('dados')
+          .eq('usuario_id', profile.id)
+          .eq('passo_num', sid)
+          .maybeSingle();
+        if (!error && data?.dados && typeof data.dados === 'object') {
+          setDados(data.dados as Record<string, unknown>);
+        } else {
+          // Fallback localStorage
+          const raw = localStorage.getItem(`lt_journey_step_${sid}_draft`);
+          if (raw) setDados(JSON.parse(raw));
+        }
+      } catch {
+        const raw = localStorage.getItem(`lt_journey_step_${sid}_draft`);
+        if (raw) {
+          try { setDados(JSON.parse(raw)); } catch { /* noop */ }
+        }
       }
       setLoaded(true);
     })();
@@ -60,17 +71,31 @@ export function JourneyStepPage() {
       if (saveTimer.current) clearTimeout(saveTimer.current);
       saveTimer.current = window.setTimeout(async () => {
         if (!profile?.id) return;
-        await supabase.from('progresso_jornada').upsert(
-          {
-            usuario_id: profile.id,
-            passo_num: sid,
-            status: 'em_andamento',
-            dados: newDados,
-            iniciado_em: new Date().toISOString(),
-            atualizado_em: new Date().toISOString(),
-          },
-          { onConflict: 'usuario_id,passo_num' },
-        );
+        try {
+          const { error } = await supabase.from('progresso_jornada').upsert(
+            {
+              usuario_id: profile.id,
+              passo_num: sid,
+              status: 'em_andamento',
+              dados: newDados,
+              iniciado_em: new Date().toISOString(),
+              atualizado_em: new Date().toISOString(),
+            },
+            { onConflict: 'usuario_id,passo_num' },
+          );
+          if (error) {
+            // Fallback: salva no localStorage se tabela ainda não existir
+            localStorage.setItem(
+              `lt_journey_step_${sid}_draft`,
+              JSON.stringify(newDados),
+            );
+          }
+        } catch {
+          localStorage.setItem(
+            `lt_journey_step_${sid}_draft`,
+            JSON.stringify(newDados),
+          );
+        }
       }, 2000);
     },
     [profile?.id, sid],

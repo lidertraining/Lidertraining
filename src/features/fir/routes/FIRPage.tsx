@@ -88,21 +88,30 @@ export function FIRPage() {
       const userId = profile?.id;
       if (!userId) throw new Error('Sem sessão');
 
-      // Salva dados da FIR
-      await supabase.from('fir_respostas').upsert(
-        { usuario_id: userId, dados: dados as unknown as Record<string, unknown>, xp_ganho: TOTAL_XP },
-        { onConflict: 'usuario_id' },
-      );
+      // Salva dados da FIR (não-crítico: se a tabela não existir, segue em frente)
+      try {
+        await supabase.from('fir_respostas').upsert(
+          { usuario_id: userId, dados: dados as unknown as Record<string, unknown>, xp_ganho: TOTAL_XP },
+          { onConflict: 'usuario_id' },
+        );
+      } catch {
+        /* tabela fir_respostas pode não existir ainda — dados ficam no localStorage */
+      }
 
-      // Marca FIR como completa
-      await supabase.from('profiles').update({
+      // Marca FIR como completa (crítico)
+      const { error: updErr } = await supabase.from('profiles').update({
         fir_completed: true,
         fir_step: 8,
         fir_done_mask: 255,
       }).eq('id', userId);
+      if (updErr) throw updErr;
 
-      // Concede XP
-      await supabase.rpc('add_xp', { p_amount: TOTAL_XP, p_reason: 'FIR Digital Elite completa' });
+      // Concede XP (não-crítico)
+      try {
+        await supabase.rpc('add_xp', { p_amount: TOTAL_XP, p_reason: 'FIR Digital Elite completa' });
+      } catch {
+        /* xp não creditado mas FIR foi concluída */
+      }
 
       qc.invalidateQueries({ queryKey: ['profile'] });
 
