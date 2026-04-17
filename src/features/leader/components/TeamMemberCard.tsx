@@ -42,7 +42,7 @@ export function TeamMemberCard({ member }: TeamMemberCardProps) {
           </div>
         </div>
       </div>
-      <MemberActionsRow memberName={member.name} />
+      <MemberActionsRow memberId={member.id} memberName={member.name} />
     </Card>
   );
 }

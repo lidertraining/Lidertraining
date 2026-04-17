@@ -1,5 +1,6 @@
 import { useProfile } from '@shared/hooks/useProfile';
 import { useDailyTick } from '@features/gamification/hooks/useDailyTick';
+import { useStreakMilestones } from '@features/gamification/hooks/useStreakMilestones';
 import { HeroGreeting } from '../components/HeroGreeting';
 import { NBACard } from '../components/NBACard';
 import { StatsGrid } from '../components/StatsGrid';
@@ -12,6 +13,7 @@ import { useNBA } from '../hooks/useNBA';
 
 export function DashboardPage() {
   useDailyTick();
+  useStreakMilestones();
   const { data: profile, isLoading } = useProfile();
   const nba = useNBA(profile);
 

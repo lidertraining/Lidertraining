@@ -16,6 +16,9 @@ export function useFeed(limit = 20) {
     queryKey: ['feed', uid, limit],
     enabled: !!uid,
     queryFn: () => listFeed(limit),
+    // Fallback caso realtime falhe: refetch a cada 60s
+    refetchInterval: 60000,
+    refetchIntervalInBackground: false,
   });
 
   useEffect(() => {

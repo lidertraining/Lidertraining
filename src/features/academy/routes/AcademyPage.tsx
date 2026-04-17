@@ -1,3 +1,4 @@
+import { AcademyProgress } from '../components/AcademyProgress';
 import { AudioList } from '../components/AudioList';
 import { VIP600Card } from '../components/VIP600Card';
 import { GoldenRulesCard } from '../components/GoldenRulesCard';
@@ -14,6 +15,7 @@ export function AcademyPage() {
         <h1 className="serif text-3xl font-bold">Academia</h1>
       </header>
 
+      <AcademyProgress />
       <AudioList />
       <VIP600Card />
       <GoldenRulesCard />
