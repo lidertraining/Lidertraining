@@ -3,6 +3,7 @@ import { useDailyTick } from '@features/gamification/hooks/useDailyTick';
 import { useStreakMilestones } from '@features/gamification/hooks/useStreakMilestones';
 import { HeroGreeting } from '../components/HeroGreeting';
 import { NBACard } from '../components/NBACard';
+import { TodayCard } from '../components/TodayCard';
 import { StatsGrid } from '../components/StatsGrid';
 import { CommissionSimulator } from '../components/CommissionSimulator';
 import { FlashMissionsPreview } from '../components/FlashMissionsPreview';
@@ -26,6 +27,8 @@ export function DashboardPage() {
       <HeroGreeting name={profile.name} />
 
       <NBACard nba={nba} />
+
+      <TodayCard profile={profile} />
 
       <XPBar xp={profile.xp} />
 
