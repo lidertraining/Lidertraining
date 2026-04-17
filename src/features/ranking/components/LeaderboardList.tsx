@@ -41,9 +41,21 @@ export function LeaderboardList({ entries, currentUserId, startAt = 3 }: Leaderb
               <div className="truncate text-sm font-semibold">{isMe ? 'Você' : e.name}</div>
               <div className="text-[11px] text-on-3">{e.level}</div>
             </div>
+            {/* Badges de conquista */}
+            <div className="flex items-center gap-0.5">
+              {e.firCompleted && (
+                <span title="FIR completo" className="flex h-5 w-5 items-center justify-center rounded-full bg-em/20 text-[9px]">✓</span>
+              )}
+              {e.streak >= 7 && (
+                <span title={`Streak ${e.streak}d`} className="flex h-5 w-5 items-center justify-center rounded-full bg-or/20 text-[9px]">🔥</span>
+              )}
+              {e.journeyStep >= 11 && (
+                <span title="Jornada completa" className="flex h-5 w-5 items-center justify-center rounded-full bg-gd/20 text-[9px]">⭐</span>
+              )}
+            </div>
             <div className="text-right">
               <div className="text-sm font-bold text-am">{formatXP(e.weeklyXP)}</div>
-              <div className="text-[10px] text-on-3">XP semana</div>
+              <div className="text-[10px] text-on-3">XP sem.</div>
             </div>
             {promote && (
               <Icon name="arrow_upward" filled className="!text-[16px] text-em" />
