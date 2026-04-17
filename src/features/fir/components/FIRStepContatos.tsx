@@ -9,7 +9,7 @@ interface Props {
   setDados: (d: FIRDados) => void;
 }
 
-export function FIRStepContatos({ dados, setDados }: Props) {
+export function FIRStepContatos({ dados }: Props) {
   const { data: leads = [] } = useLeads();
 
   const total = leads.length + (dados.contatos?.length ?? 0);
