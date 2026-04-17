@@ -51,8 +51,20 @@ export function ContactImporter() {
   };
 
   const handleVCF = async () => {
-    const contacts = await pickVCFFile();
-    await importContacts(contacts);
+    const result = await pickVCFFile();
+    if (!result.ok) {
+      if (result.reason === 'no_file') return; // usuário cancelou
+      if (result.reason === 'wrong_type') {
+        toast(
+          'Arquivo não é um .vcf válido. Exporte os contatos pelo app Contatos primeiro.',
+          'error',
+        );
+      } else if (result.reason === 'empty') {
+        toast('O arquivo não tem contatos válidos', 'info');
+      }
+      return;
+    }
+    await importContacts(result.contacts);
   };
 
   return (
@@ -124,8 +136,8 @@ export function ContactImporter() {
             </ol>
           </div>
           <div className="text-[10px] text-on-3">
-            Se o botão abrir a galeria de fotos, é porque o celular ainda não gerou o .vcf.
-            Exporte primeiro seguindo os passos acima.
+            O botão abre o gerenciador de arquivos do seu celular. Navegue até onde
+            você salvou o .vcf (normalmente <strong>Arquivos</strong>, <strong>Downloads</strong> ou <strong>Drive</strong>) e selecione.
           </div>
         </div>
       )}
