@@ -12,6 +12,7 @@ import { EmptyState } from '@shared/ui/EmptyState';
 import { PageSpinner } from '@shared/ui/PageSpinner';
 import { ActivityDot } from '../components/ActivityDot';
 import { MemberActionsRow } from '../components/MemberActionsRow';
+import { useMemberPhone } from '../hooks/useMemberPhone';
 import { FIR_STEPS } from '@content/firSteps';
 import { formatXP } from '@lib/format';
 import { buildWaURL, formatPhoneBR } from '@lib/phone';
@@ -32,6 +33,8 @@ export function MemberDetailPage() {
   const { toast } = useToast();
 
   const member = useMemo(() => team.find((m) => m.id === id), [team, id]);
+  const { data: phoneFromProfile } = useMemberPhone(member?.id);
+  const phone = member?.phone ?? phoneFromProfile ?? null;
 
   if (isLoading) return <PageSpinner />;
 
@@ -103,10 +106,10 @@ export function MemberDetailPage() {
       </Card>
 
       {/* CTA WhatsApp direto */}
-      {member.phone && (
+      {phone ? (
         <a
           href={buildWaURL(
-            member.phone,
+            phone,
             `Oi ${member.name.split(' ')[0]}! Tudo bem? Queria falar com você sobre a sua jornada.`,
           )}
           target="_blank"
@@ -121,15 +124,34 @@ export function MemberDetailPage() {
               <div className="text-sm font-semibold">
                 Falar com {member.name.split(' ')[0]} no WhatsApp
               </div>
-              <div className="text-[11px] opacity-80">{formatPhoneBR(member.phone)}</div>
+              <div className="text-[11px] opacity-80">{formatPhoneBR(phone)}</div>
             </div>
           </div>
           <Icon name="chevron_right" className="!text-[18px]" />
         </a>
+      ) : (
+        <Card
+          variant="surface-sm"
+          className="flex items-center justify-between gap-3 border border-on-3/20 p-4 opacity-80"
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sf-top">
+              <Icon name="phone_disabled" className="!text-[20px] text-on-3" />
+            </div>
+            <div>
+              <div className="text-sm font-semibold text-on-2">
+                {member.name.split(' ')[0]} ainda não cadastrou WhatsApp
+              </div>
+              <div className="text-[11px] text-on-3">
+                Peça pra ele(a) atualizar no Perfil
+              </div>
+            </div>
+          </div>
+        </Card>
       )}
 
       {/* Ações */}
-      <MemberActionsRow memberId={member.id} memberName={member.name} memberPhone={member.phone} />
+      <MemberActionsRow memberId={member.id} memberName={member.name} memberPhone={phone} />
 
       {/* Convidar em nome dele */}
       <Card variant="surface-sm" className="flex flex-col gap-3 p-4">
