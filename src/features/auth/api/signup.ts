@@ -1,4 +1,5 @@
 import { supabase } from '@lib/supabase';
+import { normalizePhone } from '@lib/phone';
 import type { SignupInput } from '../schemas';
 
 interface SignupWithInviteInput extends SignupInput {
@@ -8,12 +9,13 @@ interface SignupWithInviteInput extends SignupInput {
 /**
  * Fluxo de cadastro resiliente:
  *
- * Problema real: Supabase com "Confirm email" ligado cria o auth user
- * mas NÃO retorna sessão. Sem sessão, auth.uid() é null no RPC e o
- * profile não é criado. O user tenta de novo → "already registered".
- *
- * Solução: após signUp, se não tiver sessão, faz signIn imediato
- * pra obter sessão antes de chamar o RPC.
+ * 1) Tenta criar auth user
+ * 2) Se der "already registered", tenta signIn (caso user ficou sem profile)
+ * 3) Se não tiver sessão (confirm email ligado), faz signIn pra obter sessão
+ * 4) Cria profile via RPC (tenta com phone, fallback sem phone)
+ * 5) INDEPENDENTE do caminho da RPC, sempre faz UPDATE em profiles.phone
+ *    pra garantir que o telefone foi salvo — resolve o caso onde a migration
+ *    20260416200000_profile_phone.sql ainda não foi rodada no DB.
  */
 export async function signupWithInvite({
   email,
@@ -22,13 +24,13 @@ export async function signupWithInvite({
   phone,
   code,
 }: SignupWithInviteInput) {
-  // 1) Tenta criar auth user
+  const phoneDigits = normalizePhone(phone);
+
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email,
     password,
   });
 
-  // Se já existe, tenta logar direto
   if (authError) {
     const isAlreadyRegistered =
       authError.message?.toLowerCase().includes('already') ||
@@ -36,14 +38,14 @@ export async function signupWithInvite({
 
     if (!isAlreadyRegistered) throw authError;
 
-    return await signInAndEnsureProfile(email, password, code, name, phone);
+    return await signInAndEnsureProfile(email, password, code, name, phoneDigits);
   }
 
-  // 2) signUp deu certo — mas pode não ter sessão (confirm email ligado)
+  if (!authData.user) throw new Error('Falha ao criar usuário');
+
   let session = authData.session;
 
   if (!session) {
-    // Tenta signIn imediato pra pegar sessão
     const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -61,13 +63,10 @@ export async function signupWithInvite({
   }
 
   if (!session) {
-    throw new Error(
-      'Conta criada! Confirme seu email e depois faça login.',
-    );
+    throw new Error('Conta criada! Confirme seu email e depois faça login.');
   }
 
-  // 3) Agora temos sessão — cria profile
-  return await createProfileIfNeeded(code, name, phone, authData);
+  return await createProfileAndEnsurePhone(code, name, phoneDigits, authData);
 }
 
 async function signInAndEnsureProfile(
@@ -75,7 +74,7 @@ async function signInAndEnsureProfile(
   password: string,
   code: string,
   name: string,
-  phone: string,
+  phoneDigits: string,
 ) {
   const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
     email,
@@ -90,45 +89,57 @@ async function signInAndEnsureProfile(
 
   if (!signInData.user) throw new Error('Falha ao autenticar');
 
-  // Checa se profile já existe
   const { data: existing } = await supabase
     .from('profiles')
-    .select('id')
+    .select('id, phone')
     .eq('id', signInData.user.id)
     .maybeSingle();
 
   if (existing) {
+    // Profile já existe — se não tem phone, seta agora
+    if (!existing.phone && phoneDigits) {
+      await supabase.from('profiles').update({ phone: phoneDigits }).eq('id', signInData.user.id);
+    }
     return { auth: signInData, profile: existing };
   }
 
-  return await createProfileIfNeeded(code, name, phone, signInData);
+  return await createProfileAndEnsurePhone(code, name, phoneDigits, signInData);
 }
 
-async function createProfileIfNeeded(
+async function createProfileAndEnsurePhone(
   code: string,
   name: string,
-  phone: string,
+  phoneDigits: string,
   authResult: { user?: { id: string } | null; session?: unknown },
 ) {
-  // Tenta a versão com 3 params (phone)
+  // Tenta a versão com 3 params (phone) — ideal
   const { data: profile, error: rpcError } = await supabase.rpc('signup_with_invite', {
     p_code: code,
     p_name: name,
-    p_phone: phone,
+    p_phone: phoneDigits,
   });
 
-  if (rpcError) {
-    // Se der "function not found" (migration de phone não rodou), tenta sem phone
-    if (rpcError.message?.includes('function') || rpcError.code === '42883') {
-      const { data: profileFallback, error: fallbackError } = await supabase.rpc(
-        'signup_with_invite',
-        { p_code: code, p_name: name },
-      );
-      if (fallbackError) throw fallbackError;
-      return { auth: authResult, profile: profileFallback };
-    }
-    throw rpcError;
+  if (!rpcError) {
+    // Sucesso: RPC moderna salvou tudo (incluindo phone)
+    return { auth: authResult, profile };
   }
 
-  return { auth: authResult, profile };
+  // Fallback: RPC antiga sem p_phone
+  if (rpcError.message?.includes('function') || rpcError.code === '42883') {
+    const { data: profileFallback, error: fallbackError } = await supabase.rpc(
+      'signup_with_invite',
+      { p_code: code, p_name: name },
+    );
+    if (fallbackError) throw fallbackError;
+
+    // GARANTE o phone via UPDATE direto na tabela profiles
+    const userId = authResult.user?.id;
+    if (userId && phoneDigits) {
+      await supabase.from('profiles').update({ phone: phoneDigits }).eq('id', userId);
+    }
+
+    return { auth: authResult, profile: profileFallback };
+  }
+
+  throw rpcError;
 }
