@@ -33,15 +33,8 @@ export function StreakFreezeModal({ open, onClose }: StreakFreezeModalProps) {
     if (!canAfford) return;
     setBuying(true);
     try {
-      const { error } = await supabase.rpc('add_xp', {
-        p_amount: -FREEZE_COST_XP,
-        p_reason: 'Compra de Streak Freeze',
-      }).then(() =>
-        supabase
-          .from('profiles')
-          .update({ freezes: freezes + 1 })
-          .eq('id', profile.id),
-      );
+      // RPC atômica: valida saldo, deduz XP e incrementa freezes numa transação
+      const { error } = await supabase.rpc('buy_streak_freeze');
       if (error) throw error;
       await qc.invalidateQueries({ queryKey: ['profile'] });
       toast('Freeze comprado! Você tem proteção extra.', 'success', 'ac_unit');
