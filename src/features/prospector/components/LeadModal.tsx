@@ -10,6 +10,7 @@ import { Confetti } from '@shared/ui/Confetti';
 import { useDeleteLead, useUpdateLead } from '../hooks/useLeads';
 import { useAddXP } from '@features/gamification/hooks/useAddXP';
 import { useToast } from '@shared/hooks/useToast';
+import { SeletorVideoAutoridade } from '@features/videos-autoridade/components/SeletorVideoAutoridade';
 
 interface LeadModalProps {
   lead: Lead | null;
@@ -26,6 +27,7 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
   const [notes, setNotes] = useState(lead?.notes ?? '');
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showSeletorVideo, setShowSeletorVideo] = useState(false);
 
   if (!lead) return null;
 
@@ -102,6 +104,16 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
             />
           </label>
 
+          {/* CTA Vídeo de autoridade */}
+          <Button
+            variant="surface"
+            fullWidth
+            onClick={() => setShowSeletorVideo(true)}
+            leftIcon={<Icon name="movie" filled className="!text-[16px] text-am" />}
+          >
+            Enviar vídeo de autoridade
+          </Button>
+
           <div className="flex gap-2">
             <Button variant="surface" onClick={onClose} className="flex-1">
               Cancelar
@@ -121,6 +133,14 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
           </button>
         </div>
       </Modal>
+
+      <SeletorVideoAutoridade
+        open={showSeletorVideo}
+        onClose={() => setShowSeletorVideo(false)}
+        leadId={lead.id}
+        leadNome={lead.name}
+        leadPhone={lead.phone}
+      />
     </>
   );
 }
