@@ -6,6 +6,7 @@ import { NBACard } from '../components/NBACard';
 import { TodayCard } from '../components/TodayCard';
 import { StatsGrid } from '../components/StatsGrid';
 import { CommissionSimulator } from '../components/CommissionSimulator';
+import { PersonalGoalCard } from '../components/PersonalGoalCard';
 import { FlashMissionsPreview } from '../components/FlashMissionsPreview';
 import { QuickActions } from '../components/QuickActions';
 import { XPBar } from '@features/gamification/components/XPBar';
@@ -33,6 +34,8 @@ export function DashboardPage() {
       <XPBar xp={profile.xp} />
 
       <StatsGrid profile={profile} />
+
+      <PersonalGoalCard profile={profile} />
 
       <CommissionSimulator profile={profile} />
 
