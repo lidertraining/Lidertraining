@@ -6,6 +6,7 @@ import { ErrorBoundary } from '@shared/layout/ErrorBoundary';
 import { PageSpinner } from '@shared/ui/PageSpinner';
 import { RequireAuth } from '@features/auth/guards/RequireAuth';
 import { RequireOnboarded } from '@features/auth/guards/RequireOnboarded';
+import { RequireAdmin } from '@features/auth/guards/RequireAdmin';
 
 // Auth (eager: sempre acessadas)
 import { LoginPage } from '@features/auth/routes/LoginPage';
@@ -59,6 +60,16 @@ const NetworkPage = lazy(() =>
 const ProfilePage = lazy(() =>
   import('@features/profile/routes/ProfilePage').then((m) => ({ default: m.ProfilePage })),
 );
+const AdminImportarPage = lazy(() =>
+  import('@features/conhecimentos/routes/AdminImportarPage').then((m) => ({
+    default: m.AdminImportarPage,
+  })),
+);
+const AudiosPage = lazy(() =>
+  import('@features/conhecimentos/routes/AudiosPage').then((m) => ({
+    default: m.AudiosPage,
+  })),
+);
 
 export default function App() {
   return (
@@ -88,6 +99,12 @@ export default function App() {
                 <Route path="/leader/team/:id" element={<MemberDetailPage />} />
                 <Route path={ROUTES.NETWORK} element={<NetworkPage />} />
                 <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
+                <Route path="/audios" element={<AudiosPage />} />
+
+                {/* Admin */}
+                <Route element={<RequireAdmin />}>
+                  <Route path="/admin/importar-conhecimento" element={<AdminImportarPage />} />
+                </Route>
               </Route>
             </Route>
           </Route>
