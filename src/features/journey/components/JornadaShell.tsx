@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import type { PassoMeta } from '../jornada-v2-types';
 import { ARQUETIPO_CORES } from '../jornada-v2-types';
 import { GavetaConhecimento } from './GavetaConhecimento';
