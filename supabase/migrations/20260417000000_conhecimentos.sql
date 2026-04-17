@@ -1,15 +1,19 @@
 -- ============================================================
 -- LiderTraining — Sistema de Conhecimento (NotebookLM)
 -- ============================================================
--- Tabelas para guardar conteúdos (áudios, vídeos, reports,
--- mapas mentais, flashcards, quizzes), tracking de consumo
--- e revisão espaçada.
--- ============================================================
+
+-- Limpa qualquer resquício de execução parcial anterior
+drop table if exists quiz_respostas cascade;
+drop table if exists quiz_perguntas cascade;
+drop table if exists flashcard_revisoes cascade;
+drop table if exists flashcards cascade;
+drop table if exists conhecimento_consumo cascade;
+drop table if exists conhecimentos cascade;
 
 -- ------------------------------------------------------------
 -- CONHECIMENTOS (tabela principal)
 -- ------------------------------------------------------------
-create table if not exists conhecimentos (
+create table conhecimentos (
   id uuid primary key default gen_random_uuid(),
   tipo text not null check (tipo in ('audio','video','report','mapa_mental','flashcards','quiz')),
   titulo text not null,
@@ -29,9 +33,9 @@ create table if not exists conhecimentos (
   updated_at timestamptz not null default now()
 );
 
-create index if not exists conhecimentos_tipo_idx on conhecimentos(tipo, ativo);
-create index if not exists conhecimentos_passo_idx on conhecimentos(passo_jornada) where passo_jornada is not null;
-create index if not exists conhecimentos_categoria_idx on conhecimentos(categoria, ativo);
+create index conhecimentos_tipo_idx on conhecimentos(tipo, ativo);
+create index conhecimentos_passo_idx on conhecimentos(passo_jornada) where passo_jornada is not null;
+create index conhecimentos_categoria_idx on conhecimentos(categoria, ativo);
 
 -- Trigger updated_at
 create trigger conhecimentos_updated_at before update on conhecimentos
@@ -40,7 +44,7 @@ create trigger conhecimentos_updated_at before update on conhecimentos
 -- ------------------------------------------------------------
 -- CONSUMO (tracking de progresso por usuário)
 -- ------------------------------------------------------------
-create table if not exists conhecimento_consumo (
+create table conhecimento_consumo (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references profiles(id) on delete cascade,
   conhecimento_id uuid not null references conhecimentos(id) on delete cascade,
@@ -55,7 +59,7 @@ create table if not exists conhecimento_consumo (
   unique(user_id, conhecimento_id)
 );
 
-create index if not exists consumo_user_idx on conhecimento_consumo(user_id, concluido);
+create index consumo_user_idx on conhecimento_consumo(user_id, concluido);
 
 create trigger consumo_updated_at before update on conhecimento_consumo
   for each row execute function set_updated_at();
@@ -63,7 +67,7 @@ create trigger consumo_updated_at before update on conhecimento_consumo
 -- ------------------------------------------------------------
 -- FLASHCARDS (cards individuais de um conhecimento tipo flashcards)
 -- ------------------------------------------------------------
-create table if not exists flashcards (
+create table flashcards (
   id uuid primary key default gen_random_uuid(),
   conhecimento_id uuid not null references conhecimentos(id) on delete cascade,
   frente text not null,
@@ -71,10 +75,10 @@ create table if not exists flashcards (
   ordem smallint not null default 0
 );
 
-create index if not exists flashcards_conhecimento_idx on flashcards(conhecimento_id, ordem);
+create index flashcards_conhecimento_idx on flashcards(conhecimento_id, ordem);
 
 -- Revisão espaçada por card por user
-create table if not exists flashcard_revisoes (
+create table flashcard_revisoes (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references profiles(id) on delete cascade,
   flashcard_id uuid not null references flashcards(id) on delete cascade,
@@ -90,7 +94,7 @@ create table if not exists flashcard_revisoes (
 -- ------------------------------------------------------------
 -- QUIZ (perguntas de um conhecimento tipo quiz)
 -- ------------------------------------------------------------
-create table if not exists quiz_perguntas (
+create table quiz_perguntas (
   id uuid primary key default gen_random_uuid(),
   conhecimento_id uuid not null references conhecimentos(id) on delete cascade,
   pergunta text not null,
@@ -100,10 +104,10 @@ create table if not exists quiz_perguntas (
   ordem smallint not null default 0
 );
 
-create index if not exists quiz_conhecimento_idx on quiz_perguntas(conhecimento_id, ordem);
+create index quiz_conhecimento_idx on quiz_perguntas(conhecimento_id, ordem);
 
 -- Respostas do usuário
-create table if not exists quiz_respostas (
+create table quiz_respostas (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references profiles(id) on delete cascade,
   pergunta_id uuid not null references quiz_perguntas(id) on delete cascade,
