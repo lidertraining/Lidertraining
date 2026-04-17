@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTeamLearning } from '../hooks/useTeamLearning';
 import { TeamLearningStats } from '../components/TeamLearningStats';
@@ -23,25 +23,6 @@ export function LeaderPage() {
   const { data: members = [], isLoading } = useTeamLearning(6);
   const [tab, setTab] = useState<TabId>('equipe');
 
-  // Converte para formato esperado pelo TeamAlerts (que usa streak + xp)
-  const alertMembers = useMemo(
-    () =>
-      members
-        .filter((m) => m.depth === 1)
-        .map((m) => ({
-          id: m.id,
-          uplineId: m.uplineId,
-          name: m.name,
-          level: m.level,
-          xp: m.xp,
-          streak: m.streak,
-          journeyStep: m.journeyStep,
-          teamCount: 0,
-          depth: m.depth,
-        })),
-    [members],
-  );
-
   const direct = members.filter((m) => m.depth === 1);
   const all = members;
 
@@ -57,7 +38,7 @@ export function LeaderPage() {
       {tab === 'equipe' && (
         <>
           <TeamLearningStats members={members} />
-          <TeamAlerts members={alertMembers} />
+          <TeamAlerts members={members} />
 
           <section className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
