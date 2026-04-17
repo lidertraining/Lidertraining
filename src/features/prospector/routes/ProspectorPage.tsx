@@ -7,6 +7,7 @@ import { LeadModal } from '../components/LeadModal';
 import { LeadFilters, type FilterValue } from '../components/LeadFilters';
 import { IcebreakerCarousel } from '../components/IcebreakerCarousel';
 import { ContactImporter } from '../components/ContactImporter';
+import { PipelineBar } from '../components/PipelineBar';
 import { EmptyState } from '@shared/ui/EmptyState';
 import { StatCard } from '@shared/ui/StatCard';
 
@@ -32,6 +33,13 @@ export function ProspectorPage() {
         <StatCard icon="local_fire_department" label="Quentes" value={hot} />
         <StatCard icon="handshake" label="Fechados" value={closed} />
       </div>
+
+      <PipelineBar
+        frio={leads.filter((l) => l.status === 'frio').length}
+        morno={leads.filter((l) => l.status === 'morno').length}
+        quente={hot}
+        fechado={closed}
+      />
 
       <IcebreakerCarousel />
 

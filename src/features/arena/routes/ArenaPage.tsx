@@ -2,6 +2,7 @@ import { useMissions } from '@features/missions/hooks/useMissions';
 import { FlashMissionCard } from '../components/FlashMissionCard';
 import { AchievementCard } from '../components/AchievementCard';
 import { Start48hPanel } from '../components/Start48hPanel';
+import { ChallengeChains } from '../components/ChallengeChains';
 import { TwentyOneDaysGrid } from '../components/TwentyOneDaysGrid';
 import { EmptyState } from '@shared/ui/EmptyState';
 
@@ -62,6 +63,7 @@ export function ArenaPage() {
         </>
       )}
 
+      <ChallengeChains />
       <TwentyOneDaysGrid />
     </div>
   );
