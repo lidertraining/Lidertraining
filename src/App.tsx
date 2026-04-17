@@ -70,6 +70,11 @@ const AudiosPage = lazy(() =>
     default: m.AudiosPage,
   })),
 );
+const AdminVideosAutoridadePage = lazy(() =>
+  import('@features/videos-autoridade/routes/AdminVideosAutoridadePage').then((m) => ({
+    default: m.AdminVideosAutoridadePage,
+  })),
+);
 
 export default function App() {
   return (
@@ -104,6 +109,7 @@ export default function App() {
                 {/* Admin */}
                 <Route element={<RequireAdmin />}>
                   <Route path="/admin/importar-conhecimento" element={<AdminImportarPage />} />
+                  <Route path="/admin/videos-autoridade" element={<AdminVideosAutoridadePage />} />
                 </Route>
               </Route>
             </Route>
