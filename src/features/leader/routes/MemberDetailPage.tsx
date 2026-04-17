@@ -129,7 +129,7 @@ export function MemberDetailPage() {
       )}
 
       {/* Ações */}
-      <MemberActionsRow memberName={member.name} />
+      <MemberActionsRow memberId={member.id} memberName={member.name} memberPhone={member.phone} />
 
       {/* Convidar em nome dele */}
       <Card variant="surface-sm" className="flex flex-col gap-3 p-4">
