@@ -1,61 +1,105 @@
-import { useState } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { useProfile } from '@shared/hooks/useProfile';
-import { useJourneySteps } from '../hooks/useJourneyContent';
-import { Button } from '@shared/ui/Button';
-import { Tabs } from '@shared/ui/Tabs';
-import { Icon } from '@shared/ui/Icon';
-import { BackButton } from '@shared/layout/BackButton';
-import { Confetti } from '@shared/ui/Confetti';
-import { LearnTab } from '../components/LearnTab';
-import { TasksTab } from '../components/TasksTab';
-import { PracticeTab } from '../components/PracticeTab';
-import { AgentsTab } from '../components/AgentsTab';
-import { completeJourneyStep } from '../api/journey';
 import { useToast } from '@shared/hooks/useToast';
+import { Button } from '@shared/ui/Button';
+import { Icon } from '@shared/ui/Icon';
+import { Confetti } from '@shared/ui/Confetti';
+import { supabase } from '@lib/supabase';
 import { ROUTES } from '@config/routes';
+import { PASSOS_V2 } from '../jornada-v2-types';
+import { JornadaShell } from '../components/JornadaShell';
+import { PassoReflexivo } from '../components/arquetipos/PassoReflexivo';
+import { PassoPlanejador } from '../components/arquetipos/PassoPlanejador';
+import { PassoOperacional } from '../components/arquetipos/PassoOperacional';
+import { PassoPerformatico } from '../components/arquetipos/PassoPerformatico';
+import { PassoLideranca } from '../components/arquetipos/PassoLideranca';
+import { completeJourneyStep } from '../api/journey';
 import { isStepDone } from '@lib/bitmask';
-
-type TabId = 'aprender' | 'tarefas' | 'praticar' | 'agentes';
-
-const TABS: { id: TabId; label: string }[] = [
-  { id: 'aprender', label: 'Aprender' },
-  { id: 'tarefas', label: 'Tarefas' },
-  { id: 'praticar', label: 'Praticar' },
-  { id: 'agentes', label: 'Agentes' },
-];
 
 export function JourneyStepPage() {
   const { stepId = '0' } = useParams();
   const nav = useNavigate();
   const qc = useQueryClient();
-  const { toast } = useToast();
   const { data: profile } = useProfile();
-  const { data: steps = [] } = useJourneySteps();
-  const [tab, setTab] = useState<TabId>('aprender');
-  const [finalizing, setFinalizing] = useState(false);
-  const [showConfetti, setShowConfetti] = useState(false);
+  const { toast } = useToast();
 
   const sid = Number(stepId);
-  const step = steps.find((s) => s.id === sid);
+  const passo = PASSOS_V2.find((p) => p.id === sid);
   const mask = profile?.journeyDoneMask ?? 0;
   const isDone = isStepDone(mask, sid);
 
-  if (!step) {
-    return (
-      <div className="pt-6 text-center text-sm text-on-3">Passo não encontrado</div>
-    );
-  }
+  const [dados, setDados] = useState<Record<string, unknown>>({});
+  const [loaded, setLoaded] = useState(false);
+  const [finalizing, setFinalizing] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const saveTimer = useRef<number | null>(null);
+
+  // Carrega dados do Supabase ao abrir
+  useEffect(() => {
+    if (!profile?.id) return;
+    (async () => {
+      const { data } = await supabase
+        .from('progresso_jornada')
+        .select('dados')
+        .eq('usuario_id', profile.id)
+        .eq('passo_num', sid)
+        .maybeSingle();
+      if (data?.dados && typeof data.dados === 'object') {
+        setDados(data.dados as Record<string, unknown>);
+      }
+      setLoaded(true);
+    })();
+  }, [profile?.id, sid]);
+
+  // Auto-save com debounce 2s
+  const updateDados = useCallback(
+    (newDados: Record<string, unknown>) => {
+      setDados(newDados);
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      saveTimer.current = window.setTimeout(async () => {
+        if (!profile?.id) return;
+        await supabase.from('progresso_jornada').upsert(
+          {
+            usuario_id: profile.id,
+            passo_num: sid,
+            status: 'em_andamento',
+            dados: newDados,
+            iniciado_em: new Date().toISOString(),
+            atualizado_em: new Date().toISOString(),
+          },
+          { onConflict: 'usuario_id,passo_num' },
+        );
+      }, 2000);
+    },
+    [profile?.id, sid],
+  );
 
   const handleComplete = async () => {
     setFinalizing(true);
     try {
       await completeJourneyStep(sid);
+
+      if (profile?.id) {
+        await supabase.from('progresso_jornada').upsert(
+          {
+            usuario_id: profile.id,
+            passo_num: sid,
+            status: 'concluido',
+            dados,
+            concluido_em: new Date().toISOString(),
+            xp_ganho: passo?.xp ?? 100,
+            atualizado_em: new Date().toISOString(),
+          },
+          { onConflict: 'usuario_id,passo_num' },
+        );
+      }
+
       qc.invalidateQueries({ queryKey: ['profile'] });
       setShowConfetti(true);
-      toast('Passo concluído! +100 XP', 'xp', 'star');
-      setTimeout(() => nav(ROUTES.JOURNEY), 1500);
+      toast(`Passo concluído! +${passo?.xp ?? 100} XP`, 'xp', 'star');
+      setTimeout(() => nav(ROUTES.JOURNEY), 1800);
     } catch (err) {
       toast(err instanceof Error ? err.message : 'Erro ao concluir', 'error');
     } finally {
@@ -63,46 +107,55 @@ export function JourneyStepPage() {
     }
   };
 
+  if (!passo) {
+    return <div className="pt-6 text-center text-sm text-on-3">Passo não encontrado</div>;
+  }
+
+  if (!loaded) {
+    return <div className="pt-8 text-center text-sm text-on-3">Carregando…</div>;
+  }
+
   return (
-    <div className="flex flex-col gap-4 pt-2">
+    <>
       <Confetti active={showConfetti} />
-      <BackButton to={ROUTES.JOURNEY} label="Todos os passos" />
+      <JornadaShell passo={passo} onBack={() => nav(ROUTES.JOURNEY)}>
+        {/* Renderiza o arquétipo correto */}
+        {passo.arquetipo === 'reflexivo' && (
+          <PassoReflexivo passoId={sid} dados={dados} setDados={updateDados} />
+        )}
+        {passo.arquetipo === 'planejador' && (
+          <PassoPlanejador passoId={sid} dados={dados} setDados={updateDados} />
+        )}
+        {passo.arquetipo === 'operacional' && (
+          <PassoOperacional passoId={sid} dados={dados} setDados={updateDados} />
+        )}
+        {passo.arquetipo === 'performatico' && (
+          <PassoPerformatico passoId={sid} dados={dados} setDados={updateDados} />
+        )}
+        {passo.arquetipo === 'lideranca' && (
+          <PassoLideranca passoId={sid} dados={dados} setDados={updateDados} />
+        )}
 
-      <header className="animate-fade-up">
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-on-3">
-          Passo {sid + 1}
+        {/* CTA de conclusão */}
+        <div className="mt-6">
+          {!isDone ? (
+            <Button
+              variant="ge"
+              fullWidth
+              onClick={handleComplete}
+              disabled={finalizing}
+              leftIcon={<Icon name="check_circle" filled className="!text-[18px]" />}
+            >
+              {finalizing ? 'Concluíndo…' : `Concluir passo · +${passo.xp} XP`}
+            </Button>
+          ) : (
+            <div className="flex items-center justify-center gap-2 rounded-card bg-em/15 py-3 text-sm font-semibold text-em">
+              <Icon name="verified" filled className="!text-[18px]" />
+              Passo concluído
+            </div>
+          )}
         </div>
-        <h1 className="serif text-2xl font-bold">{step.name}</h1>
-        <p className="text-sm text-on-3">{step.description}</p>
-      </header>
-
-      <Tabs items={TABS} active={tab} onChange={setTab} />
-
-      <div>
-        {tab === 'aprender' && <LearnTab step={step} />}
-        {tab === 'tarefas' && <TasksTab stepId={sid} step={step} />}
-        {tab === 'praticar' && <PracticeTab step={step} />}
-        {tab === 'agentes' && <AgentsTab />}
-      </div>
-
-      {!isDone && (
-        <Button
-          variant="ge"
-          fullWidth
-          onClick={handleComplete}
-          disabled={finalizing}
-          leftIcon={<Icon name="check_circle" filled className="!text-[18px]" />}
-        >
-          {finalizing ? 'Concluíndo…' : 'Concluir passo · +100 XP'}
-        </Button>
-      )}
-
-      {isDone && (
-        <div className="flex items-center justify-center gap-2 rounded-card bg-em/15 py-3 text-sm font-semibold text-em">
-          <Icon name="verified" filled className="!text-[18px]" />
-          Passo concluído
-        </div>
-      )}
-    </div>
+      </JornadaShell>
+    </>
   );
 }
