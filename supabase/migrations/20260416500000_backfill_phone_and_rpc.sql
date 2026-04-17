@@ -15,6 +15,10 @@ alter table profiles
 revoke update on profiles from authenticated;
 grant update (name, avatar_url, comm_goal, onboarded, fir_step, fir_completed, streak_freeze_active, phone, streak, freezes) on profiles to authenticated;
 
+-- Drop versões antigas antes de recriar (evita erro de return type)
+drop function if exists signup_with_invite(text, text, text);
+drop function if exists signup_with_invite(text, text);
+
 -- ------------------------------------------------------------
 -- signup_with_invite(p_code, p_name, p_phone)
 -- ------------------------------------------------------------
@@ -65,10 +69,13 @@ $$;
 
 grant execute on function signup_with_invite(text, text, text) to authenticated;
 
+-- Drop versão antiga (return type diferente causa erro sem drop)
+drop function if exists get_team_learning(integer);
+
 -- ------------------------------------------------------------
 -- get_team_learning com phone
 -- ------------------------------------------------------------
-create or replace function get_team_learning(p_depth int default 6)
+create function get_team_learning(p_depth int default 6)
 returns table (
   id uuid,
   upline_id uuid,
