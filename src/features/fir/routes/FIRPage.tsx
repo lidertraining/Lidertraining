@@ -1,156 +1,228 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button } from '@shared/ui/Button';
-import { Card } from '@shared/ui/Card';
 import { Icon } from '@shared/ui/Icon';
-import { Markdown } from '@shared/ui/Markdown';
-import { FIR_STEPS } from '@content/firSteps';
-import { ROUTES } from '@config/routes';
+import { Button } from '@shared/ui/Button';
 import { useProfile } from '@shared/hooks/useProfile';
-import { advanceFIR } from '../api/advanceFIR';
 import { useToast } from '@shared/hooks/useToast';
-import { isStepDone, countDone } from '@lib/bitmask';
+import { supabase } from '@lib/supabase';
+import { ROUTES } from '@config/routes';
 import { cn } from '@lib/cn';
+
+import { FIR_STEP_META, TOTAL_XP, INITIAL_FIR, type FIRDados } from '../firTypes';
+import { FIRWelcome } from '../components/FIRWelcome';
+import { FIRStepEcossistema } from '../components/FIRStepEcossistema';
+import { FIRStepSonho } from '../components/FIRStepSonho';
+import { FIRStepModoOperacao } from '../components/FIRStepModoOperacao';
+import { FIRStepProdutos } from '../components/FIRStepProdutos';
+import { FIRStepRitmo } from '../components/FIRStepRitmo';
+import { FIRStepReuniao } from '../components/FIRStepReuniao';
+import { FIRStepProtocolos } from '../components/FIRStepProtocolos';
+import { FIRStepContatos } from '../components/FIRStepContatos';
+import { FIRCelebracao } from '../components/FIRCelebracao';
+
+type Phase = 'welcome' | 'steps' | 'celebration';
 
 export function FIRPage() {
   const nav = useNavigate();
   const qc = useQueryClient();
   const { data: profile } = useProfile();
   const { toast } = useToast();
-  const mask = profile?.firDoneMask ?? 0;
-  const doneCount = countDone(mask);
-  const [submittingId, setSubmittingId] = useState<number | null>(null);
-  const [expandedId, setExpandedId] = useState<number | null>(null);
 
-  const handleToggle = async (stepId: number, rewardXP: number, title: string) => {
-    if (isStepDone(mask, stepId - 1)) return;
-    setSubmittingId(stepId);
+  const [phase, setPhase] = useState<Phase>('welcome');
+  const [step, setStep] = useState(0);
+  const [dados, setDados] = useState<FIRDados>(() => {
     try {
-      await advanceFIR(stepId, rewardXP, title);
-      qc.invalidateQueries({ queryKey: ['profile'] });
-      if (doneCount + 1 >= 8) {
-        toast('FIR concluído! Bora pro dashboard', 'success', 'celebration');
-        setTimeout(() => nav(ROUTES.DASHBOARD), 600);
-      } else {
-        toast(`+${rewardXP} XP · ${title}`, 'xp', 'star');
-      }
-    } catch (err) {
-      toast(err instanceof Error ? err.message : 'Erro ao avançar', 'error');
-    } finally {
-      setSubmittingId(null);
+      const saved = localStorage.getItem('lt_fir_elite_draft');
+      return saved ? { ...INITIAL_FIR, ...JSON.parse(saved) } : INITIAL_FIR;
+    } catch {
+      return INITIAL_FIR;
+    }
+  });
+  const [saving, setSaving] = useState(false);
+
+  const userName = profile?.name ?? 'Consultor';
+  const totalSteps = FIR_STEP_META.length;
+
+  // Auto-save draft to localStorage
+  const updateDados = useCallback((newDados: FIRDados) => {
+    setDados(newDados);
+    try {
+      localStorage.setItem('lt_fir_elite_draft', JSON.stringify(newDados));
+    } catch { /* noop */ }
+  }, []);
+
+  const canAdvance = (): boolean => {
+    switch (step) {
+      case 0: return Object.values(dados.conexoes).filter(Boolean).length >= 2;
+      case 1: return dados.sonhoTexto.trim().length >= 10;
+      case 2: return true; // modo já tem default
+      case 3: return !!dados.dataChegada;
+      case 4: return dados.convitesDias >= 1;
+      case 5: return !!dados.dataReuniao;
+      case 6: return true; // protocolo já tem default
+      case 7: return true; // contatos é opcional nesse ponto
+      default: return true;
     }
   };
 
+  const advance = () => {
+    if (step < totalSteps - 1) {
+      setStep(step + 1);
+      window.scrollTo(0, 0);
+    } else {
+      handleConcluir();
+    }
+  };
+
+  const goBack = () => {
+    if (step > 0) {
+      setStep(step - 1);
+      window.scrollTo(0, 0);
+    }
+  };
+
+  const handleConcluir = async () => {
+    setSaving(true);
+    try {
+      const userId = profile?.id;
+      if (!userId) throw new Error('Sem sessão');
+
+      // Salva dados da FIR
+      await supabase.from('fir_respostas').upsert(
+        { usuario_id: userId, dados: dados as unknown as Record<string, unknown>, xp_ganho: TOTAL_XP },
+        { onConflict: 'usuario_id' },
+      );
+
+      // Marca FIR como completa
+      await supabase.from('profiles').update({
+        fir_completed: true,
+        fir_step: 8,
+        fir_done_mask: 255,
+      }).eq('id', userId);
+
+      // Concede XP
+      await supabase.rpc('add_xp', { p_amount: TOTAL_XP, p_reason: 'FIR Digital Elite completa' });
+
+      qc.invalidateQueries({ queryKey: ['profile'] });
+
+      localStorage.removeItem('lt_fir_elite_draft');
+      setPhase('celebration');
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Erro ao salvar. Seus dados estão seguros no app.', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // --- WELCOME ---
+  if (phase === 'welcome') {
+    return (
+      <div className="mx-auto max-w-page bg-sf-void">
+        <FIRWelcome userName={userName} onStart={() => setPhase('steps')} />
+      </div>
+    );
+  }
+
+  // --- CELEBRATION ---
+  if (phase === 'celebration') {
+    return (
+      <div className="mx-auto max-w-page bg-sf-void">
+        <FIRCelebracao
+          dados={dados}
+          userName={userName}
+          onFinish={() => nav(ROUTES.DASHBOARD)}
+        />
+      </div>
+    );
+  }
+
+  // --- STEPS ---
+  const meta = FIR_STEP_META[step]!;
+  const progressPct = ((step + 1) / totalSteps) * 100;
+
   return (
     <div className="mx-auto min-h-dvh max-w-page bg-sf-void px-4 py-6">
-      <header className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="serif text-2xl font-bold">FIR — Primeiros Passos</h1>
-          <p className="text-xs text-on-3">
-            {doneCount} de 8 etapas · toque no card para abrir a lição
-          </p>
+      {/* Header */}
+      <div className="mb-6 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <button onClick={goBack} disabled={step === 0} className="tap text-on-3 disabled:opacity-30">
+            <Icon name="arrow_back" className="!text-[22px]" />
+          </button>
+          <div className="text-center">
+            <div className="text-[9px] font-bold uppercase tracking-[.2em] text-am">
+              FIR Digital Elite
+            </div>
+            <div className="text-[11px] text-on-3">
+              Passo {step + 1} de {totalSteps}
+            </div>
+          </div>
+          <button
+            onClick={() => nav(ROUTES.DASHBOARD)}
+            className="tap text-[11px] text-on-3"
+          >
+            Pular
+          </button>
         </div>
-        <button
-          onClick={() => nav(ROUTES.DASHBOARD)}
-          className="tap text-xs text-on-3 hover:text-on"
-        >
-          Pular
-        </button>
-      </header>
 
-      <div className="flex flex-col gap-2">
-        {FIR_STEPS.map((s) => {
-          const done = isStepDone(mask, s.id - 1);
-          const busy = submittingId === s.id;
-          const expanded = expandedId === s.id;
-          const hasBody = !!(s.body || s.checklist?.length);
-
-          return (
-            <Card key={s.id} variant="surface-sm" className="flex flex-col gap-3 p-3">
-              <button
-                type="button"
-                onClick={() => (hasBody ? setExpandedId(expanded ? null : s.id) : undefined)}
-                className="flex items-center gap-3 text-left"
-              >
-                <div
-                  className={cn(
-                    'flex h-9 w-9 shrink-0 items-center justify-center rounded-full',
-                    done ? 'bg-em' : 'bg-sf-top',
-                  )}
-                >
-                  {done ? (
-                    <Icon name="check" filled className="!text-[18px] text-white" />
-                  ) : (
-                    <span className="text-xs font-bold">{s.id}</span>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm font-semibold">{s.title}</div>
-                  <div className="text-[11px] text-on-3">+{s.rewardXP} XP</div>
-                </div>
-                {!done && (
-                  <Button
-                    size="sm"
-                    variant="gp"
-                    disabled={busy}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleToggle(s.id, s.rewardXP, s.title);
-                    }}
-                  >
-                    {busy ? '...' : 'Feito'}
-                  </Button>
-                )}
-                {hasBody && (
-                  <Icon
-                    name={expanded ? 'expand_less' : 'expand_more'}
-                    className="!text-[18px] text-on-3"
-                  />
-                )}
-              </button>
-
-              {/* Corpo da lição (expansível) */}
-              {expanded && hasBody && (
-                <div className="flex flex-col gap-3 border-t border-sf-top/40 pt-3">
-                  {s.body && <Markdown source={s.body} />}
-
-                  {s.checklist && s.checklist.length > 0 && (
-                    <div className="rounded-card bg-sf-top/40 p-3">
-                      <div className="mb-2 flex items-center gap-2">
-                        <Icon name="checklist" filled className="!text-[16px] text-em" />
-                        <div className="text-sm font-semibold">Checklist</div>
-                      </div>
-                      <ul className="flex flex-col gap-1.5">
-                        {s.checklist.map((item, i) => (
-                          <li key={i} className="flex items-start gap-2 text-[12px] text-on-2">
-                            <Icon
-                              name="radio_button_unchecked"
-                              className="!text-[14px] text-on-3"
-                            />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {s.tip && (
-                    <div className="rounded-card border-l-2 border-gd bg-gd/10 p-3 text-[12px] italic text-on-2">
-                      <span className="font-semibold text-gd">Dica: </span>
-                      {s.tip}
-                    </div>
-                  )}
-                </div>
+        {/* Progress bar segmentada */}
+        <div className="flex gap-1">
+          {FIR_STEP_META.map((_, i) => (
+            <div
+              key={i}
+              className={cn(
+                'h-1 flex-1 rounded-full transition-all',
+                i <= step ? 'bg-gp' : 'bg-sf-top',
               )}
-            </Card>
-          );
-        })}
+            />
+          ))}
+        </div>
+
+        {/* Step meta */}
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gp">
+            <Icon name={meta.icon} filled className="!text-[20px] text-white" />
+          </div>
+          <div className="flex-1">
+            <div className="text-sm font-bold">{meta.titulo}</div>
+            <div className="flex items-center gap-2 text-[10px] text-on-3">
+              <span className="flex items-center gap-1">
+                <Icon name="schedule" className="!text-[10px]" /> {meta.tempo}
+              </span>
+              <span className="flex items-center gap-1">
+                <Icon name="star" filled className="!text-[10px] text-am" /> +{meta.xp} XP
+              </span>
+            </div>
+          </div>
+          <div className="serif text-sm font-bold text-am">{Math.round(progressPct)}%</div>
+        </div>
       </div>
 
-      <div className="mt-6">
-        <Button variant="surface" fullWidth onClick={() => nav(ROUTES.DASHBOARD)}>
-          Continuar depois
+      {/* Step content */}
+      <div className="mb-24">
+        {step === 0 && <FIRStepEcossistema dados={dados} setDados={updateDados} />}
+        {step === 1 && <FIRStepSonho dados={dados} setDados={updateDados} />}
+        {step === 2 && <FIRStepModoOperacao dados={dados} setDados={updateDados} />}
+        {step === 3 && <FIRStepProdutos dados={dados} setDados={updateDados} />}
+        {step === 4 && <FIRStepRitmo dados={dados} setDados={updateDados} />}
+        {step === 5 && <FIRStepReuniao dados={dados} setDados={updateDados} />}
+        {step === 6 && <FIRStepProtocolos dados={dados} setDados={updateDados} />}
+        {step === 7 && <FIRStepContatos dados={dados} setDados={updateDados} />}
+      </div>
+
+      {/* Bottom CTA */}
+      <div className="fixed inset-x-0 bottom-0 z-40 mx-auto max-w-page bg-sf-void px-4 pb-6 pt-3">
+        <Button
+          variant="ge"
+          fullWidth
+          disabled={!canAdvance() || saving}
+          onClick={advance}
+        >
+          {saving
+            ? 'Salvando…'
+            : step === totalSteps - 1
+              ? `Concluir FIR · +${TOTAL_XP} XP`
+              : `Próximo passo →`}
         </Button>
       </div>
     </div>
