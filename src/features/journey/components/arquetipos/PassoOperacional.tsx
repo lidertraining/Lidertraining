@@ -1,7 +1,7 @@
 import { Card } from '@shared/ui/Card';
 import { Icon } from '@shared/ui/Icon';
 import { Markdown } from '@shared/ui/Markdown';
-import { ContactImporter } from '@features/prospector/components/ContactImporter';
+import { SmartContactUploader } from '@/components/SmartContactUploader';
 import { useLeads } from '@features/prospector/hooks/useLeads';
 import { STEPS } from '@content/steps';
 
@@ -73,7 +73,10 @@ function ListaVivaSection() {
           </div>
         )}
       </Card>
-      <ContactImporter />
+      <SmartContactUploader
+        context="jornada"
+        existingContacts={leads.map((l) => ({ name: l.name, phone: l.phone }))}
+      />
     </>
   );
 }

@@ -1,5 +1,5 @@
 import type { FIRDados } from '../firTypes';
-import { ContactImporter } from '@features/prospector/components/ContactImporter';
+import { SmartContactUploader } from '@/components/SmartContactUploader';
 import { Card } from '@shared/ui/Card';
 import { Icon } from '@shared/ui/Icon';
 import { useLeads } from '@features/prospector/hooks/useLeads';
@@ -52,8 +52,11 @@ export function FIRStepContatos({ dados }: Props) {
         )}
       </Card>
 
-      {/* Importador de contatos (reusa componente do Prospector) */}
-      <ContactImporter />
+      {/* Importação inteligente multi-plataforma (Android nativo, wizard iPhone, DnD desktop) */}
+      <SmartContactUploader
+        context="fir"
+        existingContacts={leads.map((l) => ({ name: l.name, phone: l.phone }))}
+      />
 
       {/* Dicas de lista viva */}
       <Card variant="surface-sm" className="flex flex-col gap-2 p-4">
