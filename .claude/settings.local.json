@@ -10,7 +10,10 @@
       "Bash(timeout 20 git fetch origin main)",
       "Bash(ps -W)",
       "Bash(git remote *)",
-      "Bash(powershell.exe *)"
+      "Bash(powershell.exe *)",
+      "Bash(git commit *)",
+      "Bash(git *)",
+      "Bash(gh --version)"
     ]
   }
 }
