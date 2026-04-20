@@ -97,6 +97,13 @@ export function InviteLandingPage() {
           error={errors.phone?.message}
         />
         <Input
+          type="date"
+          placeholder="Data de nascimento"
+          autoComplete="bday"
+          {...register('dataNascimento')}
+          error={errors.dataNascimento?.message}
+        />
+        <Input
           type="password"
           placeholder="Senha (mín. 6 caracteres)"
           autoComplete="new-password"

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Icon } from '@shared/ui/Icon';
@@ -40,17 +40,52 @@ export function FIRPage() {
     }
   });
   const [saving, setSaving] = useState(false);
+  const saveTimer = useRef<number | null>(null);
 
   const userName = profile?.name ?? 'Consultor';
   const totalSteps = FIR_STEP_META.length;
 
-  // Auto-save draft to localStorage
+  // Carrega rascunho do Supabase ao abrir (DB tem prioridade sobre localStorage)
+  useEffect(() => {
+    const userId = profile?.id;
+    if (!userId) return;
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from('fir_respostas')
+          .select('dados, concluido')
+          .eq('usuario_id', userId)
+          .maybeSingle();
+        if (data?.dados && typeof data.dados === 'object') {
+          setDados((cur) => ({ ...cur, ...(data.dados as Partial<FIRDados>) }));
+        }
+      } catch { /* localStorage já foi lido no initializer */ }
+    })();
+  }, [profile?.id]);
+
+  // Auto-save com debounce 1.5s: localStorage imediato + Supabase diferido
   const updateDados = useCallback((newDados: FIRDados) => {
     setDados(newDados);
     try {
       localStorage.setItem('lt_fir_elite_draft', JSON.stringify(newDados));
     } catch { /* noop */ }
-  }, []);
+
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = window.setTimeout(async () => {
+      const userId = profile?.id;
+      if (!userId) return;
+      try {
+        await supabase.from('fir_respostas').upsert(
+          {
+            usuario_id: userId,
+            dados: newDados as unknown as Record<string, unknown>,
+            concluido: false,
+          },
+          { onConflict: 'usuario_id' },
+        );
+      } catch { /* silencioso — localStorage preserva o rascunho */ }
+    }, 1500);
+  }, [profile?.id]);
 
   const canAdvance = (): boolean => {
     switch (step) {
@@ -88,10 +123,15 @@ export function FIRPage() {
       const userId = profile?.id;
       if (!userId) throw new Error('Sem sessão');
 
-      // Salva dados da FIR (não-crítico: se a tabela não existir, segue em frente)
+      // Salva dados finais da FIR marcando como concluído
       try {
         await supabase.from('fir_respostas').upsert(
-          { usuario_id: userId, dados: dados as unknown as Record<string, unknown>, xp_ganho: TOTAL_XP },
+          {
+            usuario_id: userId,
+            dados: dados as unknown as Record<string, unknown>,
+            xp_ganho: TOTAL_XP,
+            concluido: true,
+          },
           { onConflict: 'usuario_id' },
         );
       } catch {

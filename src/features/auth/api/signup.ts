@@ -22,9 +22,11 @@ export async function signupWithInvite({
   password,
   name,
   phone,
+  dataNascimento,
   code,
 }: SignupWithInviteInput) {
   const phoneDigits = normalizePhone(phone);
+  const birthday = dataNascimento && dataNascimento.length > 0 ? dataNascimento : null;
 
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email,
@@ -38,7 +40,7 @@ export async function signupWithInvite({
 
     if (!isAlreadyRegistered) throw authError;
 
-    return await signInAndEnsureProfile(email, password, code, name, phoneDigits);
+    return await signInAndEnsureProfile(email, password, code, name, phoneDigits, birthday);
   }
 
   if (!authData.user) throw new Error('Falha ao criar usuário');
@@ -66,7 +68,7 @@ export async function signupWithInvite({
     throw new Error('Conta criada! Confirme seu email e depois faça login.');
   }
 
-  return await createProfileAndEnsurePhone(code, name, phoneDigits, authData);
+  return await createProfileAndEnsurePhone(code, name, phoneDigits, birthday, authData);
 }
 
 async function signInAndEnsureProfile(
@@ -75,6 +77,7 @@ async function signInAndEnsureProfile(
   code: string,
   name: string,
   phoneDigits: string,
+  birthday: string | null,
 ) {
   const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
     email,
@@ -91,25 +94,29 @@ async function signInAndEnsureProfile(
 
   const { data: existing } = await supabase
     .from('profiles')
-    .select('id, phone')
+    .select('id, phone, data_nascimento')
     .eq('id', signInData.user.id)
     .maybeSingle();
 
   if (existing) {
-    // Profile já existe — se não tem phone, seta agora
-    if (!existing.phone && phoneDigits) {
-      await supabase.from('profiles').update({ phone: phoneDigits }).eq('id', signInData.user.id);
+    // Profile já existe — completa campos faltantes
+    const patch: Record<string, unknown> = {};
+    if (!existing.phone && phoneDigits) patch.phone = phoneDigits;
+    if (!existing.data_nascimento && birthday) patch.data_nascimento = birthday;
+    if (Object.keys(patch).length > 0) {
+      await supabase.from('profiles').update(patch).eq('id', signInData.user.id);
     }
     return { auth: signInData, profile: existing };
   }
 
-  return await createProfileAndEnsurePhone(code, name, phoneDigits, signInData);
+  return await createProfileAndEnsurePhone(code, name, phoneDigits, birthday, signInData);
 }
 
 async function createProfileAndEnsurePhone(
   code: string,
   name: string,
   phoneDigits: string,
+  birthday: string | null,
   authResult: { user?: { id: string } | null; session?: unknown },
 ) {
   // Tenta a versão com 3 params (phone) — ideal
@@ -119,8 +126,13 @@ async function createProfileAndEnsurePhone(
     p_phone: phoneDigits,
   });
 
+  const userId = authResult.user?.id;
+
   if (!rpcError) {
-    // Sucesso: RPC moderna salvou tudo (incluindo phone)
+    // Sucesso: RPC salvou phone. Agora grava data_nascimento se fornecida.
+    if (userId && birthday) {
+      await supabase.from('profiles').update({ data_nascimento: birthday }).eq('id', userId);
+    }
     return { auth: authResult, profile };
   }
 
@@ -132,10 +144,14 @@ async function createProfileAndEnsurePhone(
     );
     if (fallbackError) throw fallbackError;
 
-    // GARANTE o phone via UPDATE direto na tabela profiles
-    const userId = authResult.user?.id;
-    if (userId && phoneDigits) {
-      await supabase.from('profiles').update({ phone: phoneDigits }).eq('id', userId);
+    // GARANTE phone e data_nascimento via UPDATE direto
+    if (userId) {
+      const patch: Record<string, unknown> = {};
+      if (phoneDigits) patch.phone = phoneDigits;
+      if (birthday) patch.data_nascimento = birthday;
+      if (Object.keys(patch).length > 0) {
+        await supabase.from('profiles').update(patch).eq('id', userId);
+      }
     }
 
     return { auth: authResult, profile: profileFallback };

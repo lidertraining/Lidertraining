@@ -72,13 +72,14 @@ export function JourneyStepPage() {
       saveTimer.current = window.setTimeout(async () => {
         if (!profile?.id) return;
         try {
+          // iniciado_em é preenchido pelo DEFAULT now() só no INSERT inicial;
+          // omitimos aqui para não sobrescrever em updates subsequentes.
           const { error } = await supabase.from('progresso_jornada').upsert(
             {
               usuario_id: profile.id,
               passo_num: sid,
               status: 'em_andamento',
               dados: newDados,
-              iniciado_em: new Date().toISOString(),
               atualizado_em: new Date().toISOString(),
             },
             { onConflict: 'usuario_id,passo_num' },
