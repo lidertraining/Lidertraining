@@ -1,5 +1,4 @@
 import { useCallback, useMemo, useRef, useState, type DragEvent } from 'react';
-import { Card } from '@shared/ui/Card';
 import { Icon } from '@shared/ui/Icon';
 import { Button } from '@shared/ui/Button';
 import { useToast } from '@shared/hooks/useToast';
