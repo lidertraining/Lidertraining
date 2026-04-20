@@ -11,7 +11,7 @@ Webapp gamificado para consultores de marketing multinível, em React + Vite + S
 
 ## Stack oficial (não mudar sem pedir)
 
-- **Frontend:** React 18 + Vite + JavaScript (não TypeScript)
+- **Frontend:** React 18 + Vite + **TypeScript** (strict: `tsc -b && vite build` roda com `noUnusedLocals` + `noUnusedParameters` ativos — imports/variáveis não usadas quebram o build)
 - **Backend:** Supabase (auth, database Postgres, storage, edge functions)
 - **Deploy:** Vercel com auto-deploy do GitHub (`github.com/lidertraining/Lidertraining` → `lidertraining.vercel.app`)
 - **Local:** `C:\Users\caiol\Documents\lidertraining` (Windows, PowerShell)
