@@ -536,6 +536,20 @@ export function SmartContactUploader({
           </Button>
         )}
 
+        {/* Android sem Contact Picker (Samsung Internet, Firefox Mobile, etc) */}
+        {platform === 'android' && !supportsNative && (
+          <Button
+            variant="gp"
+            size="md"
+            fullWidth
+            disabled={busy}
+            onClick={() => setShowWizard((v) => !v)}
+            leftIcon={<Icon name="auto_stories" className="!text-[18px]" />}
+          >
+            {showWizard ? 'Fechar guia Android' : 'Abrir guia Android (4 passos)'}
+          </Button>
+        )}
+
         {platform === 'desktop' && (
           <DesktopDropzone
             onPick={openFilePicker}
@@ -559,8 +573,11 @@ export function SmartContactUploader({
         </Button>
       </div>
 
-      {/* Wizard iPhone */}
-      {platform === 'ios' && showWizard && <IPhoneWizard />}
+      {/* Wizard iPhone ou Android (quando picker nativo não rola) */}
+      {showWizard && platform === 'ios' && <ContactExportWizard kind="ios" />}
+      {showWizard && platform === 'android' && !supportsNative && (
+        <ContactExportWizard kind="android" />
+      )}
 
       {/* Summary do último import */}
       {lastSummary && (
@@ -649,41 +666,66 @@ function DesktopDropzone({
 }
 
 /* ═══════════════════════════════════════════════════════════════════
- * Wizard iPhone (4 passos)
+ * Wizard de exportação de contatos (iPhone / Android sem picker)
  * ═══════════════════════════════════════════════════════════════════ */
 
-function IPhoneWizard() {
-  const steps = [
-    {
-      icon: 'contacts',
-      title: 'Abra o app Contatos',
-      detail: 'Aquele ícone cinza padrão do iPhone.',
-    },
-    {
-      icon: 'list_alt',
-      title: 'Toque em "Listas"',
-      detail: 'Escolha a lista com os contatos que você quer importar (ou "Todos os Contatos").',
-    },
-    {
-      icon: 'ios_share',
-      title: 'Exportar → Salvar em Arquivos',
-      detail: 'O iPhone gera um único arquivo .vcf com todos os contatos da lista.',
-    },
-    {
-      icon: 'upload_file',
-      title: 'Volte aqui e toque em "Importar arquivo"',
-      detail: 'Navegue até "Arquivos" ou "Downloads" e selecione o .vcf recém-salvo.',
-    },
-  ];
+function ContactExportWizard({ kind }: { kind: 'ios' | 'android' }) {
+  const stepsByKind: Record<'ios' | 'android', Array<{ icon: string; title: string; detail: string }>> = {
+    ios: [
+      {
+        icon: 'contacts',
+        title: 'Abra o app Contatos',
+        detail: 'Aquele ícone cinza padrão do iPhone.',
+      },
+      {
+        icon: 'list_alt',
+        title: 'Toque em "Listas"',
+        detail: 'Escolha a lista com os contatos que você quer importar (ou "Todos os Contatos").',
+      },
+      {
+        icon: 'ios_share',
+        title: 'Exportar → Salvar em Arquivos',
+        detail: 'O iPhone gera um único arquivo .vcf com todos os contatos da lista.',
+      },
+      {
+        icon: 'upload_file',
+        title: 'Volte aqui e toque em "Importar arquivo"',
+        detail: 'Navegue até "Arquivos" ou "Downloads" e selecione o .vcf recém-salvo.',
+      },
+    ],
+    android: [
+      {
+        icon: 'contacts',
+        title: 'Abra o app Contatos do celular',
+        detail: 'No Samsung é o ícone "Contatos" verde. Em outros Androids vem como "Telefone" ou "Pessoas".',
+      },
+      {
+        icon: 'menu',
+        title: 'Menu (≡) → "Gerenciar contatos" ou "Configurações"',
+        detail: 'No Samsung: três traços no canto → "Gerenciar contatos". Em outros: ícone de engrenagem.',
+      },
+      {
+        icon: 'ios_share',
+        title: 'Toque em "Importar/Exportar" → "Exportar para arquivo .vcf"',
+        detail: 'Selecione TODOS os contatos. O celular salva um arquivo .vcf no Downloads.',
+      },
+      {
+        icon: 'upload_file',
+        title: 'Volte aqui e toque em "Importar arquivo .vcf"',
+        detail: 'Procure no Downloads pelo arquivo .vcf que você acabou de exportar.',
+      },
+    ],
+  };
+
+  const title = kind === 'ios' ? 'Passo a passo no iPhone' : 'Passo a passo no Android (Samsung e outros)';
+  const steps = stepsByKind[kind];
 
   return (
     <div
       className="mt-4 rounded-card border p-4"
       style={{ borderColor: 'rgba(201,160,255,.22)', background: 'rgba(201,160,255,.04)' }}
     >
-      <div className="mb-3 font-display italic text-[13px] text-am-dim">
-        Passo a passo no iPhone
-      </div>
+      <div className="mb-3 font-display italic text-[13px] text-am-dim">{title}</div>
       <ol className="flex flex-col gap-3">
         {steps.map((s, i) => (
           <li key={i} className="flex gap-3">

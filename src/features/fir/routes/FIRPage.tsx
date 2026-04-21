@@ -63,6 +63,26 @@ export function FIRPage() {
     })();
   }, [profile?.id]);
 
+  // Save IMEDIATO no Supabase — usado antes de navegar de passo (não perde dados)
+  const flushSave = useCallback(async (dadosToSave?: FIRDados) => {
+    const userId = profile?.id;
+    if (!userId) return;
+    if (saveTimer.current) {
+      clearTimeout(saveTimer.current);
+      saveTimer.current = null;
+    }
+    try {
+      await supabase.from('fir_respostas').upsert(
+        {
+          usuario_id: userId,
+          dados: (dadosToSave ?? dados) as unknown as Record<string, unknown>,
+          concluido: false,
+        },
+        { onConflict: 'usuario_id' },
+      );
+    } catch { /* localStorage segura o rascunho mesmo se DB falhar */ }
+  }, [profile?.id, dados]);
+
   // Auto-save com debounce 1.5s: localStorage imediato + Supabase diferido
   const updateDados = useCallback((newDados: FIRDados) => {
     setDados(newDados);
@@ -87,6 +107,15 @@ export function FIRPage() {
     }, 1500);
   }, [profile?.id]);
 
+  // Cleanup: garante save antes de desmontar
+  useEffect(() => {
+    return () => {
+      if (saveTimer.current) {
+        clearTimeout(saveTimer.current);
+      }
+    };
+  }, []);
+
   const canAdvance = (): boolean => {
     switch (step) {
       case 0: return Object.values(dados.conexoes).filter(Boolean).length >= 2;
@@ -101,7 +130,8 @@ export function FIRPage() {
     }
   };
 
-  const advance = () => {
+  const advance = async () => {
+    await flushSave();
     if (step < totalSteps - 1) {
       setStep(step + 1);
       window.scrollTo(0, 0);
@@ -110,55 +140,69 @@ export function FIRPage() {
     }
   };
 
-  const goBack = () => {
+  const goBack = async () => {
+    await flushSave();
     if (step > 0) {
       setStep(step - 1);
       window.scrollTo(0, 0);
     }
   };
 
+  const handlePular = async () => {
+    await flushSave();
+    nav(ROUTES.DASHBOARD);
+  };
+
   const handleConcluir = async () => {
     setSaving(true);
     try {
       const userId = profile?.id;
-      if (!userId) throw new Error('Sem sessão');
+      if (!userId) throw new Error('Sem sessão. Faça login novamente.');
 
-      // Salva dados finais da FIR marcando como concluído
-      try {
-        await supabase.from('fir_respostas').upsert(
-          {
-            usuario_id: userId,
-            dados: dados as unknown as Record<string, unknown>,
-            xp_ganho: TOTAL_XP,
-            concluido: true,
-          },
-          { onConflict: 'usuario_id' },
-        );
-      } catch {
-        /* tabela fir_respostas pode não existir ainda — dados ficam no localStorage */
+      // 1) Salva dados finais com concluido=true (não-crítico mas reporta erro)
+      const { error: respErr } = await supabase.from('fir_respostas').upsert(
+        {
+          usuario_id: userId,
+          dados: dados as unknown as Record<string, unknown>,
+          xp_ganho: TOTAL_XP,
+          concluido: true,
+        },
+        { onConflict: 'usuario_id' },
+      );
+      if (respErr) {
+        console.error('[FIR] erro ao salvar fir_respostas:', respErr);
+        // Não bloqueia — segue com o resto
       }
 
-      // Marca FIR como completa (crítico)
+      // 2) Marca FIR como completa (CRÍTICO)
       const { error: updErr } = await supabase.from('profiles').update({
         fir_completed: true,
         fir_step: 8,
         fir_done_mask: 255,
       }).eq('id', userId);
-      if (updErr) throw updErr;
-
-      // Concede XP (não-crítico)
-      try {
-        await supabase.rpc('add_xp', { p_amount: TOTAL_XP, p_reason: 'FIR Digital Elite completa' });
-      } catch {
-        /* xp não creditado mas FIR foi concluída */
+      if (updErr) {
+        console.error('[FIR] erro ao marcar profile.fir_completed:', updErr);
+        throw new Error(`Falha ao marcar conclusão: ${updErr.message}`);
       }
 
-      qc.invalidateQueries({ queryKey: ['profile'] });
+      // 3) Concede XP (não-crítico)
+      const { error: xpErr } = await supabase.rpc('add_xp', {
+        p_amount: TOTAL_XP,
+        p_reason: 'FIR Digital Elite completa',
+      });
+      if (xpErr) console.error('[FIR] erro ao creditar XP:', xpErr);
 
+      qc.invalidateQueries({ queryKey: ['profile'] });
       localStorage.removeItem('lt_fir_elite_draft');
       setPhase('celebration');
     } catch (err) {
-      toast(err instanceof Error ? err.message : 'Erro ao salvar. Seus dados estão seguros no app.', 'error');
+      console.error('[FIR] handleConcluir falhou:', err);
+      toast(
+        err instanceof Error
+          ? `Erro: ${err.message}`
+          : 'Erro ao concluir FIR. Tente de novo.',
+        'error',
+      );
     } finally {
       setSaving(false);
     }
@@ -207,7 +251,7 @@ export function FIRPage() {
             </div>
           </div>
           <button
-            onClick={() => nav(ROUTES.DASHBOARD)}
+            onClick={handlePular}
             className="tap text-[11px] text-on-3"
           >
             Pular
