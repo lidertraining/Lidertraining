@@ -50,6 +50,32 @@ function hasContactPicker(): boolean {
   );
 }
 
+/**
+ * Detecta navegadores Android que NÃO suportam Contact Picker.
+ * Samsung Internet, Firefox Mobile, Mi Browser e similares — todos
+ * baseados em engines não-Chromium ou em forks que não implementam
+ * a Contact Picker API.
+ */
+function isAndroidWithoutPicker(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  if (!/android/i.test(ua)) return false;
+  return !hasContactPicker();
+}
+
+/**
+ * Gera URL de Android Intent que força o Chrome a abrir a página atual.
+ * Funciona em Samsung Internet, Firefox Mobile e qualquer outro
+ * navegador Android. Se Chrome não estiver instalado, o navegador
+ * abre o link normal (fallback transparente).
+ */
+function buildOpenInChromeIntent(): string {
+  const url = window.location.href;
+  // Remove protocolo pra montar o intent
+  const stripped = url.replace(/^https?:\/\//, '');
+  return `intent://${stripped}#Intent;scheme=https;package=com.android.chrome;end`;
+}
+
 /* ═══════════════════════════════════════════════════════════════════
  * Contact Picker API (Android Chrome)
  * ═══════════════════════════════════════════════════════════════════ */
@@ -538,16 +564,27 @@ export function SmartContactUploader({
 
         {/* Android sem Contact Picker (Samsung Internet, Firefox Mobile, etc) */}
         {platform === 'android' && !supportsNative && (
-          <Button
-            variant="gp"
-            size="md"
-            fullWidth
-            disabled={busy}
-            onClick={() => setShowWizard((v) => !v)}
-            leftIcon={<Icon name="auto_stories" className="!text-[18px]" />}
-          >
-            {showWizard ? 'Fechar guia Android' : 'Abrir guia Android (4 passos)'}
-          </Button>
+          <>
+            <a
+              href={buildOpenInChromeIntent()}
+              className="tap"
+              aria-label="Abrir esta página no Google Chrome"
+            >
+              <Button
+                variant="gp"
+                size="md"
+                fullWidth
+                disabled={busy}
+                leftIcon={<Icon name="open_in_new" className="!text-[18px]" />}
+              >
+                Abrir no Chrome pra importar contatos
+              </Button>
+            </a>
+            <p className="text-[10px] text-am-dim/70 leading-relaxed">
+              Seu navegador atual não permite seleção direta de contatos.
+              No Chrome, vai aparecer o seletor nativo do Android — igual ao Xiaomi.
+            </p>
+          </>
         )}
 
         {platform === 'desktop' && (
@@ -573,11 +610,8 @@ export function SmartContactUploader({
         </Button>
       </div>
 
-      {/* Wizard iPhone ou Android (quando picker nativo não rola) */}
+      {/* Wizard iPhone (Android sem picker agora vai pro Chrome direto) */}
       {showWizard && platform === 'ios' && <ContactExportWizard kind="ios" />}
-      {showWizard && platform === 'android' && !supportsNative && (
-        <ContactExportWizard kind="android" />
-      )}
 
       {/* Summary do último import */}
       {lastSummary && (
