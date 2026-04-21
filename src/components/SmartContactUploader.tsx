@@ -51,19 +51,6 @@ function hasContactPicker(): boolean {
 }
 
 /**
- * Detecta navegadores Android que NÃO suportam Contact Picker.
- * Samsung Internet, Firefox Mobile, Mi Browser e similares — todos
- * baseados em engines não-Chromium ou em forks que não implementam
- * a Contact Picker API.
- */
-function isAndroidWithoutPicker(): boolean {
-  if (typeof navigator === 'undefined') return false;
-  const ua = navigator.userAgent || '';
-  if (!/android/i.test(ua)) return false;
-  return !hasContactPicker();
-}
-
-/**
  * Gera URL de Android Intent que força o Chrome a abrir a página atual.
  * Funciona em Samsung Internet, Firefox Mobile e qualquer outro
  * navegador Android. Se Chrome não estiver instalado, o navegador
