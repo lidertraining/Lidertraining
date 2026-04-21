@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -129,6 +129,19 @@ export function InviteLandingPage() {
           {submitting ? 'Criando conta…' : 'Criar conta'}
         </Button>
       </form>
+
+      <div className="flex items-center gap-3 text-[11px] text-on-3">
+        <div className="h-px flex-1 bg-sf-top" />
+        <span>ou</span>
+        <div className="h-px flex-1 bg-sf-top" />
+      </div>
+
+      <Link
+        to={ROUTES.LOGIN}
+        className="tap text-center text-sm font-semibold text-am hover:underline"
+      >
+        Já sou cadastrado · Fazer login
+      </Link>
 
       <p className="text-center text-[11px] text-on-3">
         Ao criar uma conta você concorda com os termos da plataforma.
