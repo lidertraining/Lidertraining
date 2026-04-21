@@ -75,6 +75,9 @@ const AdminVideosAutoridadePage = lazy(() =>
     default: m.AdminVideosAutoridadePage,
   })),
 );
+const AuthEliteRoute = lazy(() =>
+  import('@features/auth/routes/AuthEliteRoute').then((m) => ({ default: m.AuthEliteRoute })),
+);
 
 export default function App() {
   return (
@@ -84,6 +87,8 @@ export default function App() {
           {/* Públicas */}
           <Route path={ROUTES.LOGIN} element={<LoginPage />} />
           <Route path={ROUTES.SIGNUP} element={<InviteLandingPage />} />
+          <Route path="/auth-elite" element={<AuthEliteRoute />} />
+          <Route path="/auth/callback" element={<AuthEliteRoute />} />
 
           {/* Autenticadas */}
           <Route element={<RequireAuth />}>
