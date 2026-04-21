@@ -3,6 +3,7 @@ import { Icon } from '@shared/ui/Icon';
 import { Textarea } from '@shared/ui/Textarea';
 import { Markdown } from '@shared/ui/Markdown';
 import { STEPS } from '@content/steps';
+import { SonhoVisualizador } from '../SonhoVisualizador';
 
 interface Props {
   passoId: number;
@@ -13,6 +14,7 @@ interface Props {
 export function PassoReflexivo({ passoId, dados, setDados }: Props) {
   const step = STEPS.find((s) => s.id === passoId);
   const diario = (dados.diario as string) ?? '';
+  const isSonhos = passoId === 1;
 
   return (
     <div className="flex flex-col gap-5">
@@ -22,6 +24,9 @@ export function PassoReflexivo({ passoId, dados, setDados }: Props) {
           <Markdown source={step.body} />
         </Card>
       )}
+
+      {/* Visualizador de sonho — só no Passo 1 (Sonhos) */}
+      {isSonhos && <SonhoVisualizador dados={dados} setDados={setDados} />}
 
       {/* Diário reflexivo */}
       <Card variant="surface" className="flex flex-col gap-3 p-5" glow="am">
