@@ -80,7 +80,13 @@ export function InviteLandingPage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3">
-        <Input placeholder="Seu nome" {...register('name')} error={errors.name?.message} />
+        <Input
+          type="text"
+          placeholder="Seu nome"
+          autoComplete="name"
+          {...register('name')}
+          error={errors.name?.message}
+        />
         <Input
           type="email"
           placeholder="E-mail"
@@ -96,13 +102,15 @@ export function InviteLandingPage() {
           {...register('phone')}
           error={errors.phone?.message}
         />
-        <Input
-          type="date"
-          placeholder="Data de nascimento"
-          autoComplete="bday"
-          {...register('dataNascimento')}
-          error={errors.dataNascimento?.message}
-        />
+        <label className="flex flex-col gap-1">
+          <span className="text-[11px] font-medium text-on-3 pl-1">Data de nascimento</span>
+          <Input
+            type="date"
+            autoComplete="bday"
+            {...register('dataNascimento')}
+            error={errors.dataNascimento?.message}
+          />
+        </label>
         <Input
           type="password"
           placeholder="Senha (mín. 6 caracteres)"

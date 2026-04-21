@@ -44,12 +44,16 @@ body {
 }
 
 /* Inputs base */
+input:not([type]),
 input[type='text'],
 input[type='search'],
 input[type='number'],
 input[type='tel'],
 input[type='email'],
 input[type='password'],
+input[type='date'],
+input[type='datetime-local'],
+input[type='time'],
 textarea,
 select {
   background: #2a2a2c;
@@ -62,6 +66,24 @@ select {
   width: 100%;
   outline: none;
   transition: box-shadow 0.2s;
+}
+
+/* Date picker nativo em dark mode (ícone/calendário seguem o tema) */
+input[type='date'],
+input[type='datetime-local'],
+input[type='time'] {
+  color-scheme: dark;
+  min-height: 40px;
+}
+input[type='date']::-webkit-calendar-picker-indicator,
+input[type='datetime-local']::-webkit-calendar-picker-indicator,
+input[type='time']::-webkit-calendar-picker-indicator {
+  filter: invert(0.6) brightness(1.2);
+  cursor: pointer;
+  opacity: 0.7;
+}
+input[type='date']::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
 }
 input:focus,
 textarea:focus,
