@@ -226,17 +226,28 @@ function looksLikeCSV(text: string, filename: string): boolean {
 }
 
 /**
- * Lê o arquivo com fallback de encoding. iPhone Safari e iCloud às vezes
- * exportam VCF como UTF-16LE com BOM — o default do File.text() (UTF-8) não
- * reconhece e devolve texto vazio/lixo. Aqui tentamos UTF-8 primeiro e
- * caímos pra UTF-16 se não achar BEGIN:VCARD.
+ * Lê o arquivo UMA ÚNICA VEZ e tenta decodificar em UTF-8, UTF-16LE ou UTF-16BE.
+ * Detecta BOM automaticamente. Safari iOS tem bug onde chamar .text() e depois
+ * .arrayBuffer() no mesmo File pode quebrar o stream — por isso uma leitura só.
  */
 async function readContactFile(file: File): Promise<string> {
-  const utf8 = (await file.text()).replace(/^\uFEFF/, '');
+  const buf = await file.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+
+  const hasUtf16LeBom = bytes.length >= 2 && bytes[0] === 0xff && bytes[1] === 0xfe;
+  const hasUtf16BeBom = bytes.length >= 2 && bytes[0] === 0xfe && bytes[1] === 0xff;
+  const hasUtf8Bom =
+    bytes.length >= 3 && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf;
+
+  if (hasUtf16LeBom) return new TextDecoder('utf-16le').decode(buf);
+  if (hasUtf16BeBom) return new TextDecoder('utf-16be').decode(buf);
+  if (hasUtf8Bom) return new TextDecoder('utf-8').decode(buf).replace(/^\uFEFF/, '');
+
+  const utf8 = new TextDecoder('utf-8', { fatal: false }).decode(buf);
   if (/BEGIN:VCARD/i.test(utf8)) return utf8;
+
   try {
-    const buf = await file.arrayBuffer();
-    const utf16 = new TextDecoder('utf-16le').decode(buf).replace(/^\uFEFF/, '');
+    const utf16 = new TextDecoder('utf-16le', { fatal: false }).decode(buf);
     if (/BEGIN:VCARD/i.test(utf16)) return utf16;
   } catch {
     /* noop */
@@ -248,8 +259,7 @@ async function parseFileRich(file: File): Promise<ParsedVCardRich[]> {
   const text = await readContactFile(file);
   if (looksLikeVCF(text) || /\.(vcf|vcard)$/i.test(file.name)) return parseVCFRich(text);
   if (looksLikeCSV(text, file.name)) return parseCSVRich(text);
-  // Fallback: se não bateu nem VCF nem CSV, tenta parseVCFRich mesmo assim
-  // (iPhone Safari às vezes manda o arquivo sem extensão reconhecível).
+  // Fallback: tenta parseVCFRich mesmo sem match claro (iPhone Safari).
   return parseVCFRich(text);
 }
 

@@ -55,16 +55,30 @@ export async function pickContacts(): Promise<PickedContact[]> {
 }
 
 /**
- * Lê o arquivo tentando UTF-8 primeiro. Se não encontrar BEGIN:VCARD,
- * tenta UTF-16LE (exports de iCloud/Windows às vezes vêm assim).
- * Remove BOM no início.
+ * Lê o arquivo UMA ÚNICA VEZ e tenta decodificar em UTF-8, UTF-16LE ou UTF-16BE.
+ * Detecta BOM automaticamente. iPhone Safari tem bug onde chamar .text() e
+ * depois .arrayBuffer() no mesmo File pode quebrar o stream.
  */
 async function readContactFile(file: File): Promise<string> {
-  const utf8 = (await file.text()).replace(/^\uFEFF/, '');
+  const buf = await file.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+
+  const hasUtf16LeBom = bytes.length >= 2 && bytes[0] === 0xff && bytes[1] === 0xfe;
+  const hasUtf16BeBom = bytes.length >= 2 && bytes[0] === 0xfe && bytes[1] === 0xff;
+  const hasUtf8Bom =
+    bytes.length >= 3 && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf;
+
+  if (hasUtf16LeBom) return new TextDecoder('utf-16le').decode(buf);
+  if (hasUtf16BeBom) return new TextDecoder('utf-16be').decode(buf);
+  if (hasUtf8Bom) return new TextDecoder('utf-8').decode(buf).replace(/^\uFEFF/, '');
+
+  // Sem BOM: tenta UTF-8
+  const utf8 = new TextDecoder('utf-8', { fatal: false }).decode(buf);
   if (/BEGIN:VCARD/i.test(utf8)) return utf8;
+
+  // Último recurso: UTF-16LE sem BOM (Windows exports)
   try {
-    const buf = await file.arrayBuffer();
-    const utf16 = new TextDecoder('utf-16le').decode(buf).replace(/^\uFEFF/, '');
+    const utf16 = new TextDecoder('utf-16le', { fatal: false }).decode(buf);
     if (/BEGIN:VCARD/i.test(utf16)) return utf16;
   } catch {
     /* noop */
@@ -87,13 +101,17 @@ export function pickVCFFile(): Promise<VCFResult> {
         const text = await readContactFile(file);
         const cards = parseVCFRich(text);
         if (cards.length === 0) {
-          // Sem cards = ou é outro tipo de arquivo, ou o VCF está vazio/corrompido.
-          // Devolvemos 'empty' (mensagem amigável) em vez de 'wrong_type'.
           resolve({ ok: false, reason: 'empty' });
           return;
         }
         resolve({ ok: true, cards });
-      } catch {
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('[pickVCFFile] erro ao ler/parsear:', err, {
+          name: file.name,
+          size: file.size,
+          type: file.type,
+        });
         resolve({ ok: false, reason: 'wrong_type' });
       }
     };
