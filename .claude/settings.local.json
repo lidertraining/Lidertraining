@@ -13,7 +13,28 @@
       "Bash(powershell.exe *)",
       "Bash(git commit *)",
       "Bash(git *)",
-      "Bash(gh --version)"
+      "Bash(gh --version)",
+      "Bash(curl *)",
+      "mcp__claude_ai_Supabase__list_projects",
+      "Bash(vercel --version)",
+      "mcp__claude_ai_Supabase__list_tables",
+      "mcp__claude_ai_Supabase__get_advisors",
+      "mcp__plugin_vercel_vercel__list_teams",
+      "mcp__plugin_vercel_vercel__list_projects",
+      "mcp__plugin_vercel_vercel__list_deployments",
+      "mcp__plugin_vercel_vercel__get_deployment_build_logs",
+      "mcp__plugin_vercel_vercel__get_deployment",
+      "mcp__claude_ai_Supabase__execute_sql",
+      "mcp__claude_ai_Supabase__apply_migration",
+      "WebSearch",
+      "WebFetch(domain:www.youtube.com)",
+      "Bash(xargs grep *)",
+      "mcp__claude_ai_Supabase__get_project_url",
+      "mcp__claude_ai_Supabase__get_publishable_keys",
+      "PowerShell(Add-Type -AssemblyName System.IO.Compression.FileSystem; $zip = [System.IO.Compression.ZipFile]::OpenRead\\('C:\\\\Users\\\\caiol\\\\Documents\\\\lidertraining\\\\auth-elite.zip'\\); $zip.Entries | Select-Object Length, FullName | Format-Table -AutoSize | Out-String; $zip.Dispose\\(\\))",
+      "PowerShell(Add-Type -AssemblyName System.IO.Compression.FileSystem; $zip = [System.IO.Compression.ZipFile]::OpenRead\\('C:\\\\Users\\\\caiol\\\\Documents\\\\lidertraining\\\\auth-elite.zip'\\); $entry = $zip.Entries | Where-Object { $_.FullName -eq 'supabase/migrations/001_auth_elite.sql' }; $stream = $entry.Open\\(\\); $reader = New-Object System.IO.StreamReader\\($stream\\); $reader.ReadToEnd\\(\\); $reader.Dispose\\(\\); $stream.Dispose\\(\\); $zip.Dispose\\(\\))",
+      "PowerShell(Add-Type -AssemblyName System.IO.Compression.FileSystem; $zip = [System.IO.Compression.ZipFile]::OpenRead\\('C:\\\\Users\\\\caiol\\\\Documents\\\\lidertraining\\\\auth-elite.zip'\\); $entry = $zip.Entries | Where-Object { $_.FullName -eq 'src/lib/supabase.js' }; $stream = $entry.Open\\(\\); $reader = New-Object System.IO.StreamReader\\($stream\\); $content = $reader.ReadToEnd\\(\\); $content.Substring\\(0, [Math]::Min\\(2500, $content.Length\\)\\); $reader.Dispose\\(\\); $stream.Dispose\\(\\); $zip.Dispose\\(\\))",
+      "mcp__claude_ai_Supabase__deploy_edge_function"
     ]
   }
 }

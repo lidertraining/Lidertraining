@@ -1,150 +1,120 @@
 import { useState } from 'react';
-import { Card } from '@shared/ui/Card';
 import { Icon } from '@shared/ui/Icon';
-import { Button } from '@shared/ui/Button';
 import { useToast } from '@shared/hooks/useToast';
-import { useCreateLead } from '../hooks/useLeads';
 import {
   hasContactPicker,
-  pickContacts,
+  pickContactsRich,
   pickVCFFile,
-  type PickedContact,
 } from '../api/contactPicker';
+import { ImportPreviewModal } from './ImportPreviewModal';
+import type { ParsedVCardRich } from '@lib/contacts-import';
 
 export function ContactImporter() {
-  const { mutateAsync: createLead } = useCreateLead();
   const { toast } = useToast();
-  const [importing, setImporting] = useState(false);
+  const [cards, setCards] = useState<ParsedVCardRich[]>([]);
+  const [source, setSource] = useState('Contatos do celular');
+  const [open, setOpen] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const supportsNative = hasContactPicker();
 
-  const importContacts = async (contacts: PickedContact[]) => {
-    if (contacts.length === 0) {
-      toast('Nenhum contato selecionado', 'info');
+  const openPreview = (newCards: ParsedVCardRich[], src: string) => {
+    if (newCards.length === 0) {
+      toast('Nenhum contato encontrado', 'info');
       return;
     }
-
-    setImporting(true);
-    let imported = 0;
-
-    for (const c of contacts) {
-      try {
-        await createLead({
-          name: c.name,
-          phone: c.phone ?? '',
-          status: 'frio',
-          source: 'Contatos do celular',
-        });
-        imported++;
-      } catch {
-        // Continua mesmo se um falhar (ex: duplicata)
-      }
-    }
-
-    toast(`${imported} contato(s) importado(s)`, 'success', 'contacts');
-    setImporting(false);
+    setCards(newCards);
+    setSource(src);
+    setOpen(true);
   };
 
   const handleNativePick = async () => {
-    const contacts = await pickContacts();
-    await importContacts(contacts);
+    const results = await pickContactsRich();
+    openPreview(results, 'Contatos do celular');
   };
 
   const handleVCF = async () => {
     const result = await pickVCFFile();
     if (!result.ok) {
-      if (result.reason === 'no_file') return; // usuário cancelou
-      if (result.reason === 'wrong_type') {
-        toast(
-          'Arquivo não é um .vcf válido. Exporte os contatos pelo app Contatos primeiro.',
-          'error',
-        );
-      } else if (result.reason === 'empty') {
-        toast('O arquivo não tem contatos válidos', 'info');
-      }
+      if (result.reason === 'no_file') return;
+      if (result.reason === 'wrong_type') toast('Arquivo não é um .vcf válido', 'error');
+      else if (result.reason === 'empty') toast('O arquivo não tem contatos', 'info');
       return;
     }
-    await importContacts(result.contacts);
+    openPreview(result.cards, 'Arquivo de contatos');
   };
 
   return (
-    <Card variant="surface-sm" className="flex flex-col gap-3 p-4">
-      <div className="flex items-center gap-2">
-        <Icon name="contacts" filled className="!text-[20px] text-am" />
-        <div className="flex-1">
-          <div className="text-sm font-semibold">Importar contatos</div>
-          <div className="text-[11px] text-on-3">
-            {supportsNative
-              ? 'Selecione direto do celular ou importe arquivo .vcf'
-              : 'Importe seus contatos via arquivo .vcf'}
+    <>
+      <div className="surface flex flex-col gap-3 p-4">
+        <div className="flex items-center gap-2">
+          <Icon name="contacts" filled className="!text-[20px] text-am" />
+          <div className="flex-1">
+            <div className="text-sm font-semibold">Importar contatos</div>
+            <div className="text-[11px] text-on-3">Filtro automático, zero lixo</div>
           </div>
         </div>
-      </div>
 
-      <div className="flex gap-2">
-        {supportsNative && (
-          <Button
-            variant="gp"
-            size="sm"
-            onClick={handleNativePick}
-            disabled={importing}
-            leftIcon={<Icon name="smartphone" className="!text-[16px]" />}
-            className="flex-1"
+        <div className="grid grid-cols-2 gap-2">
+          {supportsNative ? (
+            <button
+              onClick={handleNativePick}
+              className="tap flex flex-col items-center gap-1 rounded-card-sm bg-sf-hi p-3 hover-glow"
+            >
+              <Icon name="contact_phone" filled className="!text-[22px] text-am" />
+              <span className="text-[11px] font-semibold text-on">Do celular</span>
+              <span className="text-[10px] text-on-3">Nativo</span>
+            </button>
+          ) : (
+            <button
+              onClick={handleVCF}
+              className="tap flex flex-col items-center gap-1 rounded-card-sm bg-sf-hi p-3 hover-glow"
+            >
+              <Icon name="upload_file" filled className="!text-[22px] text-am" />
+              <span className="text-[11px] font-semibold text-on">Arquivo .vcf</span>
+              <span className="text-[10px] text-on-3">iPhone/desktop</span>
+            </button>
+          )}
+
+          <button
+            onClick={handleVCF}
+            className="tap flex flex-col items-center gap-1 rounded-card-sm bg-sf-hi p-3 hover-glow"
           >
-            {importing ? 'Importando…' : 'Do celular'}
-          </Button>
-        )}
-        <Button
-          variant="surface"
-          size="sm"
-          onClick={handleVCF}
-          disabled={importing}
-          leftIcon={<Icon name="upload_file" className="!text-[16px]" />}
-          className="flex-1"
+            <Icon name="folder_open" filled className="!text-[22px] text-am" />
+            <span className="text-[11px] font-semibold text-on">Arquivo .vcf</span>
+            <span className="text-[10px] text-on-3">Qualquer origem</span>
+          </button>
+        </div>
+
+        <button
+          onClick={() => setShowHelp((v) => !v)}
+          className="tap flex items-center justify-center gap-1 py-1 text-[11px] text-on-3 hover:text-on-2"
         >
-          Arquivo .vcf
-        </Button>
+          <Icon
+            name="help_outline"
+            className={`!text-[13px] transition-transform ${showHelp ? 'rotate-45' : ''}`}
+          />
+          Como exportar meus contatos?
+        </button>
+
+        {showHelp && (
+          <div className="animate-fade-up rounded-card-sm bg-sf-c p-3 text-[11px] leading-relaxed text-on-2">
+            <p className="mb-1 font-semibold text-on">iPhone:</p>
+            <p className="mb-2">
+              Contatos → selecione um contato → ⋯ → Compartilhar → Salvar em Arquivos. Pra todos:
+              selecione &quot;Todos os contatos&quot; → Compartilhar → Exportar como .vcf
+            </p>
+            <p className="mb-1 font-semibold text-on">Android:</p>
+            <p>Se você vê o botão &quot;Do celular&quot;, é só clicar — o Chrome abre o seletor nativo.</p>
+          </div>
+        )}
       </div>
 
-      <button
-        type="button"
-        onClick={() => setShowHelp((v) => !v)}
-        className="tap flex items-center justify-between text-[11px] font-semibold text-am"
-      >
-        <span>Como exportar meus contatos</span>
-        <Icon name={showHelp ? 'expand_less' : 'expand_more'} className="!text-[16px]" />
-      </button>
-
-      {showHelp && (
-        <div className="flex flex-col gap-3 rounded-card bg-sf-top/40 p-3 text-[11px] leading-relaxed text-on-2">
-          <div>
-            <div className="mb-1 font-semibold text-am">iPhone</div>
-            <ol className="list-decimal space-y-0.5 pl-4 text-on-3">
-              <li>Abra o app <strong>Contatos</strong>.</li>
-              <li>Toque em <strong>Listas</strong> → escolha a lista desejada.</li>
-              <li>Toque em <strong>Exportar</strong> → <strong>Salvar em Arquivos</strong>.</li>
-              <li>Volte aqui, toque em <strong>Arquivo .vcf</strong> e escolha o arquivo.</li>
-            </ol>
-          </div>
-          <div>
-            <div className="mb-1 font-semibold text-am">Android</div>
-            <ol className="list-decimal space-y-0.5 pl-4 text-on-3">
-              <li>Abra <strong>Contatos</strong> (Google).</li>
-              <li>Menu → <strong>Selecionar</strong> → marque contatos.</li>
-              <li>Menu → <strong>Compartilhar</strong> → <strong>Salvar no Drive/Arquivos</strong>.</li>
-              <li>Volte aqui, toque em <strong>Arquivo .vcf</strong> e escolha o arquivo.</li>
-            </ol>
-          </div>
-          <div className="text-[10px] text-on-3">
-            O botão abre o gerenciador de arquivos do seu celular. Navegue até onde
-            você salvou o .vcf (normalmente <strong>Arquivos</strong>, <strong>Downloads</strong> ou <strong>Drive</strong>) e selecione.
-          </div>
-        </div>
-      )}
-
-      <p className="text-[10px] text-on-3">
-        Seus contatos são salvos apenas na sua conta. Ninguém mais tem acesso.
-      </p>
-    </Card>
+      <ImportPreviewModal
+        open={open}
+        onClose={() => setOpen(false)}
+        cards={cards}
+        source={source}
+      />
+    </>
   );
 }

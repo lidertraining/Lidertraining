@@ -5,37 +5,37 @@ import { StatusChip } from '@shared/ui/StatusChip';
 import { Avatar } from '@shared/ui/Avatar';
 import { ProgressBar } from '@shared/ui/ProgressBar';
 import { relativeTime } from '@lib/relativeTime';
+import { buildWaURL, buildTelURL, isWhatsAppCapable } from '@lib/phone';
 
 interface LeadCardProps {
   lead: Lead;
   onClick: () => void;
 }
 
-function onlyDigits(s: string | null): string {
-  return (s ?? '').replace(/\D/g, '');
-}
-
 export function LeadCard({ lead, onClick }: LeadCardProps) {
-  const digits = onlyDigits(lead.phone);
-  const waHref = digits ? `https://wa.me/${digits}` : null;
-  const telHref = digits ? `tel:+${digits}` : null;
-
+  const waValid = isWhatsAppCapable(lead.phone);
+  const waHref = waValid ? buildWaURL(lead.phone) : null;
+  const telHref = buildTelURL(lead.phone);
   const stop = (e: React.MouseEvent) => e.stopPropagation();
 
   return (
-    <Card
-      variant="surface-sm"
-      className="tap flex flex-col gap-2 p-3 hover-glow"
-    >
+    <Card variant="surface-sm" className="tap flex flex-col gap-2 p-3 hover-glow">
       <div className="flex items-start gap-3" onClick={onClick}>
-        <Avatar name={lead.name} size="md" />
+        <Avatar name={lead.name} size="md" src={lead.avatarUrl} />
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <div className="truncate text-sm font-semibold">{lead.name}</div>
             <StatusChip status={lead.status} />
+            {waValid && (
+              <span className="inline-flex items-center gap-1 rounded-chip border border-em/30 bg-em/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-em">
+                <span className="h-1 w-1 animate-pulse-soft rounded-full bg-em" />
+                WA
+              </span>
+            )}
           </div>
           <div className="mt-0.5 truncate text-[11px] text-on-3">
-            {lead.source} · {lead.step ?? 'Novo contato'}
+            {lead.source}
+            {lead.organization ? ` · ${lead.organization}` : ` · ${lead.step ?? 'Novo contato'}`}
           </div>
           <div className="mt-0.5 text-[10px] text-on-3">
             {lead.lastContact
@@ -52,7 +52,7 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
       <ProgressBar value={lead.score} size="xs" fillClassName="bg-gp" />
 
       <div className="flex items-center gap-2">
-        {waHref && (
+        {waHref ? (
           <a
             href={waHref}
             target="_blank"
@@ -63,7 +63,18 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
             <Icon name="chat" filled className="!text-[14px]" />
             WhatsApp
           </a>
+        ) : (
+          <button
+            type="button"
+            disabled
+            title={lead.phone ? 'Número incompleto pra WhatsApp' : 'Sem telefone'}
+            className="flex flex-1 items-center justify-center gap-1 rounded-chip bg-sf-hi px-3 py-1.5 text-[11px] font-semibold text-on-3 opacity-60"
+          >
+            <Icon name="chat" className="!text-[14px]" />
+            WhatsApp
+          </button>
         )}
+
         {telHref && (
           <a
             href={telHref}
@@ -74,6 +85,7 @@ export function LeadCard({ lead, onClick }: LeadCardProps) {
             Ligar
           </a>
         )}
+
         <button
           onClick={onClick}
           className="tap rounded-chip bg-sf-hi px-3 py-1.5 text-[11px] font-semibold text-on-2"

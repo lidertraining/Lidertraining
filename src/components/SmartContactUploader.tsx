@@ -2,11 +2,12 @@ import { useCallback, useMemo, useRef, useState, type DragEvent } from 'react';
 import { Icon } from '@shared/ui/Icon';
 import { Button } from '@shared/ui/Button';
 import { useToast } from '@shared/hooks/useToast';
-import { useCreateLead } from '@features/prospector/hooks/useLeads';
 import { cn } from '@lib/cn';
+import { parseVCFRich, type ParsedVCardRich } from '@lib/contacts-import';
+import { ImportPreviewModal } from '@features/prospector/components/ImportPreviewModal';
 
 /* ═══════════════════════════════════════════════════════════════════
- * Tipos públicos
+ * Tipos públicos (preservados pra compat)
  * ═══════════════════════════════════════════════════════════════════ */
 
 export interface SmartContact {
@@ -52,160 +53,48 @@ function hasContactPicker(): boolean {
 
 /**
  * Gera URL de Android Intent que força o Chrome a abrir a página atual.
- * Funciona em Samsung Internet, Firefox Mobile e qualquer outro
- * navegador Android. Se Chrome não estiver instalado, o navegador
- * abre o link normal (fallback transparente).
+ * Funciona em Samsung Internet, Firefox Mobile e qualquer outro navegador
+ * Android. Se Chrome não estiver instalado, fallback transparente.
  */
 function buildOpenInChromeIntent(): string {
   const url = window.location.href;
-  // Remove protocolo pra montar o intent
   const stripped = url.replace(/^https?:\/\//, '');
   return `intent://${stripped}#Intent;scheme=https;package=com.android.chrome;end`;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
- * Contact Picker API (Android Chrome)
+ * Contact Picker API (Android Chrome) — agora retorna ParsedVCardRich
  * ═══════════════════════════════════════════════════════════════════ */
 
-async function pickNativeContacts(): Promise<SmartContact[]> {
+async function pickNativeContactsRich(): Promise<ParsedVCardRich[]> {
   if (!hasContactPicker()) return [];
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const nav = navigator as any;
-    const results = await nav.contacts.select(['name', 'tel'], { multiple: true });
-    return results
-      .map((c: { name?: string[]; tel?: string[] }) => ({
-        name: (c.name?.[0] ?? '').trim() || 'Sem nome',
-        phone: c.tel?.[0] ?? null,
-      }))
-      .filter((c: SmartContact) => !!c.name);
+    const results: Array<{ name?: string[]; tel?: string[]; email?: string[] }> =
+      await nav.contacts.select(['name', 'tel', 'email'], { multiple: true });
+    return results.map((c) => ({
+      name: (c.name?.[0] ?? '').trim(),
+      phones: (c.tel ?? []).map((value) => ({ value, types: ['CELL'] })),
+      emails: (c.email ?? []).map((value) => ({ value, types: [] })),
+      addresses: [],
+      urls: [],
+      categories: [],
+      impps: [],
+      socialProfiles: [],
+      relatedNames: [],
+      customDates: [],
+      raw: '',
+    }));
   } catch {
     return [];
   }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
- * VCF parser robusto
- * ─ line folding (RFC 6350) + QUOTED-PRINTABLE + CHARSET=UTF-8 (dupla)
- * ─ multi vCards num único arquivo
- * ═══════════════════════════════════════════════════════════════════ */
-
-function unfoldVCF(text: string): string[] {
-  const raw = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
-  const out: string[] = [];
-  for (const line of raw) {
-    if ((line.startsWith(' ') || line.startsWith('\t')) && out.length > 0) {
-      out[out.length - 1] += line.slice(1);
-    } else {
-      out.push(line);
-    }
-  }
-  return out;
-}
-
-function decodeQuotedPrintable(text: string): string {
-  return text
-    .replace(/=\r?\n/g, '')
-    .replace(/=([0-9A-Fa-f]{2})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
-}
-
-function fixUTF8Latin1(text: string): string {
-  try {
-    const bytes = new Uint8Array([...text].map((c) => c.charCodeAt(0) & 0xff));
-    const decoded = new TextDecoder('utf-8', { fatal: false }).decode(bytes);
-    if (/[áàâãéêíóôõúüç]/i.test(decoded) && !/Ã./.test(decoded)) return decoded;
-  } catch {
-    /* noop */
-  }
-  return text;
-}
-
-interface VCFLineParsed {
-  params: Record<string, string>;
-  value: string;
-}
-
-function parseVCFLine(line: string): VCFLineParsed {
-  const idx = line.indexOf(':');
-  if (idx === -1) return { params: {}, value: '' };
-  const rawKey = line.slice(0, idx);
-  const rawVal = line.slice(idx + 1);
-
-  const parts = rawKey.split(';');
-  const params: Record<string, string> = {};
-  for (let i = 1; i < parts.length; i++) {
-    const p = parts[i]!;
-    const eq = p.indexOf('=');
-    if (eq > -1) {
-      params[p.slice(0, eq).toUpperCase()] = p.slice(eq + 1).toUpperCase();
-    } else {
-      params[p.toUpperCase()] = 'TRUE';
-    }
-  }
-
-  let value = rawVal;
-  if (params['ENCODING'] === 'QUOTED-PRINTABLE') value = decodeQuotedPrintable(value);
-  if (params['CHARSET'] === 'UTF-8') value = fixUTF8Latin1(value);
-  return { params, value };
-}
-
-function extractVCFName(lines: string[]): string {
-  let fn = '';
-  let n = '';
-  for (const line of lines) {
-    const u = line.toUpperCase();
-    if (u.startsWith('FN:') || u.startsWith('FN;')) {
-      fn = parseVCFLine(line).value.trim();
-      if (fn) return fn;
-    } else if (u.startsWith('N:') || u.startsWith('N;')) {
-      const { value } = parseVCFLine(line);
-      const parts = value.split(';').map((s) => s.trim()).filter(Boolean);
-      if (parts.length >= 2) n = `${parts[1]} ${parts[0]}`.trim();
-      else if (parts.length === 1) n = parts[0]!;
-    }
-  }
-  return fn || n || '';
-}
-
-function extractVCFPhone(lines: string[]): string | null {
-  const tels: Array<{ phone: string; priority: number }> = [];
-  for (const line of lines) {
-    const u = line.toUpperCase();
-    if (!u.startsWith('TEL')) continue;
-    const { params, value } = parseVCFLine(line);
-    const cleaned = value.replace(/[^0-9+]/g, '');
-    if (cleaned.length < 8) continue;
-    const type = params['TYPE'] ?? '';
-    let priority = 5;
-    if (type.includes('CELL') || type.includes('MOBILE')) priority = 1;
-    else if (type.includes('VOICE')) priority = 3;
-    tels.push({ phone: cleaned, priority });
-  }
-  if (!tels.length) return null;
-  tels.sort((a, b) => a.priority - b.priority);
-  return tels[0]!.phone;
-}
-
-export function parseVCF(text: string): SmartContact[] {
-  const contacts: SmartContact[] = [];
-  const sample = text.length > 10_000_000 ? text.slice(0, 10_000_000) : text;
-  const blocks = sample.split(/BEGIN:VCARD/i).slice(1);
-  for (const block of blocks) {
-    const end = block.search(/END:VCARD/i);
-    if (end === -1) continue;
-    const body = block.slice(0, end);
-    const lines = unfoldVCF(body).filter((l) => l.trim().length > 0);
-    const name = extractVCFName(lines);
-    const phone = extractVCFPhone(lines);
-    if (name) contacts.push({ name, phone });
-  }
-  return contacts;
-}
-
-/* ═══════════════════════════════════════════════════════════════════
- * CSV parser (Google Contacts, iCloud, Outlook)
+ * CSV parser (Google Contacts, iCloud, Outlook) — único do uploader
  * ─ RFC 4180 (aspas, escape "", newline dentro de aspas)
- * ─ agnóstico ao idioma das colunas (heurística por nome)
+ * ─ converte direto pra ParsedVCardRich
  * ═══════════════════════════════════════════════════════════════════ */
 
 function parseCSVRows(text: string): string[][] {
@@ -213,7 +102,7 @@ function parseCSVRows(text: string): string[][] {
   let cur: string[] = [];
   let field = '';
   let inQuotes = false;
-  const src = text.replace(/^\uFEFF/, ''); // strip BOM
+  const src = text.replace(/^\uFEFF/, '');
 
   for (let i = 0; i < src.length; i++) {
     const ch = src[i];
@@ -252,7 +141,7 @@ function parseCSVRows(text: string): string[][] {
   return rows;
 }
 
-export function parseCSV(text: string): SmartContact[] {
+function parseCSVRich(text: string): ParsedVCardRich[] {
   const rows = parseCSVRows(text);
   if (rows.length < 2) return [];
   const header = rows[0]!.map((h) => h.trim().toLowerCase());
@@ -265,6 +154,8 @@ export function parseCSV(text: string): SmartContact[] {
   const idxFamily = header.findIndex(
     (h) => h === 'family name' || h === 'last name' || h === 'sobrenome',
   );
+  const idxEmail = header.findIndex((h) => /e?mail/i.test(h));
+  const idxOrg = header.findIndex((h) => /^(organization|organização|company|empresa)$/i.test(h));
 
   const phoneCols: number[] = [];
   header.forEach((h, i) => {
@@ -272,7 +163,7 @@ export function parseCSV(text: string): SmartContact[] {
     else if (/^(phone|mobile|cell|telephone|telefone|celular)$/i.test(h)) phoneCols.push(i);
   });
 
-  const contacts: SmartContact[] = [];
+  const cards: ParsedVCardRich[] = [];
   for (let r = 1; r < rows.length; r++) {
     const row = rows[r]!;
     let name = '';
@@ -283,59 +174,41 @@ export function parseCSV(text: string): SmartContact[] {
       const f = idxFamily > -1 ? row[idxFamily] ?? '' : '';
       name = `${g} ${f}`.trim();
     }
-    if (!name) continue;
 
-    let phone: string | null = null;
+    const phones: Array<{ value: string; types: string[] }> = [];
     for (const pi of phoneCols) {
       const cell = row[pi];
       if (!cell) continue;
       const first = cell.split(/\s*:::\s*/)[0]!;
-      const cleaned = first.replace(/[^0-9+]/g, '');
-      if (cleaned.length >= 8) {
-        phone = cleaned;
-        break;
-      }
+      const v = first.trim();
+      if (v) phones.push({ value: v, types: ['CELL'] });
     }
-    contacts.push({ name, phone });
-  }
-  return contacts;
-}
 
-/* ═══════════════════════════════════════════════════════════════════
- * Dedup (telefone normalizado; fallback por nome lowercase)
- * ═══════════════════════════════════════════════════════════════════ */
-
-function normalizePhone(raw: string | null | undefined): string {
-  if (!raw) return '';
-  const digits = raw.replace(/\D+/g, '');
-  if (digits.length >= 12 && digits.startsWith('55')) return digits.slice(2);
-  return digits;
-}
-
-function dedupContacts(
-  incoming: SmartContact[],
-  existing: ExistingContactLike[],
-): { unique: SmartContact[]; duplicates: number } {
-  const keys = new Set<string>();
-  for (const e of existing) {
-    const pk = normalizePhone(e.phone ?? null);
-    keys.add(pk ? `p:${pk}` : `n:${(e.name || '').trim().toLowerCase()}`);
-  }
-  const seen = new Set<string>();
-  const unique: SmartContact[] = [];
-  let duplicates = 0;
-  for (const c of incoming) {
-    const pk = normalizePhone(c.phone);
-    const key = pk ? `p:${pk}` : `n:${c.name.trim().toLowerCase()}`;
-    if (!c.name.trim()) continue;
-    if (keys.has(key) || seen.has(key)) {
-      duplicates++;
-      continue;
+    const emails: Array<{ value: string; types: string[] }> = [];
+    if (idxEmail > -1 && row[idxEmail]) {
+      const v = row[idxEmail]!.trim();
+      if (v) emails.push({ value: v, types: [] });
     }
-    seen.add(key);
-    unique.push(c);
+
+    const organization =
+      idxOrg > -1 && row[idxOrg] && row[idxOrg]!.trim() ? row[idxOrg]!.trim() : undefined;
+
+    cards.push({
+      name,
+      phones,
+      emails,
+      addresses: [],
+      urls: [],
+      categories: [],
+      impps: [],
+      socialProfiles: [],
+      relatedNames: [],
+      customDates: [],
+      raw: '',
+      ...(organization ? { organization } : {}),
+    });
   }
-  return { unique, duplicates };
+  return cards;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -352,10 +225,10 @@ function looksLikeCSV(text: string, filename: string): boolean {
   return head.includes(',') && /\r?\n/.test(head) && !looksLikeVCF(text);
 }
 
-async function parseFile(file: File): Promise<SmartContact[]> {
+async function parseFileRich(file: File): Promise<ParsedVCardRich[]> {
   const text = await file.text();
-  if (looksLikeVCF(text) || /\.(vcf|vcard)$/i.test(file.name)) return parseVCF(text);
-  if (looksLikeCSV(text, file.name)) return parseCSV(text);
+  if (looksLikeVCF(text) || /\.(vcf|vcard)$/i.test(file.name)) return parseVCFRich(text);
+  if (looksLikeCSV(text, file.name)) return parseCSVRich(text);
   return [];
 }
 
@@ -370,12 +243,10 @@ const THEME = {
 
 export function SmartContactUploader({
   context,
-  existingContacts,
   onImport,
   sourceLabel,
   className,
 }: SmartContactUploaderProps) {
-  const { mutateAsync: createLead } = useCreateLead();
   const { toast } = useToast();
   const [platform] = useState<Platform>(detectPlatform);
   const supportsNative = useMemo(() => platform === 'android' && hasContactPicker(), [platform]);
@@ -383,92 +254,57 @@ export function SmartContactUploader({
   const [busy, setBusy] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const [lastSummary, setLastSummary] = useState<{
-    imported: number;
-    duplicates: number;
-    skipped: number;
-  } | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [pendingCards, setPendingCards] = useState<ParsedVCardRich[]>([]);
+  const [lastInserted, setLastInserted] = useState<number | null>(null);
 
   const fileRef = useRef<HTMLInputElement>(null);
 
   const source =
-    sourceLabel ??
-    (context === 'fir' ? 'FIR · Lista viva' : 'Jornada P5 · Lista viva');
+    sourceLabel ?? (context === 'fir' ? 'FIR · Lista viva' : 'Jornada P5 · Lista viva');
 
-  const persist = useCallback(
-    async (contacts: SmartContact[]) => {
-      if (contacts.length === 0) {
-        toast('Nenhum contato novo pra importar', 'info');
-        return { imported: 0, skipped: 0 };
+  const openPreview = useCallback(
+    (cards: ParsedVCardRich[]) => {
+      if (cards.length === 0) {
+        toast('Nenhum contato encontrado', 'info');
+        return;
       }
-      setBusy(true);
-      let imported = 0;
-      let skipped = 0;
-      for (const c of contacts) {
-        try {
-          await createLead({
-            name: c.name,
-            phone: c.phone ?? '',
-            status: 'frio',
-            source,
-          });
-          imported++;
-        } catch {
-          skipped++;
-        }
-      }
-      setBusy(false);
-      return { imported, skipped };
+      setPendingCards(cards);
+      setPreviewOpen(true);
     },
-    [createLead, source, toast],
-  );
-
-  const runImport = useCallback(
-    async (rawContacts: SmartContact[]) => {
-      const { unique, duplicates } = dedupContacts(rawContacts, existingContacts);
-      const { imported, skipped } = await persist(unique);
-      setLastSummary({ imported, duplicates, skipped });
-
-      if (imported > 0) {
-        const parts = [`${imported} contato${imported === 1 ? '' : 's'} importado${imported === 1 ? '' : 's'}`];
-        if (duplicates > 0) parts.push(`${duplicates} duplicado${duplicates === 1 ? '' : 's'} ignorado${duplicates === 1 ? '' : 's'}`);
-        toast(parts.join(' · '), 'success', 'contacts');
-        onImport?.(unique.slice(0, imported));
-      } else if (duplicates > 0) {
-        toast(`Todos os ${duplicates} contatos já estavam na sua lista`, 'info');
-      } else if (skipped > 0) {
-        toast('Não foi possível importar os contatos selecionados', 'error');
-      }
-    },
-    [existingContacts, onImport, persist, toast],
+    [toast],
   );
 
   /* ─── Handlers ─── */
 
   const handleNativePick = useCallback(async () => {
-    const picked = await pickNativeContacts();
-    if (picked.length === 0) {
-      toast('Nenhum contato selecionado', 'info');
-      return;
-    }
-    await runImport(picked);
-  }, [runImport, toast]);
+    setBusy(true);
+    const cards = await pickNativeContactsRich();
+    setBusy(false);
+    openPreview(cards);
+  }, [openPreview]);
 
   const handleFile = useCallback(
     async (file: File | undefined) => {
       if (!file) return;
+      setBusy(true);
       try {
-        const parsed = await parseFile(file);
-        if (parsed.length === 0) {
-          toast('Arquivo sem contatos reconhecíveis. Envie um .vcf ou .csv do Google Contacts.', 'error');
+        const cards = await parseFileRich(file);
+        setBusy(false);
+        if (cards.length === 0) {
+          toast(
+            'Arquivo sem contatos reconhecíveis. Envie um .vcf ou .csv do Google Contacts.',
+            'error',
+          );
           return;
         }
-        await runImport(parsed);
+        openPreview(cards);
       } catch {
+        setBusy(false);
         toast('Não consegui ler esse arquivo. Tente exportar novamente como .vcf ou .csv.', 'error');
       }
     },
-    [runImport, toast],
+    [openPreview, toast],
   );
 
   const handleDrop = useCallback(
@@ -485,158 +321,162 @@ export function SmartContactUploader({
 
   /* ─── Render ─── */
 
-  const title =
-    context === 'fir'
-      ? 'Importação inteligente'
-      : 'Lista Viva turbo';
+  const title = context === 'fir' ? 'Importação inteligente' : 'Lista Viva turbo';
   const subtitle =
     context === 'fir'
       ? 'Do seu celular pra sua lista em 2 toques.'
       : 'Acelere sua prospecção: importe contatos direto do celular.';
 
   return (
-    <div
-      className={cn('rounded-card border border-am-dim/25 p-5 shadow-glow-am', className)}
-      style={{ background: THEME.obsidian, color: THEME.amethyst }}
-    >
-      {/* Header */}
-      <div className="flex items-start gap-3">
-        <div
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
-          style={{ background: 'rgba(201,160,255,.12)' }}
-        >
-          <Icon name="auto_awesome" filled className="!text-[22px] text-am-dim" />
-        </div>
-        <div className="flex-1">
-          <h3
-            className="font-display italic"
-            style={{ color: THEME.amethyst, fontSize: '1.15rem', fontWeight: 700 }}
+    <>
+      <div
+        className={cn('rounded-card border border-am-dim/25 p-5 shadow-glow-am', className)}
+        style={{ background: THEME.obsidian, color: THEME.amethyst }}
+      >
+        {/* Header */}
+        <div className="flex items-start gap-3">
+          <div
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
+            style={{ background: 'rgba(201,160,255,.12)' }}
           >
-            {title}
-          </h3>
-          <p className="mt-0.5 text-[12px] text-am-dim/70">{subtitle}</p>
-        </div>
-        <span className="rounded-chip border border-am-dim/30 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[.18em] text-am-dim">
-          {platform === 'android' ? 'Android' : platform === 'ios' ? 'iPhone' : 'Desktop'}
-        </span>
-      </div>
-
-      {/* CTA principal por plataforma */}
-      <div className="mt-5 flex flex-col gap-2.5">
-        {supportsNative && (
-          <Button
-            variant="gp"
-            size="md"
-            fullWidth
-            disabled={busy}
-            onClick={handleNativePick}
-            leftIcon={<Icon name="smartphone" className="!text-[18px]" />}
-          >
-            {busy ? 'Importando…' : 'Selecionar contatos do Android'}
-          </Button>
-        )}
-
-        {platform === 'ios' && (
-          <Button
-            variant="gp"
-            size="md"
-            fullWidth
-            disabled={busy}
-            onClick={() => setShowWizard((v) => !v)}
-            leftIcon={<Icon name="auto_stories" className="!text-[18px]" />}
-          >
-            {showWizard ? 'Fechar guia iPhone' : 'Abrir guia iPhone (4 passos)'}
-          </Button>
-        )}
-
-        {/* Android sem Contact Picker (Samsung Internet, Firefox Mobile, etc) */}
-        {platform === 'android' && !supportsNative && (
-          <>
-            <a
-              href={buildOpenInChromeIntent()}
-              className="tap"
-              aria-label="Abrir esta página no Google Chrome"
-            >
-              <Button
-                variant="gp"
-                size="md"
-                fullWidth
-                disabled={busy}
-                leftIcon={<Icon name="open_in_new" className="!text-[18px]" />}
-              >
-                Abrir no Chrome pra importar contatos
-              </Button>
-            </a>
-            <p className="text-[10px] text-am-dim/70 leading-relaxed">
-              Seu navegador atual não permite seleção direta de contatos.
-              No Chrome, vai aparecer o seletor nativo do Android — igual ao Xiaomi.
-            </p>
-          </>
-        )}
-
-        {platform === 'desktop' && (
-          <DesktopDropzone
-            onPick={openFilePicker}
-            onDrop={handleDrop}
-            dragOver={dragOver}
-            setDragOver={setDragOver}
-            busy={busy}
-          />
-        )}
-
-        <Button
-          variant="outline"
-          size="sm"
-          fullWidth
-          disabled={busy}
-          onClick={openFilePicker}
-          leftIcon={<Icon name="upload_file" className="!text-[16px]" />}
-          className="!border-am-dim/40 !text-am-dim hover:!border-am-dim"
-        >
-          {platform === 'desktop' ? 'Ou selecionar arquivo .vcf / .csv' : 'Importar arquivo .vcf / .csv'}
-        </Button>
-      </div>
-
-      {/* Wizard iPhone (Android sem picker agora vai pro Chrome direto) */}
-      {showWizard && platform === 'ios' && <ContactExportWizard kind="ios" />}
-
-      {/* Summary do último import */}
-      {lastSummary && (
-        <div
-          className="mt-4 rounded-card-sm border px-3 py-2.5 text-[11px]"
-          style={{ borderColor: 'rgba(201,160,255,.25)', background: 'rgba(201,160,255,.06)' }}
-        >
-          <div className="flex items-center gap-2 font-semibold text-am-dim">
-            <Icon name="fact_check" filled className="!text-[14px]" />
-            Resumo do último import
+            <Icon name="auto_awesome" filled className="!text-[22px] text-am-dim" />
           </div>
-          <ul className="mt-1.5 space-y-0.5 text-am-dim/80">
-            <li>✓ {lastSummary.imported} novo(s) adicionado(s) à lista</li>
-            {lastSummary.duplicates > 0 && (
-              <li>⊘ {lastSummary.duplicates} duplicado(s) ignorado(s)</li>
-            )}
-            {lastSummary.skipped > 0 && (
-              <li>⚠ {lastSummary.skipped} sem telefone válido — ignorado(s)</li>
-            )}
-          </ul>
+          <div className="flex-1">
+            <h3
+              className="font-display italic"
+              style={{ color: THEME.amethyst, fontSize: '1.15rem', fontWeight: 700 }}
+            >
+              {title}
+            </h3>
+            <p className="mt-0.5 text-[12px] text-am-dim/70">{subtitle}</p>
+          </div>
+          <span className="rounded-chip border border-am-dim/30 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[.18em] text-am-dim">
+            {platform === 'android' ? 'Android' : platform === 'ios' ? 'iPhone' : 'Desktop'}
+          </span>
         </div>
-      )}
 
-      <p className="mt-4 text-[10px] text-am-dim/50">
-        Contatos ficam só na sua conta. Ninguém mais vê.
-      </p>
+        {/* CTA principal por plataforma */}
+        <div className="mt-5 flex flex-col gap-2.5">
+          {supportsNative && (
+            <Button
+              variant="gp"
+              size="md"
+              fullWidth
+              disabled={busy}
+              onClick={handleNativePick}
+              leftIcon={<Icon name="smartphone" className="!text-[18px]" />}
+            >
+              {busy ? 'Lendo contatos…' : 'Selecionar contatos do Android'}
+            </Button>
+          )}
 
-      {/* input file oculto; sem `accept` pra não forçar galeria em iOS/Android */}
-      <input
-        ref={fileRef}
-        type="file"
-        className="hidden"
-        onChange={(e) => {
-          void handleFile(e.target.files?.[0] ?? undefined);
-          e.target.value = '';
+          {platform === 'ios' && (
+            <Button
+              variant="gp"
+              size="md"
+              fullWidth
+              disabled={busy}
+              onClick={() => setShowWizard((v) => !v)}
+              leftIcon={<Icon name="auto_stories" className="!text-[18px]" />}
+            >
+              {showWizard ? 'Fechar guia iPhone' : 'Abrir guia iPhone (4 passos)'}
+            </Button>
+          )}
+
+          {/* Android sem Contact Picker (Samsung Internet, Firefox Mobile, etc) */}
+          {platform === 'android' && !supportsNative && (
+            <>
+              <a
+                href={buildOpenInChromeIntent()}
+                className="tap"
+                aria-label="Abrir esta página no Google Chrome"
+              >
+                <Button
+                  variant="gp"
+                  size="md"
+                  fullWidth
+                  disabled={busy}
+                  leftIcon={<Icon name="open_in_new" className="!text-[18px]" />}
+                >
+                  Abrir no Chrome pra importar contatos
+                </Button>
+              </a>
+              <p className="text-[10px] text-am-dim/70 leading-relaxed">
+                Seu navegador atual não permite seleção direta de contatos. No Chrome,
+                vai aparecer o seletor nativo do Android — igual ao Xiaomi.
+              </p>
+            </>
+          )}
+
+          {platform === 'desktop' && (
+            <DesktopDropzone
+              onPick={openFilePicker}
+              onDrop={handleDrop}
+              dragOver={dragOver}
+              setDragOver={setDragOver}
+              busy={busy}
+            />
+          )}
+
+          <Button
+            variant="outline"
+            size="sm"
+            fullWidth
+            disabled={busy}
+            onClick={openFilePicker}
+            leftIcon={<Icon name="upload_file" className="!text-[16px]" />}
+            className="!border-am-dim/40 !text-am-dim hover:!border-am-dim"
+          >
+            {platform === 'desktop' ? 'Ou selecionar arquivo .vcf / .csv' : 'Importar arquivo .vcf / .csv'}
+          </Button>
+        </div>
+
+        {/* Wizard iPhone (Android sem picker agora vai pro Chrome direto) */}
+        {showWizard && platform === 'ios' && <ContactExportWizard kind="ios" />}
+
+        {/* Resumo do último import */}
+        {lastInserted !== null && lastInserted > 0 && (
+          <div
+            className="mt-4 rounded-card-sm border px-3 py-2.5 text-[11px]"
+            style={{ borderColor: 'rgba(201,160,255,.25)', background: 'rgba(201,160,255,.06)' }}
+          >
+            <div className="flex items-center gap-2 font-semibold text-am-dim">
+              <Icon name="fact_check" filled className="!text-[14px]" />
+              {lastInserted} contato{lastInserted !== 1 ? 's' : ''} adicionado
+              {lastInserted !== 1 ? 's' : ''} à sua lista
+            </div>
+          </div>
+        )}
+
+        <p className="mt-4 text-[10px] text-am-dim/50">
+          Contatos ficam só na sua conta. Ninguém mais vê.
+        </p>
+
+        {/* input file oculto; sem `accept` pra não forçar galeria em iOS/Android */}
+        <input
+          ref={fileRef}
+          type="file"
+          className="hidden"
+          onChange={(e) => {
+            void handleFile(e.target.files?.[0] ?? undefined);
+            e.target.value = '';
+          }}
+        />
+      </div>
+
+      <ImportPreviewModal
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        cards={pendingCards}
+        source={source}
+        onComplete={(count) => {
+          setPreviewOpen(false);
+          setLastInserted(count);
+          // Notifica o parent (FIRStepContatos / PassoOperacional) pra re-fetchar leads se precisar
+          onImport?.([]);
         }}
       />
-    </div>
+    </>
   );
 }
 
@@ -687,7 +527,7 @@ function DesktopDropzone({
 }
 
 /* ═══════════════════════════════════════════════════════════════════
- * Wizard de exportação de contatos (iPhone / Android sem picker)
+ * Wizard de exportação de contatos (iPhone)
  * ═══════════════════════════════════════════════════════════════════ */
 
 function ContactExportWizard({ kind }: { kind: 'ios' | 'android' }) {

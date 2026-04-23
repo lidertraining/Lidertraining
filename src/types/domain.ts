@@ -65,6 +65,13 @@ export interface Lead {
   convertedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  // ── Campos adicionados pela importação inteligente ──
+  email: string | null;
+  organization: string | null;
+  title: string | null;
+  birthday: string | null;
+  avatarUrl: string | null;
+  metadata: Record<string, unknown>;
 }
 
 export interface TeamMember {

@@ -1,23 +1,29 @@
 import { supabase } from '@lib/supabase';
 import type { Lead, LeadStatus } from '@ltypes/domain';
 import type { CreateLeadInput, UpdateLeadInput } from '../schemas';
+import type { ProcessedContact } from '@lib/contacts-import';
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-function mapLead(row: any): Lead {
+function mapLead(row: Record<string, unknown>): Lead {
   return {
-    id: row.id,
-    userId: row.user_id,
-    name: row.name,
-    phone: row.phone,
+    id: row.id as string,
+    userId: row.user_id as string,
+    name: row.name as string,
+    phone: (row.phone as string | null) ?? null,
     status: row.status as LeadStatus,
-    source: row.source,
-    score: row.score,
-    step: row.step,
-    lastContact: row.last_contact,
-    notes: row.notes,
-    convertedAt: row.converted_at,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
+    source: row.source as string,
+    score: row.score as number,
+    step: (row.step as string | null) ?? null,
+    lastContact: (row.last_contact as string | null) ?? null,
+    notes: (row.notes as string | null) ?? null,
+    convertedAt: (row.converted_at as string | null) ?? null,
+    createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
+    email: (row.email as string | null) ?? null,
+    organization: (row.organization as string | null) ?? null,
+    title: (row.title as string | null) ?? null,
+    birthday: (row.birthday as string | null) ?? null,
+    avatarUrl: (row.avatar_url as string | null) ?? null,
+    metadata: (row.metadata as Record<string, unknown>) ?? {},
   };
 }
 
@@ -72,7 +78,6 @@ export async function updateLead(id: string, input: UpdateLeadInput): Promise<Le
   }
   if (input.step !== undefined) payload.step = input.step;
   if (input.notes !== undefined) payload.notes = input.notes;
-
   const { data, error } = await supabase
     .from('leads')
     .update(payload)
@@ -86,4 +91,85 @@ export async function updateLead(id: string, input: UpdateLeadInput): Promise<Le
 export async function deleteLead(id: string): Promise<void> {
   const { error } = await supabase.from('leads').delete().eq('id', id);
   if (error) throw error;
+}
+
+// ============================================================
+// BULK INSERT — importação em massa com rich fields
+// ============================================================
+
+export interface BulkCreateResult {
+  inserted: number;
+  failed: number;
+  leads: Lead[];
+}
+
+/**
+ * Insere múltiplos leads em chunks de 500. Tolerante a erros: se um chunk
+ * falhar (ex: duplicata de phone por race condition), os outros seguem.
+ * O índice UNIQUE (user_id, phone) do banco faz dedup final automática
+ * via onConflict.
+ */
+export async function bulkCreateLeads(
+  userId: string,
+  contacts: ProcessedContact[],
+  source: string,
+): Promise<BulkCreateResult> {
+  if (contacts.length === 0) return { inserted: 0, failed: 0, leads: [] };
+
+  const CHUNK = 500;
+  const inserted: Lead[] = [];
+  let failed = 0;
+
+  const rows = contacts.map((c) => ({
+    user_id: userId,
+    name: c.name,
+    phone: c.phone,
+    status: 'frio' as LeadStatus,
+    source,
+    score: 30,
+    step: 'Novo contato',
+    email: c.email ?? null,
+    organization: c.organization ?? null,
+    title: c.title ?? null,
+    birthday: c.birthday ?? null,
+    avatar_url: c.avatarUrl ?? null,
+    metadata: c.metadata ?? {},
+  }));
+
+  for (let i = 0; i < rows.length; i += CHUNK) {
+    const chunk = rows.slice(i, i + CHUNK);
+    const { data, error } = await supabase
+      .from('leads')
+      .upsert(chunk, {
+        onConflict: 'user_id,phone',
+        ignoreDuplicates: true,
+      })
+      .select('*');
+    if (error) {
+      failed += chunk.length;
+      // eslint-disable-next-line no-console
+      console.error('[bulkCreateLeads] chunk failed', error);
+      continue;
+    }
+    const mapped = (data ?? []).map(mapLead);
+    inserted.push(...mapped);
+  }
+
+  return { inserted: inserted.length, failed, leads: inserted };
+}
+
+/** Busca os phones normalizados já existentes pro user atual (pra dedup no preview). */
+export async function listExistingPhones(userId: string): Promise<Set<string>> {
+  const { data, error } = await supabase
+    .from('leads')
+    .select('phone')
+    .eq('user_id', userId)
+    .not('phone', 'is', null);
+  if (error) throw error;
+  const set = new Set<string>();
+  for (const row of data ?? []) {
+    const p = (row as { phone: string | null }).phone;
+    if (p) set.add(p);
+  }
+  return set;
 }
