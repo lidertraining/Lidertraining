@@ -45,7 +45,7 @@ export function MemberActionsRow({ memberId, memberName, memberPhone }: MemberAc
   const onClick = async (id: string) => {
     if (id === 'wa') {
       if (memberPhone) {
-        window.open(buildWaURL(memberPhone, `Oi ${memberName.split(' ')[0]}!`), '_blank');
+        window.open(buildWaURL(memberPhone, `Oi ${memberName.split(' ')[0]}!`) ?? undefined, '_blank');
       } else {
         toast('Este membro não tem telefone cadastrado', 'info');
       }
@@ -55,7 +55,7 @@ export function MemberActionsRow({ memberId, memberName, memberPhone }: MemberAc
     if (id === '1x1') {
       if (memberPhone) {
         const msg = `Oi ${memberName.split(' ')[0]}! Bora marcar nosso 1x1 dessa semana? Tenho terça 20h e quinta 19h — qual fica melhor?`;
-        window.open(buildWaURL(memberPhone, msg), '_blank');
+        window.open(buildWaURL(memberPhone, msg) ?? undefined, '_blank');
       } else {
         toast('Adicione telefone do membro para agendar pelo WhatsApp', 'info');
       }
@@ -65,7 +65,7 @@ export function MemberActionsRow({ memberId, memberName, memberPhone }: MemberAc
     if (id === 'reminder') {
       if (memberPhone) {
         const msg = `Oi ${memberName.split(' ')[0]}! Passando pra lembrar da meta que a gente combinou. Como você tá?`;
-        window.open(buildWaURL(memberPhone, msg), '_blank');
+        window.open(buildWaURL(memberPhone, msg) ?? undefined, '_blank');
       } else {
         toast('Membro sem telefone', 'info');
       }

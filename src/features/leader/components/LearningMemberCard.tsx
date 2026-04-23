@@ -46,7 +46,7 @@ export function LearningMemberCard({ member }: LearningMemberCardProps) {
             <ActivityDot daysSinceActive={member.daysSinceActive} />
             {member.phone && (
               <a
-                href={buildWaURL(member.phone, `Oi ${member.name.split(' ')[0]}, tudo bem?`)}
+                href={buildWaURL(member.phone, `Oi ${member.name.split(' ')[0]}, tudo bem?`) ?? undefined}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}

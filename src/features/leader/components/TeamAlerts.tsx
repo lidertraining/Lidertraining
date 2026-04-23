@@ -149,7 +149,7 @@ export function TeamAlerts({ members }: TeamAlertsProps) {
                     href={buildWaURL(
                       member.phone,
                       `Oi ${member.name.split(' ')[0]}! Senti sua falta — tudo bem por aí?`,
-                    )}
+                    ) ?? undefined}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}

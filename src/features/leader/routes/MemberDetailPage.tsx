@@ -111,7 +111,7 @@ export function MemberDetailPage() {
           href={buildWaURL(
             phone,
             `Oi ${member.name.split(' ')[0]}! Tudo bem? Queria falar com você sobre a sua jornada.`,
-          )}
+          ) ?? undefined}
           target="_blank"
           rel="noopener noreferrer"
           className="tap flex items-center justify-between rounded-card bg-em/15 px-4 py-3 text-em hover:bg-em/25"

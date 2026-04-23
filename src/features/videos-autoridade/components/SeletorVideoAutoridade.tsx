@@ -57,7 +57,7 @@ export function SeletorVideoAutoridade({ open, onClose, leadId, leadNome, leadPh
 
     // Abre WhatsApp
     if (leadPhone) {
-      window.open(buildWaURL(leadPhone, mensagem), '_blank');
+      window.open(buildWaURL(leadPhone, mensagem) ?? undefined, '_blank');
     } else {
       try {
         await navigator.clipboard.writeText(mensagem);
