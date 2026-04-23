@@ -216,7 +216,7 @@ function parseCSVRich(text: string): ParsedVCardRich[] {
  * ═══════════════════════════════════════════════════════════════════ */
 
 function looksLikeVCF(text: string): boolean {
-  return /BEGIN:VCARD/i.test(text.slice(0, 2000));
+  return /BEGIN:VCARD/i.test(text);
 }
 
 function looksLikeCSV(text: string, filename: string): boolean {
@@ -225,11 +225,32 @@ function looksLikeCSV(text: string, filename: string): boolean {
   return head.includes(',') && /\r?\n/.test(head) && !looksLikeVCF(text);
 }
 
+/**
+ * Lê o arquivo com fallback de encoding. iPhone Safari e iCloud às vezes
+ * exportam VCF como UTF-16LE com BOM — o default do File.text() (UTF-8) não
+ * reconhece e devolve texto vazio/lixo. Aqui tentamos UTF-8 primeiro e
+ * caímos pra UTF-16 se não achar BEGIN:VCARD.
+ */
+async function readContactFile(file: File): Promise<string> {
+  const utf8 = (await file.text()).replace(/^\uFEFF/, '');
+  if (/BEGIN:VCARD/i.test(utf8)) return utf8;
+  try {
+    const buf = await file.arrayBuffer();
+    const utf16 = new TextDecoder('utf-16le').decode(buf).replace(/^\uFEFF/, '');
+    if (/BEGIN:VCARD/i.test(utf16)) return utf16;
+  } catch {
+    /* noop */
+  }
+  return utf8;
+}
+
 async function parseFileRich(file: File): Promise<ParsedVCardRich[]> {
-  const text = await file.text();
+  const text = await readContactFile(file);
   if (looksLikeVCF(text) || /\.(vcf|vcard)$/i.test(file.name)) return parseVCFRich(text);
   if (looksLikeCSV(text, file.name)) return parseCSVRich(text);
-  return [];
+  // Fallback: se não bateu nem VCF nem CSV, tenta parseVCFRich mesmo assim
+  // (iPhone Safari às vezes manda o arquivo sem extensão reconhecível).
+  return parseVCFRich(text);
 }
 
 /* ═══════════════════════════════════════════════════════════════════

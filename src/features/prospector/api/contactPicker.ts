@@ -54,12 +54,22 @@ export async function pickContacts(): Promise<PickedContact[]> {
     .filter((c) => !!c.phone);
 }
 
-function looksLikeVCard(text: string): boolean {
-  return /BEGIN:VCARD/i.test(text.slice(0, 2000));
-}
-
-function hasVCFExtension(filename: string): boolean {
-  return /\.(vcf|vcard)$/i.test(filename);
+/**
+ * Lê o arquivo tentando UTF-8 primeiro. Se não encontrar BEGIN:VCARD,
+ * tenta UTF-16LE (exports de iCloud/Windows às vezes vêm assim).
+ * Remove BOM no início.
+ */
+async function readContactFile(file: File): Promise<string> {
+  const utf8 = (await file.text()).replace(/^\uFEFF/, '');
+  if (/BEGIN:VCARD/i.test(utf8)) return utf8;
+  try {
+    const buf = await file.arrayBuffer();
+    const utf16 = new TextDecoder('utf-16le').decode(buf).replace(/^\uFEFF/, '');
+    if (/BEGIN:VCARD/i.test(utf16)) return utf16;
+  } catch {
+    /* noop */
+  }
+  return utf8;
 }
 
 /** Abre seletor de arquivo e parseia o VCF selecionado. */
@@ -74,13 +84,11 @@ export function pickVCFFile(): Promise<VCFResult> {
         return;
       }
       try {
-        const text = await file.text();
-        if (!looksLikeVCard(text) && !hasVCFExtension(file.name)) {
-          resolve({ ok: false, reason: 'wrong_type' });
-          return;
-        }
+        const text = await readContactFile(file);
         const cards = parseVCFRich(text);
         if (cards.length === 0) {
+          // Sem cards = ou é outro tipo de arquivo, ou o VCF está vazio/corrompido.
+          // Devolvemos 'empty' (mensagem amigável) em vez de 'wrong_type'.
           resolve({ ok: false, reason: 'empty' });
           return;
         }

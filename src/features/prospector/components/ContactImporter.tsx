@@ -36,8 +36,14 @@ export function ContactImporter() {
     const result = await pickVCFFile();
     if (!result.ok) {
       if (result.reason === 'no_file') return;
-      if (result.reason === 'wrong_type') toast('Arquivo não é um .vcf válido', 'error');
-      else if (result.reason === 'empty') toast('O arquivo não tem contatos', 'info');
+      if (result.reason === 'empty') {
+        toast(
+          'Não encontrei contatos nesse arquivo. Exporte de novo como .vcf.',
+          'error',
+        );
+      } else {
+        toast('Não consegui abrir esse arquivo. Tenta de novo.', 'error');
+      }
       return;
     }
     openPreview(result.cards, 'Arquivo de contatos');
