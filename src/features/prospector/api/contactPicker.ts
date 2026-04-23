@@ -54,43 +54,33 @@ export async function pickContacts(): Promise<PickedContact[]> {
     .filter((c) => !!c.phone);
 }
 
-/**
- * Lê o arquivo UMA ÚNICA VEZ e tenta decodificar em UTF-8, UTF-16LE ou UTF-16BE.
- * Detecta BOM automaticamente. iPhone Safari tem bug onde chamar .text() e
- * depois .arrayBuffer() no mesmo File pode quebrar o stream.
- */
-async function readContactFile(file: File): Promise<string> {
-  const buf = await file.arrayBuffer();
-  const bytes = new Uint8Array(buf);
-
-  const hasUtf16LeBom = bytes.length >= 2 && bytes[0] === 0xff && bytes[1] === 0xfe;
-  const hasUtf16BeBom = bytes.length >= 2 && bytes[0] === 0xfe && bytes[1] === 0xff;
-  const hasUtf8Bom =
-    bytes.length >= 3 && bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf;
-
-  if (hasUtf16LeBom) return new TextDecoder('utf-16le').decode(buf);
-  if (hasUtf16BeBom) return new TextDecoder('utf-16be').decode(buf);
-  if (hasUtf8Bom) return new TextDecoder('utf-8').decode(buf).replace(/^\uFEFF/, '');
-
-  // Sem BOM: tenta UTF-8
-  const utf8 = new TextDecoder('utf-8', { fatal: false }).decode(buf);
-  if (/BEGIN:VCARD/i.test(utf8)) return utf8;
-
-  // Último recurso: UTF-16LE sem BOM (Windows exports)
-  try {
-    const utf16 = new TextDecoder('utf-16le', { fatal: false }).decode(buf);
-    if (/BEGIN:VCARD/i.test(utf16)) return utf16;
-  } catch {
-    /* noop */
-  }
-  return utf8;
+function stripBOMAndControl(text: string): string {
+  // Remove BOM UTF-8/UTF-16 e caracteres de controle no início
+  return text.replace(/^[\uFEFF\u0000-\u001F\s]+/, '');
 }
 
-/** Abre seletor de arquivo e parseia o VCF selecionado. */
+function looksLikeVCard(text: string): boolean {
+  const clean = stripBOMAndControl(text);
+  // Busca em um trecho maior (alguns exports têm headers antes)
+  return /BEGIN\s*:\s*VCARD/i.test(clean.slice(0, 10000));
+}
+
+function hasVCFExtension(filename: string): boolean {
+  if (!filename) return false;
+  return /\.(vcf|vcard)$/i.test(filename);
+}
+
+function hasVCFMimeType(file: File): boolean {
+  if (!file.type) return false;
+  return /vcard|vcf|directory/i.test(file.type);
+}
+
 export function pickVCFFile(): Promise<VCFResult> {
   return new Promise((resolve) => {
     const input = document.createElement('input');
     input.type = 'file';
+    // iOS Safari: accept ajuda o sistema a mostrar .vcf em "Arquivos"
+    input.accept = '.vcf,.vcard,text/vcard,text/x-vcard,text/directory';
     input.onchange = async () => {
       const file = input.files?.[0];
       if (!file) {
@@ -98,8 +88,30 @@ export function pickVCFFile(): Promise<VCFResult> {
         return;
       }
       try {
-        const text = await readContactFile(file);
-        const cards = parseVCFRich(text);
+        // Lê como ArrayBuffer e decodifica explicitamente em UTF-8
+        // (evita problemas de encoding no iOS Safari)
+        const buffer = await file.arrayBuffer();
+        const decoder = new TextDecoder('utf-8', { fatal: false });
+        const text = decoder.decode(buffer);
+
+        // Validação em 3 camadas (qualquer uma passar = aceita)
+        const byContent = looksLikeVCard(text);
+        const byExtension = hasVCFExtension(file.name);
+        const byMime = hasVCFMimeType(file);
+
+        if (!byContent && !byExtension && !byMime) {
+          // eslint-disable-next-line no-console
+          console.warn('[pickVCFFile] rejected', {
+            fileName: file.name,
+            fileType: file.type,
+            fileSize: file.size,
+            firstBytes: text.slice(0, 200),
+          });
+          resolve({ ok: false, reason: 'wrong_type' });
+          return;
+        }
+
+        const cards = parseVCFRich(stripBOMAndControl(text));
         if (cards.length === 0) {
           resolve({ ok: false, reason: 'empty' });
           return;
@@ -107,11 +119,7 @@ export function pickVCFFile(): Promise<VCFResult> {
         resolve({ ok: true, cards });
       } catch (err) {
         // eslint-disable-next-line no-console
-        console.error('[pickVCFFile] erro ao ler/parsear:', err, {
-          name: file.name,
-          size: file.size,
-          type: file.type,
-        });
+        console.error('[pickVCFFile] error', err);
         resolve({ ok: false, reason: 'wrong_type' });
       }
     };
