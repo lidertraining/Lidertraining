@@ -54,72 +54,79 @@ export async function pickContacts(): Promise<PickedContact[]> {
     .filter((c) => !!c.phone);
 }
 
-function stripBOMAndControl(text: string): string {
-  // Remove BOM UTF-8/UTF-16 e caracteres de controle no início
-  return text.replace(/^[\uFEFF\u0000-\u001F\s]+/, '');
-}
-
-function looksLikeVCard(text: string): boolean {
-  const clean = stripBOMAndControl(text);
-  // Busca em um trecho maior (alguns exports têm headers antes)
-  return /BEGIN\s*:\s*VCARD/i.test(clean.slice(0, 10000));
-}
-
-function hasVCFExtension(filename: string): boolean {
-  if (!filename) return false;
-  return /\.(vcf|vcard)$/i.test(filename);
-}
-
-function hasVCFMimeType(file: File): boolean {
-  if (!file.type) return false;
-  return /vcard|vcf|directory/i.test(file.type);
-}
-
 export function pickVCFFile(): Promise<VCFResult> {
   return new Promise((resolve) => {
     const input = document.createElement('input');
     input.type = 'file';
-    // iOS Safari: accept ajuda o sistema a mostrar .vcf em "Arquivos"
-    input.accept = '.vcf,.vcard,text/vcard,text/x-vcard,text/directory';
+    input.accept = '.vcf,.vcard,text/vcard,text/x-vcard,text/directory,*/*';
     input.onchange = async () => {
       const file = input.files?.[0];
       if (!file) {
         resolve({ ok: false, reason: 'no_file' });
         return;
       }
+
+      // === MODO DIAGNÓSTICO ===
+      // Coleta informações do arquivo ANTES de validar
+      const fileName = file.name || '(sem nome)';
+      const fileType = file.type || '(sem mime)';
+      const fileSize = file.size;
+
       try {
-        // Lê como ArrayBuffer e decodifica explicitamente em UTF-8
-        // (evita problemas de encoding no iOS Safari)
         const buffer = await file.arrayBuffer();
         const decoder = new TextDecoder('utf-8', { fatal: false });
         const text = decoder.decode(buffer);
 
-        // Validação em 3 camadas (qualquer uma passar = aceita)
-        const byContent = looksLikeVCard(text);
-        const byExtension = hasVCFExtension(file.name);
-        const byMime = hasVCFMimeType(file);
+        // Primeiros bytes em HEX (pra ver BOM e encoding)
+        const firstBytes = new Uint8Array(buffer.slice(0, 32));
+        const hexBytes = Array.from(firstBytes)
+          .map((b) => b.toString(16).padStart(2, '0'))
+          .join(' ');
 
-        if (!byContent && !byExtension && !byMime) {
-          // eslint-disable-next-line no-console
-          console.warn('[pickVCFFile] rejected', {
-            fileName: file.name,
-            fileType: file.type,
-            fileSize: file.size,
-            firstBytes: text.slice(0, 200),
-          });
-          resolve({ ok: false, reason: 'wrong_type' });
+        // Primeiros chars visíveis
+        const first200Chars = text.slice(0, 200);
+
+        // Busca por BEGIN:VCARD em qualquer lugar do arquivo
+        const hasBeginAnywhere = /BEGIN\s*:\s*VCARD/i.test(text);
+        const hasBeginInFirst10k = /BEGIN\s*:\s*VCARD/i.test(text.slice(0, 10000));
+
+        // MOSTRA TUDO NUM ALERT (vai aparecer na tela do iPhone)
+        const report = [
+          `📋 DIAGNÓSTICO VCF`,
+          ``,
+          `Nome: ${fileName}`,
+          `MIME: ${fileType}`,
+          `Tamanho: ${fileSize} bytes`,
+          ``,
+          `Primeiros 32 bytes (hex):`,
+          hexBytes,
+          ``,
+          `Primeiros 200 chars:`,
+          first200Chars || '(vazio)',
+          ``,
+          `Tem BEGIN:VCARD em qualquer lugar? ${hasBeginAnywhere ? '✅ SIM' : '❌ NÃO'}`,
+          `Tem nos primeiros 10k chars? ${hasBeginInFirst10k ? '✅ SIM' : '❌ NÃO'}`,
+        ].join('\n');
+
+        alert(report);
+
+        // Ainda tenta parsear e retornar, mesmo em diagnóstico
+        if (hasBeginAnywhere) {
+          const stripped = text.replace(/^[\uFEFF\u0000-\u001F\s]+/, '');
+          const cards = parseVCFRich(stripped);
+          if (cards.length === 0) {
+            alert(`⚠️ BEGIN:VCARD encontrado mas parseVCFRich retornou 0 cards.\n\nPode ser problema no parser.`);
+            resolve({ ok: false, reason: 'empty' });
+            return;
+          }
+          alert(`✅ Sucesso! ${cards.length} cartões parseados. Seguindo pro preview.`);
+          resolve({ ok: true, cards });
           return;
         }
 
-        const cards = parseVCFRich(stripBOMAndControl(text));
-        if (cards.length === 0) {
-          resolve({ ok: false, reason: 'empty' });
-          return;
-        }
-        resolve({ ok: true, cards });
+        resolve({ ok: false, reason: 'wrong_type' });
       } catch (err) {
-        // eslint-disable-next-line no-console
-        console.error('[pickVCFFile] error', err);
+        alert(`❌ Erro ao ler arquivo:\n${err instanceof Error ? err.message : String(err)}`);
         resolve({ ok: false, reason: 'wrong_type' });
       }
     };
