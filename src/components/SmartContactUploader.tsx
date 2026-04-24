@@ -3,8 +3,8 @@ import { Icon } from '@shared/ui/Icon';
 import { Button } from '@shared/ui/Button';
 import { useToast } from '@shared/hooks/useToast';
 import { cn } from '@lib/cn';
-import { parseVCFRich, type ParsedVCardRich } from '@lib/contacts-import';
-import { ImportPreviewModal } from '@features/prospector/components/ImportPreviewModal';
+import { parseVCFRich, cardsToContacts, type ParsedVCardRich } from '@lib/contacts-import';
+import { useBulkCreateLeads } from '@features/prospector/hooks/useLeads';
 
 /* ═══════════════════════════════════════════════════════════════════
  * Tipos públicos (preservados pra compat)
@@ -279,14 +279,13 @@ export function SmartContactUploader({
   className,
 }: SmartContactUploaderProps) {
   const { toast } = useToast();
+  const { mutateAsync: bulkCreate } = useBulkCreateLeads();
   const [platform] = useState<Platform>(detectPlatform);
   const supportsNative = useMemo(() => platform === 'android' && hasContactPicker(), [platform]);
 
   const [busy, setBusy] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [pendingCards, setPendingCards] = useState<ParsedVCardRich[]>([]);
   const [lastInserted, setLastInserted] = useState<number | null>(null);
 
   const fileRef = useRef<HTMLInputElement>(null);
@@ -294,16 +293,27 @@ export function SmartContactUploader({
   const source =
     sourceLabel ?? (context === 'fir' ? 'FIR · Lista viva' : 'Jornada P5 · Lista viva');
 
-  const openPreview = useCallback(
-    (cards: ParsedVCardRich[]) => {
+  const runImport = useCallback(
+    async (cards: ParsedVCardRich[]) => {
       if (cards.length === 0) {
         toast('Nenhum contato encontrado', 'info');
         return;
       }
-      setPendingCards(cards);
-      setPreviewOpen(true);
+      const contacts = cardsToContacts(cards);
+      if (contacts.length === 0) {
+        toast('Nenhum contato com telefone', 'info');
+        return;
+      }
+      setBusy(true);
+      try {
+        const result = await bulkCreate({ contacts, source });
+        setLastInserted(result.inserted);
+        onImport?.([]);
+      } finally {
+        setBusy(false);
+      }
     },
-    [toast],
+    [bulkCreate, source, toast, onImport],
   );
 
   /* ─── Handlers ─── */
@@ -312,8 +322,8 @@ export function SmartContactUploader({
     setBusy(true);
     const cards = await pickNativeContactsRich();
     setBusy(false);
-    openPreview(cards);
-  }, [openPreview]);
+    await runImport(cards);
+  }, [runImport]);
 
   const handleFile = useCallback(
     async (file: File | undefined) => {
@@ -329,13 +339,19 @@ export function SmartContactUploader({
           );
           return;
         }
-        openPreview(cards);
-      } catch {
+        await runImport(cards);
+      } catch (err) {
         setBusy(false);
+        // eslint-disable-next-line no-console
+        console.error('[SmartContactUploader.handleFile]', err, {
+          name: file.name,
+          size: file.size,
+          type: file.type,
+        });
         toast('Não consegui ler esse arquivo. Tente exportar novamente como .vcf ou .csv.', 'error');
       }
     },
-    [openPreview, toast],
+    [runImport, toast],
   );
 
   const handleDrop = useCallback(
@@ -495,18 +511,6 @@ export function SmartContactUploader({
         />
       </div>
 
-      <ImportPreviewModal
-        open={previewOpen}
-        onClose={() => setPreviewOpen(false)}
-        cards={pendingCards}
-        source={source}
-        onComplete={(count) => {
-          setPreviewOpen(false);
-          setLastInserted(count);
-          // Notifica o parent (FIRStepContatos / PassoOperacional) pra re-fetchar leads se precisar
-          onImport?.([]);
-        }}
-      />
     </>
   );
 }

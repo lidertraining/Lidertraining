@@ -54,6 +54,17 @@ export async function pickContacts(): Promise<PickedContact[]> {
     .filter((c) => !!c.phone);
 }
 
+/** Remove BOM e caracteres de controle do início do texto. */
+function stripLeadingNoise(text: string): string {
+  return text.replace(/^[\uFEFF\u0000-\u001F\s]+/, '');
+}
+
+/**
+ * Abre seletor de arquivo e parseia o VCF selecionado.
+ * Fluxo direto, sem validação intermediária: lê arquivoBuffer → UTF-8 →
+ * passa pro parser. Se voltar 0 cards, retorna 'empty'.
+ * O parser é tolerante a formatos estranhos; fica a cargo dele decidir.
+ */
 export function pickVCFFile(): Promise<VCFResult> {
   return new Promise((resolve) => {
     const input = document.createElement('input');
@@ -65,68 +76,22 @@ export function pickVCFFile(): Promise<VCFResult> {
         resolve({ ok: false, reason: 'no_file' });
         return;
       }
-
-      // === MODO DIAGNÓSTICO ===
-      // Coleta informações do arquivo ANTES de validar
-      const fileName = file.name || '(sem nome)';
-      const fileType = file.type || '(sem mime)';
-      const fileSize = file.size;
-
       try {
         const buffer = await file.arrayBuffer();
-        const decoder = new TextDecoder('utf-8', { fatal: false });
-        const text = decoder.decode(buffer);
-
-        // Primeiros bytes em HEX (pra ver BOM e encoding)
-        const firstBytes = new Uint8Array(buffer.slice(0, 32));
-        const hexBytes = Array.from(firstBytes)
-          .map((b) => b.toString(16).padStart(2, '0'))
-          .join(' ');
-
-        // Primeiros chars visíveis
-        const first200Chars = text.slice(0, 200);
-
-        // Busca por BEGIN:VCARD em qualquer lugar do arquivo
-        const hasBeginAnywhere = /BEGIN\s*:\s*VCARD/i.test(text);
-        const hasBeginInFirst10k = /BEGIN\s*:\s*VCARD/i.test(text.slice(0, 10000));
-
-        // MOSTRA TUDO NUM ALERT (vai aparecer na tela do iPhone)
-        const report = [
-          `📋 DIAGNÓSTICO VCF`,
-          ``,
-          `Nome: ${fileName}`,
-          `MIME: ${fileType}`,
-          `Tamanho: ${fileSize} bytes`,
-          ``,
-          `Primeiros 32 bytes (hex):`,
-          hexBytes,
-          ``,
-          `Primeiros 200 chars:`,
-          first200Chars || '(vazio)',
-          ``,
-          `Tem BEGIN:VCARD em qualquer lugar? ${hasBeginAnywhere ? '✅ SIM' : '❌ NÃO'}`,
-          `Tem nos primeiros 10k chars? ${hasBeginInFirst10k ? '✅ SIM' : '❌ NÃO'}`,
-        ].join('\n');
-
-        alert(report);
-
-        // Ainda tenta parsear e retornar, mesmo em diagnóstico
-        if (hasBeginAnywhere) {
-          const stripped = text.replace(/^[\uFEFF\u0000-\u001F\s]+/, '');
-          const cards = parseVCFRich(stripped);
-          if (cards.length === 0) {
-            alert(`⚠️ BEGIN:VCARD encontrado mas parseVCFRich retornou 0 cards.\n\nPode ser problema no parser.`);
-            resolve({ ok: false, reason: 'empty' });
-            return;
-          }
-          alert(`✅ Sucesso! ${cards.length} cartões parseados. Seguindo pro preview.`);
-          resolve({ ok: true, cards });
+        const text = new TextDecoder('utf-8', { fatal: false }).decode(buffer);
+        const cards = parseVCFRich(stripLeadingNoise(text));
+        if (cards.length === 0) {
+          resolve({ ok: false, reason: 'empty' });
           return;
         }
-
-        resolve({ ok: false, reason: 'wrong_type' });
+        resolve({ ok: true, cards });
       } catch (err) {
-        alert(`❌ Erro ao ler arquivo:\n${err instanceof Error ? err.message : String(err)}`);
+        // eslint-disable-next-line no-console
+        console.error('[pickVCFFile] erro ao ler arquivo', err, {
+          name: file.name,
+          size: file.size,
+          type: file.type,
+        });
         resolve({ ok: false, reason: 'wrong_type' });
       }
     };

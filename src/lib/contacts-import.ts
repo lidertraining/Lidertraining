@@ -686,6 +686,74 @@ export function processContacts(
 }
 
 // ============================================================
+// CONVERSOR SIMPLES (sem filtrar) — usado pelo fluxo "import normal"
+// ============================================================
+
+/**
+ * Converte cards direto em ProcessedContact[] SEM filtragem aprofundada.
+ * Aceita qualquer card que tenha pelo menos um telefone com ≥8 dígitos.
+ * Normaliza mobile BR pra E.164, mantém outros formatos quase como vieram.
+ * Dedup interno por telefone normalizado.
+ *
+ * Usar pra fluxo "receber VCF normal, sem modal de revisão". A filtragem
+ * (fixos, serviços, duplicados c/ banco) vira feature separada depois.
+ */
+export function cardsToContacts(cards: ParsedVCardRich[]): ProcessedContact[] {
+  const contacts: ProcessedContact[] = [];
+  const seen = new Set<string>();
+
+  for (const card of cards) {
+    const firstPhone = card.phones.find(
+      (p) => p.value.replace(/\D/g, '').length >= 8,
+    );
+    if (!firstPhone) continue;
+
+    const analysis = analyzePhone(firstPhone.value, firstPhone.types);
+    let phone: string;
+    if (analysis.normalized) {
+      phone = analysis.normalized;
+    } else {
+      const digits = firstPhone.value.replace(/\D/g, '');
+      if (digits.length === 0) continue;
+      if ((digits.length === 10 || digits.length === 11) && !digits.startsWith('55')) {
+        phone = '55' + digits;
+      } else {
+        phone = digits;
+      }
+    }
+
+    if (seen.has(phone)) continue;
+    seen.add(phone);
+
+    const metadata: Record<string, unknown> = {};
+    if (card.nickname) metadata.nickname = card.nickname;
+    if (card.phones.length > 1) metadata.allPhones = card.phones;
+    if (card.emails.length > 1) metadata.allEmails = card.emails;
+    if (card.addresses.length) metadata.addresses = card.addresses;
+    if (card.urls.length) metadata.urls = card.urls;
+    if (card.categories.length) metadata.categories = card.categories;
+    if (card.note) metadata.originalNote = card.note;
+
+    const hasName = !!(card.name && card.name.trim());
+
+    contacts.push({
+      name: hasName ? toTitleCase(card.name) : 'Sem nome',
+      phone,
+      phoneRaw: firstPhone.value,
+      ...(card.emails[0]?.value ? { email: card.emails[0].value.trim() } : {}),
+      ...(card.organization ? { organization: card.organization } : {}),
+      ...(card.title ? { title: card.title } : {}),
+      ...(card.birthday ? { birthday: card.birthday } : {}),
+      ...(card.photo ? { avatarUrl: card.photo } : {}),
+      metadata,
+      wasPhoneFixed: analysis.wasFixed,
+    });
+  }
+
+  return contacts;
+}
+
+// ============================================================
 // HELPERS DE URL (re-exports pra conveniência)
 // ============================================================
 
