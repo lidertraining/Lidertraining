@@ -106,11 +106,15 @@ export function useBulkCreateLeads() {
       qc.invalidateQueries({ queryKey: ['leads', uid] });
       qc.invalidateQueries({ queryKey: ['leads-phones', uid] });
       if (result.inserted === 0) {
-        toast('Nenhum lead novo importado', 'info', 'contacts');
+        // Dedup total: todos já existiam (failed === 0). Ou chunks parciais falharam.
+        if (result.failed === 0) {
+          toast('Todos já estavam na sua lista', 'info', 'contacts');
+        } else {
+          toast(`${result.failed} contatos não foram salvos`, 'info', 'info');
+        }
         return;
       }
       const totalXp = result.inserted * 15;
-      // XP agregado: UMA chamada só com o total, não uma por contato
       addXP({ amount: totalXp, reason: `${result.inserted} novos leads` });
       toast(
         `${result.inserted} leads importados · +${totalXp} XP 🎉`,
@@ -119,7 +123,7 @@ export function useBulkCreateLeads() {
       );
       if (result.failed > 0) {
         setTimeout(() => {
-          toast(`${result.failed} não salvaram (duplicatas?)`, 'info', 'info');
+          toast(`${result.failed} não salvaram (duplicatas)`, 'info', 'info');
         }, 400);
       }
     },

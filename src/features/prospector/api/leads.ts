@@ -119,6 +119,7 @@ export async function bulkCreateLeads(
   const CHUNK = 500;
   const inserted: Lead[] = [];
   let failed = 0;
+  let lastError: { message?: string; code?: string; details?: string } | null = null;
 
   const rows = contacts.map((c) => ({
     user_id: userId,
@@ -147,12 +148,20 @@ export async function bulkCreateLeads(
       .select('*');
     if (error) {
       failed += chunk.length;
+      lastError = error;
       // eslint-disable-next-line no-console
-      console.error('[bulkCreateLeads] chunk failed', error);
+      console.error('[bulkCreateLeads] chunk failed', error, { chunkSize: chunk.length });
       continue;
     }
     const mapped = (data ?? []).map(mapLead);
     inserted.push(...mapped);
+  }
+
+  // Se NENHUM chunk teve sucesso E todos falharam, é erro real — propaga pro onError.
+  if (inserted.length === 0 && failed > 0 && lastError) {
+    const msg = lastError.message ?? 'Erro desconhecido ao inserir leads';
+    const code = lastError.code ? ` [${lastError.code}]` : '';
+    throw new Error(`${msg}${code}`);
   }
 
   return { inserted: inserted.length, failed, leads: inserted };
