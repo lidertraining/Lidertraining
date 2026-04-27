@@ -42,7 +42,9 @@ export function SeletorVideoAutoridade({ open, onClose, leadId, leadNome, leadPh
       ? template.texto.replace(/\{NOME\}/g, nome).replace(/\{URL\}/g, video.url_original)
       : `Oi ${nome}! Achei esse vídeo muito alinhado com o que a gente tava conversando:\n\n${video.titulo}\n${video.url_original}`;
 
-    // Registra envio
+    // Registra envio (analytics) — não bloqueia o WhatsApp em caso de erro,
+    // mas agora avisa visivelmente em vez de engolir silenciosamente.
+    let registrouEnvio = true;
     try {
       await registrarEnvio({
         video_id: video.id,
@@ -51,13 +53,25 @@ export function SeletorVideoAutoridade({ open, onClose, leadId, leadNome, leadPh
         contexto: filtroContexto ?? undefined,
         mensagem_usada: mensagem,
       });
-    } catch {
-      /* não crítico */
+    } catch (err) {
+      registrouEnvio = false;
+      // eslint-disable-next-line no-console
+      console.error('Falha ao registrar envio de vídeo:', err);
+      toast(
+        err instanceof Error
+          ? `Envio não registrou: ${err.message}`
+          : 'Envio não registrou nas estatísticas',
+        'warning',
+        'warning',
+      );
     }
 
-    // Abre WhatsApp
+    // Abre WhatsApp (sempre — mesmo se analytics falhou)
     if (leadPhone) {
       window.open(buildWaURL(leadPhone, mensagem) ?? undefined, '_blank');
+      if (registrouEnvio) {
+        toast('Vídeo enviado e registrado!', 'success', 'check_circle');
+      }
     } else {
       try {
         await navigator.clipboard.writeText(mensagem);

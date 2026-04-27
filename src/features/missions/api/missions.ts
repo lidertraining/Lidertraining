@@ -26,6 +26,17 @@ function mapMission(row: any): MissionWithProgress {
 }
 
 export async function listActiveMissions(userId: string): Promise<MissionWithProgress[]> {
+  // Garante que o usuário tem entries em user_missions pra cada template ativo.
+  // A função é idempotente: cria as faltantes, renova as flash/weekly que expiraram,
+  // e não toca nas que já estão em andamento ou nas achievements completas.
+  // Falha silenciosa aqui é OK porque o select abaixo ainda funciona com user_missions vazio.
+  try {
+    await supabase.rpc('materialize_user_missions');
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn('materialize_user_missions falhou (não crítico):', err);
+  }
+
   const { data, error } = await supabase
     .from('missions')
     .select(
