@@ -61,7 +61,7 @@ export function SeletorVideoAutoridade({ open, onClose, leadId, leadNome, leadPh
         err instanceof Error
           ? `Envio não registrou: ${err.message}`
           : 'Envio não registrou nas estatísticas',
-        'warning',
+        'error',
         'warning',
       );
     }
