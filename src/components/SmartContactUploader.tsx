@@ -3,7 +3,7 @@ import { Icon } from '@shared/ui/Icon';
 import { Button } from '@shared/ui/Button';
 import { useToast } from '@shared/hooks/useToast';
 import { cn } from '@lib/cn';
-import { parseVCFRich, cardsToContacts, type ParsedVCardRich } from '@lib/contacts-import';
+import { parseVCFResilient, cardsToContacts, type ParsedVCardRich } from '@lib/contacts-import';
 import { useBulkCreateLeads } from '@features/prospector/hooks/useLeads';
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -257,10 +257,10 @@ async function readContactFile(file: File): Promise<string> {
 
 async function parseFileRich(file: File): Promise<ParsedVCardRich[]> {
   const text = await readContactFile(file);
-  if (looksLikeVCF(text) || /\.(vcf|vcard)$/i.test(file.name)) return parseVCFRich(text);
+  if (looksLikeVCF(text) || /\.(vcf|vcard)$/i.test(file.name)) return parseVCFResilient(text);
   if (looksLikeCSV(text, file.name)) return parseCSVRich(text);
-  // Fallback: tenta parseVCFRich mesmo sem match claro (iPhone Safari).
-  return parseVCFRich(text);
+  // Fallback: tenta parseVCFResilient mesmo sem match claro (iPhone Safari).
+  return parseVCFResilient(text);
 }
 
 /* ═══════════════════════════════════════════════════════════════════

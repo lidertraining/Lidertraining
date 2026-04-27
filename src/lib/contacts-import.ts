@@ -240,6 +240,7 @@ export function parseVCFRich(text: string): ParsedVCardRich[] {
   const blocks = sample.split(/BEGIN:VCARD/i).slice(1);
 
   for (const block of blocks) {
+    try {
     const endIdx = block.search(/END:VCARD/i);
     if (endIdx === -1) continue;
     const cardBody = block.slice(0, endIdx);
@@ -264,6 +265,14 @@ export function parseVCFRich(text: string): ParsedVCardRich[] {
     const customDates: Array<{ label: string; date: string }> = [];
 
     for (const line of lines) {
+      try {
+      // Pula PHOTO/LOGO/SOUND grandes ANTES de parsear (proteção iPhone Safari)
+      if (line.length > 100_000) {
+        const upper = line.slice(0, 8).toUpperCase();
+        if (upper.startsWith('PHOTO') || upper.startsWith('LOGO') || upper.startsWith('SOUND')) {
+          continue;
+        }
+      }
       const parsed = parseLine(line);
       if (!parsed) continue;
       const { key, params, value } = parsed;
@@ -390,6 +399,11 @@ export function parseVCFRich(text: string): ParsedVCardRich[] {
         default:
           break;
       }
+      } catch (lineErr) {
+        // eslint-disable-next-line no-console
+        console.warn('[parseVCFRich] line skipped due to error', lineErr);
+        continue;
+      }
     }
 
     const name = fn || nStructured || '';
@@ -412,9 +426,123 @@ export function parseVCFRich(text: string): ParsedVCardRich[] {
       customDates,
       raw: cardBody,
     });
+    } catch (cardErr) {
+      // eslint-disable-next-line no-console
+      console.warn('[parseVCFRich] card skipped due to error', cardErr);
+      continue;
+    }
   }
 
   return cards;
+}
+
+/**
+ * Parser VCF MINIMALISTA e blindado.
+ * Extrai APENAS nome (FN ou N) e telefones (TEL).
+ * Nunca falha: cada card e cada linha em try/catch isolado.
+ * PHOTO/LOGO/SOUND/ADR/IMPP/SOCIAL são totalmente ignorados.
+ *
+ * Esta é a garantia de fallback: se parseVCFRich explodir em algum
+ * card problemático (foto pesada, encoding estranho), parseVCFSimple
+ * sempre devolve pelo menos nome+telefone.
+ */
+export function parseVCFSimple(text: string): ParsedVCardRich[] {
+  const cards: ParsedVCardRich[] = [];
+  const sample = text.length > 10_000_000 ? text.slice(0, 10_000_000) : text;
+  const blocks = sample.split(/BEGIN:VCARD/i).slice(1);
+
+  for (const block of blocks) {
+    try {
+      const endIdx = block.search(/END:VCARD/i);
+      if (endIdx === -1) continue;
+      const cardBody = block.slice(0, endIdx);
+      const lines = unfold(cardBody).filter((l) => l.trim().length > 0);
+
+      let fn = '';
+      let nStructured = '';
+      const phones: Array<{ value: string; types: string[] }> = [];
+
+      for (const line of lines) {
+        try {
+          const upper = line.toUpperCase();
+          // Pula tudo que não seja FN/N/TEL — proteção máxima
+          if (upper.startsWith('PHOTO') || upper.startsWith('LOGO') || upper.startsWith('SOUND')) continue;
+
+          if (upper.startsWith('FN:') || upper.startsWith('FN;')) {
+            const colonIdx = line.indexOf(':');
+            if (colonIdx > -1) fn = line.slice(colonIdx + 1).trim();
+          } else if (upper.startsWith('N:') || upper.startsWith('N;')) {
+            const colonIdx = line.indexOf(':');
+            if (colonIdx > -1) {
+              const val = line.slice(colonIdx + 1);
+              const parts = val.split(';').map((s) => s.trim());
+              const family = parts[0] ?? '';
+              const given = parts[1] ?? '';
+              const combined = [given, family].filter(Boolean).join(' ').trim();
+              if (combined) nStructured = combined;
+            }
+          } else if (upper.startsWith('TEL')) {
+            const colonIdx = line.indexOf(':');
+            if (colonIdx > -1) {
+              const val = line.slice(colonIdx + 1).trim();
+              const keyPart = line.slice(0, colonIdx).toUpperCase();
+              const types: string[] = [];
+              if (keyPart.includes('CELL') || keyPart.includes('MOBILE')) types.push('CELL');
+              if (keyPart.includes('VOICE')) types.push('VOICE');
+              if (val) phones.push({ value: val, types });
+            }
+          }
+        } catch {
+          // Linha problemática: ignora e segue
+        }
+      }
+
+      const name = fn || nStructured || '';
+      if (!name && phones.length === 0) continue;
+
+      cards.push({
+        name,
+        phones,
+        emails: [],
+        addresses: [],
+        urls: [],
+        categories: [],
+        impps: [],
+        socialProfiles: [],
+        relatedNames: [],
+        customDates: [],
+        raw: '',
+      });
+    } catch {
+      // Card problemático: ignora e segue
+    }
+  }
+
+  return cards;
+}
+
+/**
+ * Parser resiliente: tenta o rico primeiro. Se falhar ou retornar 0 cards,
+ * cai no simples (que nunca falha). Esta é a função que os componentes
+ * de UPLOAD devem chamar — garante que o usuário sempre recebe os contatos,
+ * mesmo que sem foto/empresa/aniversário/etc.
+ */
+export function parseVCFResilient(text: string): ParsedVCardRich[] {
+  try {
+    const rich = parseVCFRich(text);
+    if (rich.length > 0) return rich;
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn('[parseVCFResilient] rich parser failed, falling back to simple', err);
+  }
+
+  try {
+    return parseVCFSimple(text);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('[parseVCFResilient] simple parser also failed', err);
+    return [];
+  }
 }
 
 // ============================================================

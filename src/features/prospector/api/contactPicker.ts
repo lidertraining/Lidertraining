@@ -4,7 +4,7 @@
  * Mantém API pública: hasContactPicker, pickContacts, pickVCFFile, parseVCF.
  */
 
-import { parseVCFRich, type ParsedVCardRich } from '@lib/contacts-import';
+import { parseVCFRich, parseVCFResilient, type ParsedVCardRich } from '@lib/contacts-import';
 
 /** Shape legada — mantida pra compat com código antigo que dependia dela. */
 export interface PickedContact {
@@ -79,7 +79,7 @@ export function pickVCFFile(): Promise<VCFResult> {
       try {
         const buffer = await file.arrayBuffer();
         const text = new TextDecoder('utf-8', { fatal: false }).decode(buffer);
-        const cards = parseVCFRich(stripLeadingNoise(text));
+        const cards = parseVCFResilient(stripLeadingNoise(text));
         if (cards.length === 0) {
           resolve({ ok: false, reason: 'empty' });
           return;
