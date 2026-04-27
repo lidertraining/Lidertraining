@@ -34,7 +34,9 @@
       "PowerShell(Add-Type -AssemblyName System.IO.Compression.FileSystem; $zip = [System.IO.Compression.ZipFile]::OpenRead\\('C:\\\\Users\\\\caiol\\\\Documents\\\\lidertraining\\\\auth-elite.zip'\\); $zip.Entries | Select-Object Length, FullName | Format-Table -AutoSize | Out-String; $zip.Dispose\\(\\))",
       "PowerShell(Add-Type -AssemblyName System.IO.Compression.FileSystem; $zip = [System.IO.Compression.ZipFile]::OpenRead\\('C:\\\\Users\\\\caiol\\\\Documents\\\\lidertraining\\\\auth-elite.zip'\\); $entry = $zip.Entries | Where-Object { $_.FullName -eq 'supabase/migrations/001_auth_elite.sql' }; $stream = $entry.Open\\(\\); $reader = New-Object System.IO.StreamReader\\($stream\\); $reader.ReadToEnd\\(\\); $reader.Dispose\\(\\); $stream.Dispose\\(\\); $zip.Dispose\\(\\))",
       "PowerShell(Add-Type -AssemblyName System.IO.Compression.FileSystem; $zip = [System.IO.Compression.ZipFile]::OpenRead\\('C:\\\\Users\\\\caiol\\\\Documents\\\\lidertraining\\\\auth-elite.zip'\\); $entry = $zip.Entries | Where-Object { $_.FullName -eq 'src/lib/supabase.js' }; $stream = $entry.Open\\(\\); $reader = New-Object System.IO.StreamReader\\($stream\\); $content = $reader.ReadToEnd\\(\\); $content.Substring\\(0, [Math]::Min\\(2500, $content.Length\\)\\); $reader.Dispose\\(\\); $stream.Dispose\\(\\); $zip.Dispose\\(\\))",
-      "mcp__claude_ai_Supabase__deploy_edge_function"
+      "mcp__claude_ai_Supabase__deploy_edge_function",
+      "Bash(pnpm typecheck *)",
+      "Bash(npx --yes tsc --noEmit -p .)"
     ]
   }
 }
