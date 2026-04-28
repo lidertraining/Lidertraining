@@ -1,10 +1,6 @@
 /**
  * Sistema unificado de importação de contatos.
  *
- * Consolida a lógica antes duplicada em:
- *   - src/features/prospector/api/contactPicker.ts (parseVCF)
- *   - src/components/SmartContactUploader.tsx (parseVCF)
- *
  * Features:
  *   - Parse VCF completo (RFC 6350) com line folding, quoted-printable, UTF-8
  *   - Extração rica: nome, apelido, todos os telefones (com tipo), emails, ORG,
@@ -12,14 +8,17 @@
  *   - Análise por telefone: fixo/celular/serviço/inválido, DDD válido,
  *     adiciona o 9 automaticamente em celulares antigos BR
  *   - Filtragem configurável com estatísticas detalhadas
+ *   - Classificação automática (família, amigo, conhecido, profissional)
  *   - Sem limite de contatos (parser tolera até 10MB, processador sem limite)
  */
+
+import { classifyLead } from './lead-classifier';
+import type { LeadCategory, LeadTemperatura } from '@ltypes/domain';
 
 // ============================================================
 // DADOS DE REFERÊNCIA
 // ============================================================
 
-/** DDDs válidos no Brasil (lista oficial ANATEL). */
 const VALID_BR_DDDS = new Set([
   11, 12, 13, 14, 15, 16, 17, 18, 19,
   21, 22, 24, 27, 28,
@@ -32,7 +31,6 @@ const VALID_BR_DDDS = new Set([
   91, 92, 93, 94, 95, 96, 97, 98, 99,
 ]);
 
-/** Palavras que indicam contato comercial / empresa. Case-insensitive. */
 const BUSINESS_KEYWORDS = [
   'uber', 'ifood', '99app', 'rappi', 'cabify',
   'banco', 'itau', 'itaú', 'bradesco', 'santander', 'caixa', 'nubank', 'inter', 'c6',
@@ -54,13 +52,13 @@ export type PhoneKind = 'mobile' | 'landline' | 'service' | 'invalid';
 
 export interface PhoneAnalysis {
   raw: string;
-  normalized: string | null;       // E.164 sem + (ex: 5511987654321)
+  normalized: string | null;
   kind: PhoneKind;
   isBrazilian: boolean;
-  isWhatsAppCapable: boolean;      // true se kind==='mobile' e normalized válido
-  wasFixed: boolean;               // true se tivemos que adicionar o 9
+  isWhatsAppCapable: boolean;
+  wasFixed: boolean;
   reason?: string;
-  typeLabels: string[];            // ['CELL','VOICE'] — do TEL do VCF
+  typeLabels: string[];
 }
 
 export interface VCFAddress {
@@ -70,48 +68,52 @@ export interface VCFAddress {
   postalCode?: string;
   country?: string;
   label?: string;
-  formatted: string;               // ex: "Rua X, 123 · São Paulo/SP"
+  formatted: string;
 }
 
 export interface VCFSocialProfile {
-  service?: string;                // Twitter, LinkedIn, Instagram, Facebook…
+  service?: string;
   url?: string;
   user?: string;
 }
 
-/** Payload completo do VCF, pré-análise. */
 export interface ParsedVCardRich {
-  name: string;                    // FN ou N reconstruído
-  nickname?: string;               // NICKNAME
+  name: string;
+  nickname?: string;
   phones: Array<{ value: string; types: string[] }>;
   emails: Array<{ value: string; types: string[] }>;
-  organization?: string;           // ORG
-  title?: string;                  // TITLE
-  birthday?: string;               // BDAY (ISO date se possível)
+  organization?: string;
+  title?: string;
+  birthday?: string;
   addresses: VCFAddress[];
-  urls: string[];                  // URL(s)
-  note?: string;                   // NOTE
-  photo?: string;                  // PHOTO (base64 data url ou URL externa)
-  categories: string[];            // CATEGORIES
+  urls: string[];
+  note?: string;
+  photo?: string;
+  categories: string[];
   impps: Array<{ protocol: string; handle: string }>;
   socialProfiles: VCFSocialProfile[];
-  relatedNames: Array<{ type: string; value: string }>; // X-ABRELATEDNAMES
-  customDates: Array<{ label: string; date: string }>;  // X-ABDATE
-  raw: string;                     // bloco vCard original (debug)
+  relatedNames: Array<{ type: string; value: string }>;
+  customDates: Array<{ label: string; date: string }>;
+  raw: string;
 }
 
-/** Contato processado pronto pra virar lead. */
 export interface ProcessedContact {
   name: string;
-  phone: string;                   // normalizado, pronto pra wa.me
-  phoneRaw: string;                // original pra exibição
+  phone: string;
+  phoneRaw: string;
   email?: string;
   organization?: string;
   title?: string;
-  birthday?: string;               // ISO date
+  birthday?: string;
   avatarUrl?: string;
-  metadata: Record<string, unknown>; // resto do VCF (endereços, sociais, múltiplos fones, etc.)
+  metadata: Record<string, unknown>;
   wasPhoneFixed: boolean;
+  // ── Classificação automática ──
+  category?: LeadCategory;
+  temperatura?: LeadTemperatura;
+  classificationTags?: string[];
+  classificationEvidencias?: Array<Record<string, unknown>>;
+  classificationConfidence?: number;
 }
 
 export type FilterReason =
@@ -147,7 +149,6 @@ export interface ImportOptions {
   includeNoName?: boolean;
   includeInternational?: boolean;
   includeBusinessLike?: boolean;
-  /** Phones normalizados já existentes no banco — pra marcar como duplicate_in_database. */
   existingPhones?: Set<string>;
 }
 
@@ -203,7 +204,6 @@ function parseLine(line: string): LineParsed | null {
     if (eqIdx > -1) {
       const pk = p.slice(0, eqIdx).toUpperCase();
       const pv = p.slice(eqIdx + 1).toUpperCase();
-      // TYPE pode aparecer múltiplas vezes (TYPE=CELL;TYPE=VOICE) ou como TYPE=CELL,VOICE
       if (pk === 'TYPE') {
         const existing = params[pk];
         const newValues = pv.split(',').map((s) => s.trim()).filter(Boolean);
@@ -233,7 +233,6 @@ function getTypes(params: Record<string, string | string[]>): string[] {
 // PARSE VCF → ParsedVCardRich[]
 // ============================================================
 
-/** Parse um arquivo VCF inteiro (múltiplos cards) retornando payload rico. */
 export function parseVCFRich(text: string): ParsedVCardRich[] {
   const cards: ParsedVCardRich[] = [];
   const sample = text.length > 10_000_000 ? text.slice(0, 10_000_000) : text;
@@ -266,7 +265,6 @@ export function parseVCFRich(text: string): ParsedVCardRich[] {
 
     for (const line of lines) {
       try {
-      // Pula PHOTO/LOGO/SOUND grandes ANTES de parsear (proteção iPhone Safari)
       if (line.length > 100_000) {
         const upper = line.slice(0, 8).toUpperCase();
         if (upper.startsWith('PHOTO') || upper.startsWith('LOGO') || upper.startsWith('SOUND')) {
@@ -283,7 +281,6 @@ export function parseVCFRich(text: string): ParsedVCardRich[] {
           break;
         case 'N': {
           const parts = value.split(';').map((s) => s.trim());
-          // parts: [familyName, givenName, additionalNames, prefix, suffix]
           const given = parts[1] ?? '';
           const family = parts[0] ?? '';
           const combined = [given, family].filter(Boolean).join(' ').trim();
@@ -311,14 +308,12 @@ export function parseVCFRich(text: string): ParsedVCardRich[] {
           break;
         case 'BDAY': {
           const v = value.trim();
-          // BDAY vem como "1990-05-15" ou "19900515" ou "--05-15" (sem ano)
           if (/^\d{4}-\d{2}-\d{2}/.test(v)) birthday = v.slice(0, 10);
           else if (/^\d{8}$/.test(v)) birthday = `${v.slice(0, 4)}-${v.slice(4, 6)}-${v.slice(6, 8)}`;
           else if (/^--\d{2}-?\d{2}$/.test(v)) birthday = `1900-${v.slice(2, 4)}-${v.slice(-2)}`;
           break;
         }
         case 'ADR': {
-          // ADR: po-box;extended;street;city;region;postal-code;country
           const parts = value.split(';').map((s) => s.trim());
           const street = parts[2];
           const city = parts[3];
@@ -370,7 +365,6 @@ export function parseVCFRich(text: string): ParsedVCardRich[] {
           break;
         }
         case 'IMPP': {
-          // ex: IMPP;X-SERVICE-TYPE=WhatsApp:xmpp:5511987654321@whatsapp.com
           const match = value.match(/^([a-z]+):(.+)$/i);
           if (match && match[1] && match[2]) {
             impps.push({ protocol: match[1], handle: match[2] });
@@ -400,7 +394,6 @@ export function parseVCFRich(text: string): ParsedVCardRich[] {
           break;
       }
       } catch (lineErr) {
-        // eslint-disable-next-line no-console
         console.warn('[parseVCFRich] line skipped due to error', lineErr);
         continue;
       }
@@ -427,7 +420,6 @@ export function parseVCFRich(text: string): ParsedVCardRich[] {
       raw: cardBody,
     });
     } catch (cardErr) {
-      // eslint-disable-next-line no-console
       console.warn('[parseVCFRich] card skipped due to error', cardErr);
       continue;
     }
@@ -436,16 +428,6 @@ export function parseVCFRich(text: string): ParsedVCardRich[] {
   return cards;
 }
 
-/**
- * Parser VCF MINIMALISTA e blindado.
- * Extrai APENAS nome (FN ou N) e telefones (TEL).
- * Nunca falha: cada card e cada linha em try/catch isolado.
- * PHOTO/LOGO/SOUND/ADR/IMPP/SOCIAL são totalmente ignorados.
- *
- * Esta é a garantia de fallback: se parseVCFRich explodir em algum
- * card problemático (foto pesada, encoding estranho), parseVCFSimple
- * sempre devolve pelo menos nome+telefone.
- */
 export function parseVCFSimple(text: string): ParsedVCardRich[] {
   const cards: ParsedVCardRich[] = [];
   const sample = text.length > 10_000_000 ? text.slice(0, 10_000_000) : text;
@@ -465,7 +447,6 @@ export function parseVCFSimple(text: string): ParsedVCardRich[] {
       for (const line of lines) {
         try {
           const upper = line.toUpperCase();
-          // Pula tudo que não seja FN/N/TEL — proteção máxima
           if (upper.startsWith('PHOTO') || upper.startsWith('LOGO') || upper.startsWith('SOUND')) continue;
 
           if (upper.startsWith('FN:') || upper.startsWith('FN;')) {
@@ -493,7 +474,7 @@ export function parseVCFSimple(text: string): ParsedVCardRich[] {
             }
           }
         } catch {
-          // Linha problemática: ignora e segue
+          // ignora linha problemática
         }
       }
 
@@ -514,32 +495,24 @@ export function parseVCFSimple(text: string): ParsedVCardRich[] {
         raw: '',
       });
     } catch {
-      // Card problemático: ignora e segue
+      // ignora card problemático
     }
   }
 
   return cards;
 }
 
-/**
- * Parser resiliente: tenta o rico primeiro. Se falhar ou retornar 0 cards,
- * cai no simples (que nunca falha). Esta é a função que os componentes
- * de UPLOAD devem chamar — garante que o usuário sempre recebe os contatos,
- * mesmo que sem foto/empresa/aniversário/etc.
- */
 export function parseVCFResilient(text: string): ParsedVCardRich[] {
   try {
     const rich = parseVCFRich(text);
     if (rich.length > 0) return rich;
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.warn('[parseVCFResilient] rich parser failed, falling back to simple', err);
   }
 
   try {
     return parseVCFSimple(text);
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.error('[parseVCFResilient] simple parser also failed', err);
     return [];
   }
@@ -577,7 +550,6 @@ export function analyzePhone(raw: string, types: string[] = []): PhoneAnalysis {
   const hasCC = digits.startsWith('55') && (digits.length === 12 || digits.length === 13);
   const noCC = !digits.startsWith('55') && (digits.length === 10 || digits.length === 11);
 
-  // Internacional (não-BR)
   if (!hasCC && !noCC) {
     if (digits.length >= 11 && digits.length <= 15) {
       return { ...base, normalized: digits, kind: 'mobile', isBrazilian: false, isWhatsAppCapable: true };
@@ -595,7 +567,6 @@ export function analyzePhone(raw: string, types: string[] = []): PhoneAnalysis {
   const subscriberPart = digits.slice(4);
   const first = subscriberPart[0] ?? '';
 
-  // 12 dígitos (55 + DDD + 8) → fixo OU celular antigo sem o 9
   if (digits.length === 12) {
     if (['2', '3', '4', '5'].includes(first)) {
       return { ...base, kind: 'landline', isBrazilian: true, reason: 'landline' };
@@ -614,7 +585,6 @@ export function analyzePhone(raw: string, types: string[] = []): PhoneAnalysis {
     return { ...base, isBrazilian: true, reason: 'invalid_number' };
   }
 
-  // 13 dígitos (55 + DDD + 9 + 8) → celular atual
   if (digits.length === 13) {
     if (first !== '9') {
       return { ...base, isBrazilian: true, reason: 'mobile_must_start_with_9' };
@@ -625,15 +595,6 @@ export function analyzePhone(raw: string, types: string[] = []): PhoneAnalysis {
   return { ...base, reason: 'unexpected_length' };
 }
 
-/**
- * Escolhe o melhor telefone entre vários do mesmo contato.
- * Prioridade:
- *   1. mobile BR com TYPE=CELL
- *   2. mobile BR (qualquer tipo)
- *   3. mobile internacional
- *   4. qualquer mobile válido
- *   5. null (nenhum capaz de WhatsApp)
- */
 export function pickBestPhone(
   phones: Array<{ value: string; types: string[] }>,
 ): PhoneAnalysis | null {
@@ -677,6 +638,38 @@ export function toTitleCase(name: string): string {
 }
 
 // ============================================================
+// HELPER — chama o classifier com os dados disponíveis do card
+// ============================================================
+
+function applyClassification(
+  card: ParsedVCardRich,
+  cleanName: string,
+): Pick<
+  ProcessedContact,
+  | 'category'
+  | 'temperatura'
+  | 'classificationTags'
+  | 'classificationEvidencias'
+  | 'classificationConfidence'
+> {
+  const result = classifyLead({
+    name: cleanName,
+    nickname: card.nickname,
+    organization: card.organization,
+    title: card.title,
+    vcfCategories: card.categories,
+    relatedNames: card.relatedNames,
+  });
+  return {
+    category: result.category,
+    temperatura: result.temperatura,
+    classificationTags: result.tags,
+    classificationEvidencias: result.evidencias,
+    classificationConfidence: result.confidence,
+  };
+}
+
+// ============================================================
 // PROCESSADOR PRINCIPAL
 // ============================================================
 
@@ -711,14 +704,12 @@ export function processContacts(
   };
 
   for (const card of cards) {
-    // 1. Sem telefone algum
     if (!card.phones.length) {
       filtered.push({ original: card, reason: 'no_phone' });
       stats.no_phone++;
       continue;
     }
 
-    // 2. Analisa os telefones e escolhe o melhor
     const analyses = card.phones.map((p) => analyzePhone(p.value, p.types));
     const best = pickBestPhone(card.phones);
 
@@ -740,28 +731,24 @@ export function processContacts(
       continue;
     }
 
-    // 3. Internacional
     if (!best.isBrazilian && !includeInternational) {
       filtered.push({ original: card, reason: 'international' });
       stats.international++;
       continue;
     }
 
-    // 4. Já existe no banco
     if (existingPhones.has(best.normalized!)) {
       filtered.push({ original: card, reason: 'duplicate_in_database' });
       stats.duplicate_in_database++;
       continue;
     }
 
-    // 5. Duplicado dentro do próprio VCF
     if (seenInImport.has(best.normalized!)) {
       filtered.push({ original: card, reason: 'duplicate_in_import' });
       stats.duplicate_in_import++;
       continue;
     }
 
-    // 6. Sem nome
     const hasName = !!(card.name && card.name.trim());
     if (!hasName && !includeNoName) {
       filtered.push({ original: card, reason: 'no_name' });
@@ -769,7 +756,6 @@ export function processContacts(
       continue;
     }
 
-    // 7. Parece empresa
     const nameClean = hasName ? toTitleCase(card.name) : 'Sem nome';
     if (hasName && looksLikeBusiness(card.name) && !includeBusinessLike) {
       filtered.push({ original: card, reason: 'looks_like_business' });
@@ -777,11 +763,9 @@ export function processContacts(
       continue;
     }
 
-    // ✅ Passou todos os filtros
     seenInImport.add(best.normalized!);
     if (best.wasFixed) stats.fixed++;
 
-    // Metadata rica com TUDO que o VCF trouxe
     const metadata: Record<string, unknown> = {};
     if (card.nickname) metadata.nickname = card.nickname;
     if (card.phones.length > 1) metadata.allPhones = card.phones;
@@ -795,6 +779,8 @@ export function processContacts(
     if (card.customDates.length) metadata.customDates = card.customDates;
     if (card.note) metadata.originalNote = card.note;
 
+    const classification = applyClassification(card, nameClean);
+
     valid.push({
       name: nameClean,
       phone: best.normalized!,
@@ -806,6 +792,7 @@ export function processContacts(
       ...(card.photo ? { avatarUrl: card.photo } : {}),
       metadata,
       wasPhoneFixed: best.wasFixed,
+      ...classification,
     });
   }
 
@@ -814,18 +801,9 @@ export function processContacts(
 }
 
 // ============================================================
-// CONVERSOR SIMPLES (sem filtrar) — usado pelo fluxo "import normal"
+// CONVERSOR SIMPLES (sem filtrar)
 // ============================================================
 
-/**
- * Converte cards direto em ProcessedContact[] SEM filtragem aprofundada.
- * Aceita qualquer card que tenha pelo menos um telefone com ≥8 dígitos.
- * Normaliza mobile BR pra E.164, mantém outros formatos quase como vieram.
- * Dedup interno por telefone normalizado.
- *
- * Usar pra fluxo "receber VCF normal, sem modal de revisão". A filtragem
- * (fixos, serviços, duplicados c/ banco) vira feature separada depois.
- */
 export function cardsToContacts(cards: ParsedVCardRich[]): ProcessedContact[] {
   const contacts: ProcessedContact[] = [];
   const seen = new Set<string>();
@@ -863,9 +841,12 @@ export function cardsToContacts(cards: ParsedVCardRich[]): ProcessedContact[] {
     if (card.note) metadata.originalNote = card.note;
 
     const hasName = !!(card.name && card.name.trim());
+    const nameClean = hasName ? toTitleCase(card.name) : 'Sem nome';
+
+    const classification = applyClassification(card, nameClean);
 
     contacts.push({
-      name: hasName ? toTitleCase(card.name) : 'Sem nome',
+      name: nameClean,
       phone,
       phoneRaw: firstPhone.value,
       ...(card.emails[0]?.value ? { email: card.emails[0].value.trim() } : {}),
@@ -875,14 +856,11 @@ export function cardsToContacts(cards: ParsedVCardRich[]): ProcessedContact[] {
       ...(card.photo ? { avatarUrl: card.photo } : {}),
       metadata,
       wasPhoneFixed: analysis.wasFixed,
+      ...classification,
     });
   }
 
   return contacts;
 }
-
-// ============================================================
-// HELPERS DE URL (re-exports pra conveniência)
-// ============================================================
 
 export { buildWaURL } from './phone';

@@ -1,6 +1,5 @@
 /**
  * Tipos de domínio do LiderTraining.
- * Espelha o shape do state "S" do HTML original, tipado.
  */
 
 export type UserLevel = 'Master' | 'Prata' | 'Ouro' | 'Diamante' | 'Elite';
@@ -10,6 +9,16 @@ export type TeamStatus = 'ativo' | 'inativo' | 'risco';
 export type MissionType = 'flash' | 'weekly' | 'achievement';
 export type NotifType = 'streak' | 'mission' | 'league' | 'team' | 'nba' | 'info' | 'xp';
 
+export type LeadCategory =
+  | 'familia'
+  | 'amigo_proximo'
+  | 'conhecido'
+  | 'profissional'
+  | 'desconhecido';
+
+export type LeadTemperatura = 'quente' | 'morno' | 'frio';
+export type LeadWhatsAppStatus = 'ativo' | 'inativo' | 'desconhecido';
+
 export interface Profile {
   id: string;
   uplineId: string | null;
@@ -17,7 +26,6 @@ export interface Profile {
   phone: string | null;
   dataNascimento: string | null;
   avatarUrl: string | null;
-  // gamification
   xp: number;
   level: UserLevel;
   streak: number;
@@ -28,14 +36,12 @@ export interface Profile {
   maxEnergy: number;
   league: League;
   weeklyXP: number;
-  // progress
   journeyStep: number;
   journeyDoneMask: number;
   firCompleted: boolean;
   firStep: number;
   firDoneMask: number;
   onboarded: boolean;
-  // business metrics
   contacts: number;
   sales: number;
   teamCount: number;
@@ -65,13 +71,20 @@ export interface Lead {
   convertedAt: string | null;
   createdAt: string;
   updatedAt: string;
-  // ── Campos adicionados pela importação inteligente ──
   email: string | null;
   organization: string | null;
   title: string | null;
   birthday: string | null;
   avatarUrl: string | null;
   metadata: Record<string, unknown>;
+  category: LeadCategory | null;
+  temperatura: LeadTemperatura | null;
+  whatsappStatus: LeadWhatsAppStatus | null;
+  scoreIcp: number | null;
+  classificationTags: string[];
+  classificationEvidencias: Array<Record<string, unknown>>;
+  classificationConfidence: number | null;
+  archivedAt: string | null;
 }
 
 export interface TeamMember {

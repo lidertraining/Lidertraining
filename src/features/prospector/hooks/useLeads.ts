@@ -4,9 +4,13 @@ import {
   createLead,
   deleteLead,
   listLeads,
+  listArchivedLeads,
   updateLead,
   bulkCreateLeads,
   listExistingPhones,
+  archiveLeads,
+  unarchiveLeads,
+  logWhatsAppAttempt,
 } from '../api/leads';
 import type { CreateLeadInput, UpdateLeadInput } from '../schemas';
 import { useAddXP } from '@features/gamification/hooks/useAddXP';
@@ -20,6 +24,16 @@ export function useLeads() {
     queryKey: ['leads', uid],
     enabled: !!uid,
     queryFn: () => (uid ? listLeads(uid) : Promise.resolve([])),
+  });
+}
+
+export function useArchivedLeads() {
+  const { session } = useAuth();
+  const uid = session?.user.id;
+  return useQuery({
+    queryKey: ['leads-archived', uid],
+    enabled: !!uid,
+    queryFn: () => (uid ? listArchivedLeads(uid) : Promise.resolve([])),
   });
 }
 
@@ -81,9 +95,64 @@ export function useDeleteLead() {
   });
 }
 
-// ============================================================
-// BULK IMPORT (novos)
-// ============================================================
+export function useArchiveLeads() {
+  const { session } = useAuth();
+  const qc = useQueryClient();
+  const { toast } = useToast();
+  const uid = session?.user.id;
+  return useMutation({
+    mutationFn: archiveLeads,
+    onSuccess: (count) => {
+      qc.invalidateQueries({ queryKey: ['leads', uid] });
+      qc.invalidateQueries({ queryKey: ['leads-archived', uid] });
+      toast(`${count} lead${count === 1 ? '' : 's'} arquivado${count === 1 ? '' : 's'}`, 'info', 'archive');
+    },
+    onError: (err) => {
+      toast(err instanceof Error ? err.message : 'Erro ao arquivar', 'error');
+    },
+  });
+}
+
+export function useUnarchiveLeads() {
+  const { session } = useAuth();
+  const qc = useQueryClient();
+  const { toast } = useToast();
+  const uid = session?.user.id;
+  return useMutation({
+    mutationFn: unarchiveLeads,
+    onSuccess: (count) => {
+      qc.invalidateQueries({ queryKey: ['leads', uid] });
+      qc.invalidateQueries({ queryKey: ['leads-archived', uid] });
+      toast(`${count} lead${count === 1 ? '' : 's'} restaurado${count === 1 ? '' : 's'}`, 'success', 'unarchive');
+    },
+    onError: (err) => {
+      toast(err instanceof Error ? err.message : 'Erro ao restaurar', 'error');
+    },
+  });
+}
+
+export function useLogWhatsAppAttempt() {
+  const { session } = useAuth();
+  const qc = useQueryClient();
+  const uid = session?.user.id;
+  return useMutation({
+    mutationFn: ({
+      leadId,
+      phone,
+      result = 'opened',
+    }: {
+      leadId: string;
+      phone: string;
+      result?: 'opened' | 'invalid' | 'unknown';
+    }) => {
+      if (!uid) throw new Error('Sem sessão');
+      return logWhatsAppAttempt(uid, leadId, phone, result);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['leads', uid] });
+    },
+  });
+}
 
 export interface BulkImportArgs {
   contacts: ProcessedContact[];
@@ -106,7 +175,6 @@ export function useBulkCreateLeads() {
       qc.invalidateQueries({ queryKey: ['leads', uid] });
       qc.invalidateQueries({ queryKey: ['leads-phones', uid] });
       if (result.inserted === 0) {
-        // Dedup total: todos já existiam (failed === 0). Ou chunks parciais falharam.
         if (result.failed === 0) {
           toast('Todos já estavam na sua lista', 'info', 'contacts');
         } else {
@@ -121,10 +189,22 @@ export function useBulkCreateLeads() {
         'xp',
         'celebration',
       );
+      const familia = result.leads.filter((l) => l.category === 'familia').length;
+      const profis = result.leads.filter((l) => l.category === 'profissional').length;
+      const conhec = result.leads.filter((l) => l.category === 'conhecido').length;
+      if (familia + profis + conhec > 0) {
+        setTimeout(() => {
+          const partes: string[] = [];
+          if (familia > 0) partes.push(`❤️ ${familia} família`);
+          if (profis > 0) partes.push(`💼 ${profis} profissionais`);
+          if (conhec > 0) partes.push(`👋 ${conhec} conhecidos`);
+          toast(`Detectei: ${partes.join(' · ')}`, 'info', 'auto_awesome');
+        }, 800);
+      }
       if (result.failed > 0) {
         setTimeout(() => {
           toast(`${result.failed} não salvaram (duplicatas)`, 'info', 'info');
-        }, 400);
+        }, 1600);
       }
     },
     onError: (err) => {

@@ -1,5 +1,11 @@
 import { supabase } from '@lib/supabase';
-import type { Lead, LeadStatus } from '@ltypes/domain';
+import type {
+  Lead,
+  LeadStatus,
+  LeadCategory,
+  LeadTemperatura,
+  LeadWhatsAppStatus,
+} from '@ltypes/domain';
 import type { CreateLeadInput, UpdateLeadInput } from '../schemas';
 import type { ProcessedContact } from '@lib/contacts-import';
 
@@ -24,6 +30,15 @@ function mapLead(row: Record<string, unknown>): Lead {
     birthday: (row.birthday as string | null) ?? null,
     avatarUrl: (row.avatar_url as string | null) ?? null,
     metadata: (row.metadata as Record<string, unknown>) ?? {},
+    category: (row.category as LeadCategory | null) ?? null,
+    temperatura: (row.temperatura as LeadTemperatura | null) ?? null,
+    whatsappStatus: (row.whatsapp_status as LeadWhatsAppStatus | null) ?? null,
+    scoreIcp: (row.score_icp as number | null) ?? null,
+    classificationTags: (row.classification_tags as string[] | null) ?? [],
+    classificationEvidencias:
+      (row.classification_evidencias as Array<Record<string, unknown>> | null) ?? [],
+    classificationConfidence: (row.classification_confidence as number | null) ?? null,
+    archivedAt: (row.archived_at as string | null) ?? null,
   };
 }
 
@@ -45,7 +60,19 @@ export async function listLeads(userId: string): Promise<Lead[]> {
     .from('leads')
     .select('*')
     .eq('user_id', userId)
+    .is('archived_at', null)
     .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map(mapLead);
+}
+
+export async function listArchivedLeads(userId: string): Promise<Lead[]> {
+  const { data, error } = await supabase
+    .from('leads')
+    .select('*')
+    .eq('user_id', userId)
+    .not('archived_at', 'is', null)
+    .order('archived_at', { ascending: false });
   if (error) throw error;
   return (data ?? []).map(mapLead);
 }
@@ -93,9 +120,50 @@ export async function deleteLead(id: string): Promise<void> {
   if (error) throw error;
 }
 
-// ============================================================
-// BULK INSERT — importação em massa com rich fields
-// ============================================================
+export async function archiveLeads(leadIds: string[]): Promise<number> {
+  if (leadIds.length === 0) return 0;
+  const { data, error } = await supabase
+    .from('leads')
+    .update({ archived_at: new Date().toISOString() })
+    .in('id', leadIds)
+    .select('id');
+  if (error) throw error;
+  return data?.length ?? 0;
+}
+
+export async function unarchiveLeads(leadIds: string[]): Promise<number> {
+  if (leadIds.length === 0) return 0;
+  const { data, error } = await supabase
+    .from('leads')
+    .update({ archived_at: null })
+    .in('id', leadIds)
+    .select('id');
+  if (error) throw error;
+  return data?.length ?? 0;
+}
+
+export async function logWhatsAppAttempt(
+  userId: string,
+  leadId: string,
+  phone: string,
+  result: 'opened' | 'invalid' | 'unknown' = 'opened',
+): Promise<void> {
+  await supabase.from('lead_whatsapp_attempts').insert({
+    user_id: userId,
+    lead_id: leadId,
+    phone,
+    result,
+  });
+  if (result === 'opened') {
+    await supabase
+      .from('leads')
+      .update({ whatsapp_status: 'ativo' })
+      .eq('id', leadId)
+      .eq('whatsapp_status', 'desconhecido');
+  } else if (result === 'invalid') {
+    await supabase.from('leads').update({ whatsapp_status: 'inativo' }).eq('id', leadId);
+  }
+}
 
 export interface BulkCreateResult {
   inserted: number;
@@ -103,12 +171,6 @@ export interface BulkCreateResult {
   leads: Lead[];
 }
 
-/**
- * Insere múltiplos leads em chunks de 500. Tolerante a erros: se um chunk
- * falhar (ex: duplicata de phone por race condition), os outros seguem.
- * O índice UNIQUE (user_id, phone) do banco faz dedup final automática
- * via onConflict.
- */
 export async function bulkCreateLeads(
   userId: string,
   contacts: ProcessedContact[],
@@ -135,6 +197,17 @@ export async function bulkCreateLeads(
     birthday: c.birthday ?? null,
     avatar_url: c.avatarUrl ?? null,
     metadata: c.metadata ?? {},
+    ...(c.category ? { category: c.category } : {}),
+    ...(c.temperatura ? { temperatura: c.temperatura } : {}),
+    ...(c.classificationTags && c.classificationTags.length > 0
+      ? { classification_tags: c.classificationTags }
+      : {}),
+    ...(c.classificationEvidencias && c.classificationEvidencias.length > 0
+      ? { classification_evidencias: c.classificationEvidencias }
+      : {}),
+    ...(c.classificationConfidence !== undefined
+      ? { classification_confidence: c.classificationConfidence }
+      : {}),
   }));
 
   for (let i = 0; i < rows.length; i += CHUNK) {
@@ -149,7 +222,6 @@ export async function bulkCreateLeads(
     if (error) {
       failed += chunk.length;
       lastError = error;
-      // eslint-disable-next-line no-console
       console.error('[bulkCreateLeads] chunk failed', error, { chunkSize: chunk.length });
       continue;
     }
@@ -157,7 +229,6 @@ export async function bulkCreateLeads(
     inserted.push(...mapped);
   }
 
-  // Se NENHUM chunk teve sucesso E todos falharam, é erro real — propaga pro onError.
   if (inserted.length === 0 && failed > 0 && lastError) {
     const msg = lastError.message ?? 'Erro desconhecido ao inserir leads';
     const code = lastError.code ? ` [${lastError.code}]` : '';
@@ -167,7 +238,6 @@ export async function bulkCreateLeads(
   return { inserted: inserted.length, failed, leads: inserted };
 }
 
-/** Busca os phones normalizados já existentes pro user atual (pra dedup no preview). */
 export async function listExistingPhones(userId: string): Promise<Set<string>> {
   const { data, error } = await supabase
     .from('leads')
