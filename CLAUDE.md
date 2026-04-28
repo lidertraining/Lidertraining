@@ -14,9 +14,21 @@ Webapp gamificado para consultores de marketing multinível, em React + Vite + S
 - **Frontend:** React 18 + Vite + **TypeScript** (strict: `tsc -b && vite build` roda com `noUnusedLocals` + `noUnusedParameters` ativos — imports/variáveis não usadas quebram o build)
 - **Backend:** Supabase (auth, database Postgres, storage, edge functions)
 - **Deploy:** Vercel com auto-deploy do GitHub (`github.com/lidertraining/Lidertraining` → `lidertraining.vercel.app`)
-- **Local:** `C:\Users\caiol\Documents\lidertraining` (Windows, PowerShell)
-- **Node.js:** NÃO está instalado localmente. Toda verificação de build acontece via push → Vercel. Não rode `npm run dev` — teste no deploy.
+- **Local:** `C:\Users\caiol\Documents\lidertraining` (Windows, PowerShell). Caio tem Node + pnpm instalados.
+- **Node.js:** disponível tanto na máquina do Caio quanto nos sandboxes do Claude Code. **Sempre rode `pnpm build` antes de pushar.** Se quebrar, corrige na hora; não empurra commit quebrado.
 - **MCPs conectados nesta máquina:** Vercel, Supabase, GitHub (use-os livremente antes de pedir informação ao usuário)
+
+## Workflow autônomo (default)
+
+Caio quer **pouca fricção, zero perguntas desnecessárias**:
+
+1. Implementa a tarefa
+2. Roda `pnpm build` localmente
+3. Se passou: commit + `git push origin HEAD:main` (ou branch combinado), sem perguntar
+4. Se quebrou: corrige o erro, repete passo 2
+5. Só pergunta quando: a) há ambiguidade real na intenção, b) decisão arquitetural irreversível, c) algo destrutivo no Supabase/produção
+
+**Não confunda "checar build" com "deploy autônomo na Vercel"** — o deploy roda sozinho no auto-deploy. Você só precisa garantir que o push está limpo.
 
 ## Marca e design
 
