@@ -664,7 +664,7 @@ function applyClassification(
     category: result.category,
     temperatura: result.temperatura,
     classificationTags: result.tags,
-    classificationEvidencias: result.evidencias,
+    classificationEvidencias: result.evidencias as unknown as Array<Record<string, unknown>>,
     classificationConfidence: result.confidence,
   };
 }
