@@ -9,6 +9,21 @@ Trata-o como a constituição do projeto: regras que valem sempre.
 
 Webapp gamificado para consultores de marketing multinível, em React + Vite + Supabase, deploy Vercel. O dono do projeto (Caio) é **estrategista, não desenvolvedor** — explique decisões em linguagem clara, nunca pressuponha conhecimento técnico.
 
+## 🗺️ Protocolo de capacidades (rodar ANTES de qualquer tarefa)
+
+Antes de executar qualquer pedido — em todo projeto, toda tela, **sempre** — consulte o
+**Mapa de Capacidades** em [`.claude/MAPA-CAPACIDADES.md`](.claude/MAPA-CAPACIDADES.md) e rode o
+Protocolo Pré-Tarefa:
+
+1. **Classifico** a tarefa: banco? deploy? design? conteúdo? pesquisa? código? revisão? automação?
+2. **Cruzo** com o mapa: qual skill / MCP / subagente entrega o melhor resultado?
+3. **Ativo** o que falta com `ToolSearch` (MCPs e ferramentas chegam adormecidos — carregue antes de chamar).
+4. **Executo** combinando as capacidades certas, nunca só o básico quando há ferramenta melhor.
+
+O mapa é a **fonte da verdade** do que está instalado (ferramentas nativas, subagentes, skills, MCPs).
+Mantenha-o atualizado: se um MCP/skill novo aparecer ou sumir, ajuste o arquivo na mesma sessão.
+Esta regra vale para **todos os repositórios** — ao começar um projeto sem mapa, recrie-o do inventário real.
+
 ## Stack oficial (não mudar sem pedir)
 
 - **Frontend:** React 18 + Vite + **TypeScript** (strict: `tsc -b && vite build` roda com `noUnusedLocals` + `noUnusedParameters` ativos — imports/variáveis não usadas quebram o build)
