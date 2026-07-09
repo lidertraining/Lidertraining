@@ -4,17 +4,24 @@
 # Como rodar (PowerShell, na pasta deste arquivo):
 #   powershell -ExecutionPolicy Bypass -File .\setup-windows.ps1
 #
-# Faz tudo: Python, ffmpeg, yt-dlp, venv, dependencias,
-# config do Claude Desktop (preservando outros MCP servers) e verificacao.
+# Instala TUDO numa pasta unica e independente:
+#   C:\mcp-instagram-transcriber\
+#     ├── server.py       (o MCP Server)
+#     ├── venv\           (Python + dependencias, isolado)
+#     ├── transcricoes\   (saidas das transcricoes)
+#     └── LEIA-ME.md
+#
+# Depois de instalado, essa pasta nao depende de mais nada —
+# pode apagar/mover o repositorio que ela continua funcionando.
 # ============================================================
 
 $ErrorActionPreference = "Stop"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
-$VenvDir    = "C:\mcp-transcriber-env"
-$ServersDir = "C:\mcp-servers"
+$ProjectDir = "C:\mcp-instagram-transcriber"
+$VenvDir    = Join-Path $ProjectDir "venv"
 $VenvPython = Join-Path $VenvDir "Scripts\python.exe"
-$ServerPy   = Join-Path $ServersDir "server.py"
+$ServerPy   = Join-Path $ProjectDir "server.py"
 $ConfigPath = Join-Path $env:APPDATA "Claude\claude_desktop_config.json"
 
 function Refresh-Path {
@@ -71,23 +78,27 @@ if (Get-Command yt-dlp -ErrorAction SilentlyContinue) {
     Write-Host "AVISO: yt-dlp global fora do PATH desta janela — sem problema, a copia do venv cobre." -ForegroundColor Yellow
 }
 
-Write-Host "`n== 4/7 Criando virtual environment em $VenvDir ==" -ForegroundColor Cyan
+Write-Host "`n== 4/7 Criando pasta do projeto: $ProjectDir ==" -ForegroundColor Cyan
+New-Item -ItemType Directory -Force -Path $ProjectDir | Out-Null
+New-Item -ItemType Directory -Force -Path (Join-Path $ProjectDir "transcricoes") | Out-Null
+Copy-Item (Join-Path $ScriptDir "server.py") $ServerPy -Force
+if (Test-Path (Join-Path $ScriptDir "LEIA-ME.md")) {
+    Copy-Item (Join-Path $ScriptDir "LEIA-ME.md") (Join-Path $ProjectDir "LEIA-ME.md") -Force
+}
+Write-Host "Pasta do projeto OK (autocontida, separada dos seus outros projetos)" -ForegroundColor Green
+
+Write-Host "`n== 5/7 Criando virtual environment em $VenvDir ==" -ForegroundColor Cyan
 if (-not (Test-Path $VenvPython)) {
     & $Python -m venv $VenvDir
 }
 Write-Host "venv OK: $VenvPython" -ForegroundColor Green
 
-Write-Host "`n== 5/7 Instalando dependencias (yt-dlp, openai-whisper, mcp) ==" -ForegroundColor Cyan
+Write-Host "`n== 6/7 Instalando dependencias (yt-dlp, openai-whisper, mcp) ==" -ForegroundColor Cyan
 Write-Host "Isso pode demorar alguns minutos (o whisper baixa o PyTorch)..."
 & $VenvPython -m pip install --upgrade pip
 & $VenvPython -m pip install --upgrade yt-dlp openai-whisper mcp
 if ($LASTEXITCODE -ne 0) { throw "Falha ao instalar dependencias no venv." }
 Write-Host "Dependencias OK" -ForegroundColor Green
-
-Write-Host "`n== 6/7 Instalando server.py em $ServersDir ==" -ForegroundColor Cyan
-New-Item -ItemType Directory -Force -Path $ServersDir | Out-Null
-Copy-Item (Join-Path $ScriptDir "server.py") $ServerPy -Force
-Write-Host "server.py OK: $ServerPy" -ForegroundColor Green
 
 Write-Host "`n== 7/7 Configurando Claude Desktop (preserva servers existentes) ==" -ForegroundColor Cyan
 & $VenvPython (Join-Path $ScriptDir "merge_config.py") $ConfigPath $VenvPython $ServerPy
@@ -99,9 +110,18 @@ if ($LASTEXITCODE -ne 0) { throw "Verificacao falhou: whisper/mcp nao importam n
 where.exe yt-dlp 2>$null
 where.exe ffmpeg 2>$null
 
+# Limpeza de instalacao antiga (layout anterior em 2 pastas), se existir
+foreach ($old in @("C:\mcp-transcriber-env", "C:\mcp-servers")) {
+    if (Test-Path $old) {
+        Write-Host "AVISO: encontrei instalacao antiga em $old — nao e mais usada, pode apagar." -ForegroundColor Yellow
+    }
+}
+
 Write-Host "`n============================================================" -ForegroundColor Green
 Write-Host " TUDO PRONTO!" -ForegroundColor Green
 Write-Host "============================================================"
+Write-Host " Projeto instalado em: $ProjectDir (pasta unica e isolada)"
+Write-Host ""
 Write-Host " 1. Feche o Claude Desktop (clique direito no icone > Sair)"
 Write-Host " 2. Abra novamente"
 Write-Host " 3. Teste com:"
@@ -111,4 +131,5 @@ Write-Host "    ritmo de fala e como sao os hooks."
 Write-Host ""
 Write-Host " Obs: na 1a transcricao o Whisper baixa o modelo (~1,5 GB)."
 Write-Host " Para os Reels, mantenha-se logado no Instagram pelo Chrome."
+Write-Host " Transcricoes salvas em: $ProjectDir\transcricoes"
 Write-Host "============================================================"

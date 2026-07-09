@@ -5,17 +5,24 @@
 # Como rodar (Terminal, na pasta deste arquivo):
 #   bash setup-mac.sh
 #
-# Faz tudo: Python, ffmpeg, yt-dlp, venv, dependencias,
-# config do Claude Desktop (preservando outros MCP servers) e verificacao.
+# Instala TUDO numa pasta unica e independente:
+#   ~/mcp-instagram-transcriber/
+#     ├── server.py       (o MCP Server)
+#     ├── venv/           (Python + dependencias, isolado)
+#     ├── transcricoes/   (saidas das transcricoes)
+#     └── LEIA-ME.md
+#
+# Depois de instalado, essa pasta nao depende de mais nada —
+# pode apagar/mover o repositorio que ela continua funcionando.
 # ============================================================
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-VENV_DIR="$HOME/mcp-transcriber-env"
-SERVERS_DIR="$HOME/mcp-servers"
+PROJECT_DIR="$HOME/mcp-instagram-transcriber"
+VENV_DIR="$PROJECT_DIR/venv"
 VENV_PYTHON="$VENV_DIR/bin/python"
-SERVER_PY="$SERVERS_DIR/server.py"
+SERVER_PY="$PROJECT_DIR/server.py"
 CONFIG_PATH="$HOME/Library/Application Support/Claude/claude_desktop_config.json"
 
 find_python() {
@@ -56,22 +63,23 @@ echo "ffmpeg OK: $(command -v ffmpeg)"
 echo "yt-dlp OK: $(command -v yt-dlp)"
 
 echo ""
-echo "== 4/7 Criando virtual environment em $VENV_DIR =="
+echo "== 4/7 Criando pasta do projeto: $PROJECT_DIR =="
+mkdir -p "$PROJECT_DIR/transcricoes"
+cp "$SCRIPT_DIR/server.py" "$SERVER_PY"
+[ -f "$SCRIPT_DIR/LEIA-ME.md" ] && cp "$SCRIPT_DIR/LEIA-ME.md" "$PROJECT_DIR/LEIA-ME.md"
+echo "Pasta do projeto OK (autocontida, separada dos seus outros projetos)"
+
+echo ""
+echo "== 5/7 Criando virtual environment em $VENV_DIR =="
 [ -x "$VENV_PYTHON" ] || "$PYTHON" -m venv "$VENV_DIR"
 echo "venv OK: $VENV_PYTHON"
 
 echo ""
-echo "== 5/7 Instalando dependencias (yt-dlp, openai-whisper, mcp) =="
+echo "== 6/7 Instalando dependencias (yt-dlp, openai-whisper, mcp) =="
 echo "Isso pode demorar alguns minutos (o whisper baixa o PyTorch)..."
 "$VENV_PYTHON" -m pip install --upgrade pip
 "$VENV_PYTHON" -m pip install --upgrade yt-dlp openai-whisper mcp
 echo "Dependencias OK"
-
-echo ""
-echo "== 6/7 Instalando server.py em $SERVERS_DIR =="
-mkdir -p "$SERVERS_DIR"
-cp "$SCRIPT_DIR/server.py" "$SERVER_PY"
-echo "server.py OK: $SERVER_PY"
 
 echo ""
 echo "== 7/7 Configurando Claude Desktop (preserva servers existentes) =="
@@ -83,10 +91,19 @@ echo "== Verificacao final =="
 which yt-dlp
 which ffmpeg
 
+# Limpeza de instalacao antiga (layout anterior em 2 pastas), se existir
+for old in "$HOME/mcp-transcriber-env" "$HOME/mcp-servers"; do
+    if [ -d "$old" ]; then
+        echo "AVISO: encontrei instalacao antiga em $old — nao e mais usada, pode apagar."
+    fi
+done
+
 echo ""
 echo "============================================================"
 echo " TUDO PRONTO!"
 echo "============================================================"
+echo " Projeto instalado em: $PROJECT_DIR (pasta unica e isolada)"
+echo ""
 echo " 1. Feche o Claude Desktop (Cmd+Q)"
 echo " 2. Abra novamente"
 echo " 3. Teste com:"
@@ -96,4 +113,5 @@ echo "    ritmo de fala e como sao os hooks."
 echo ""
 echo " Obs: na 1a transcricao o Whisper baixa o modelo (~1,5 GB)."
 echo " Para os Reels, mantenha-se logado no Instagram pelo Chrome."
+echo " Transcricoes salvas em: $PROJECT_DIR/transcricoes"
 echo "============================================================"

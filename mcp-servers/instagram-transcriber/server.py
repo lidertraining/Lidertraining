@@ -24,8 +24,8 @@ os.environ["PATH"] = os.path.dirname(sys.executable) + os.pathsep + os.environ.g
 
 mcp = FastMCP("instagram-transcriber")
 
-# tempfile.gettempdir() funciona em Mac, Linux e Windows ("/tmp" quebra no Windows)
-OUTPUT_DIR = Path(tempfile.gettempdir()) / "instagram-transcriptions"
+# Transcricoes ficam dentro da propria pasta do projeto (autocontido)
+OUTPUT_DIR = Path(__file__).resolve().parent / "transcricoes"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
