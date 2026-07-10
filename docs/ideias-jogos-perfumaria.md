@@ -225,6 +225,95 @@ Calendário do advento: 24 portinhas, cada dia abre um micro-desafio de 1 minuto
 
 ---
 
+## Nível 8 — Modo Solo: desenvolvimento intelectual pessoal
+
+Jogos para quem está sozinho e quer usar o tempo para **crescer intelectualmente** —
+sem depender de equipe, líder ou outros jogadores. Conversa direto com o passo 0 da
+Jornada (Mentalidade) e serve o consultor que joga à noite, no ônibus, no intervalo.
+
+### 23. Ginásio Mental (treino diário do cérebro)
+Sessão diária de 5 minutos com 3 exercícios rotativos: **memória** (sequência de
+notas olfativas que cresce a cada rodada), **cálculo rápido** (margem, troco, desconto
+de cabeça) e **lógica** (qual perfume não pertence ao grupo?). O jogo mede evolução
+ao longo das semanas e mostra o gráfico de progresso pessoal.
+- **Desenvolve:** memória de trabalho, agilidade mental, raciocínio lógico.
+- **Mecânica:** 3 mini-jogos com dificuldade adaptativa (acertou muito → sobe nível).
+  Estilo Lumosity, mas com conteúdo do universo do consultor.
+
+### 24. Palavra do Dia (vocabulário e eloquência)
+Todo dia, uma palavra nova de dois universos alternados: **perfumaria** (sillage,
+acorde, olfativo) e **eloquência de vendas** (persuasão, rapport, escassez). O jogador
+lê a definição, vê 2 exemplos de uso e completa 1 desafio: usar a palavra numa frase
+de venda. No fim do mês, um quiz revisita as 30 palavras.
+- **Desenvolve:** vocabulário, articulação verbal — quem fala melhor, vende melhor
+  e lidera melhor.
+- **Mecânica:** banco de palavras em JSON + input de frase + revisão espaçada mensal.
+  Baratíssimo de construir.
+
+### 25. Leitura Ativa (micro-resumos com teste)
+Trechos curtos (2–3 parágrafos) de temas de crescimento: hábitos, finanças pessoais,
+comunicação, psicologia da decisão. Depois de ler, o jogador responde 2 perguntas de
+interpretação e escreve 1 frase: "como aplico isso amanhã?". As frases ficam salvas
+num **diário de aprendizados** pessoal que ele pode reler.
+- **Desenvolve:** compreensão de leitura, síntese, hábito de reflexão.
+- **Mecânica:** conteúdo texto + quiz + campo livre salvo no perfil. Integra com o
+  Sistema de Conhecimento (`conhecimentos`) que já existe.
+
+### 26. Xadrez de Objeções (raciocínio estratégico solo)
+Versão solo e profunda do Quebra-Objeção: uma conversa de venda em árvore, onde cada
+resposta abre novos caminhos e o "cliente" reage 3–4 lances à frente. Como um puzzle
+de xadrez: existe uma linha ótima, e o jogo mostra ao final o mapa completo da árvore
+com a rota que o jogador percorreu vs. a rota ideal.
+- **Desenvolve:** pensamento estratégico, antecipação de consequências, paciência.
+- **Mecânica:** árvore de diálogo em JSON com pontuação por profundidade. Um puzzle
+  novo por semana ("puzzle da semana") dura meses com pouco conteúdo.
+
+### 27. Diário Guiado de Mentalidade (escrita reflexiva)
+Não é bem um jogo — é um ritual noturno gamificado de 3 minutos: o app faz 1 pergunta
+profunda por dia ("Qual foi o 'não' que mais te ensinou hoje?", "O que você faria se
+não tivesse medo?"), o jogador escreve, e ganha streak + badge por constância. Depois
+de 30 dias, o app monta uma retrospectiva com as próprias respostas do jogador.
+- **Desenvolve:** autoconhecimento, inteligência emocional, clareza de pensamento —
+  a base do passo Mentalidade da Jornada.
+- **Mecânica:** 1 pergunta/dia de um banco de 90 + streak + retrospectiva automática.
+  A retrospectiva do mês é um momento emocional fortíssimo de retenção.
+
+### 28. Enigmas do Mestre Perfumista (puzzles de lógica)
+Um enigma de lógica por semana, ambientado na perfumaria: charadas de dedução estilo
+Einstein ("três clientes, três famílias olfativas, três ocasiões — quem comprou o
+quê?"), problemas de sequência e cifras escondidas em rótulos. Dificuldade crescente
+ao longo do mês.
+- **Desenvolve:** raciocínio dedutivo puro, atenção a detalhes, persistência.
+- **Mecânica:** grid de dedução interativo + banco de enigmas. Quem resolve sem dica
+  ganha XP triplo; dicas custam XP.
+
+### 29. Oratória no Espelho (prática de fala solo)
+O app sorteia um tema ("explique por que perfume é presente, não gasto") e um limite
+de tempo (60s). O jogador grava um áudio falando sozinho — como se treinasse no
+espelho. A IA transcreve e devolve feedback gentil: palavras-muleta ("éééé", "tipo"),
+ritmo, clareza, e 1 sugestão concreta. Ninguém mais ouve o áudio.
+- **Desenvolve:** eloquência, confiança ao falar, autopercepção — treino privado e
+  sem julgamento, perfeito pra quem tem vergonha de praticar com outras pessoas.
+- **Mecânica:** gravação no browser + edge function com transcrição + análise via
+  API do Claude. Aproveita a infraestrutura pensada pro Cliente Misterioso (nº 19).
+
+### 30. Modo Foco Pomodoro com Recompensa
+Timer de foco de 25 minutos pra estudar qualquer lição da Academia sem interrupção.
+Se completar o ciclo sem sair do app, ganha XP bônus e "cristais de foco" que
+desbloqueiam temas visuais exclusivos. Estatística pessoal: "você já somou X horas
+de estudo focado".
+- **Desenvolve:** capacidade de concentração profunda — o multiplicador de todo o resto.
+- **Mecânica:** timer + detecção de visibilitychange + contador acumulado no perfil.
+  Simples e cria hábito de estudo de verdade.
+
+**Fio condutor do Modo Solo:** todos alimentam um painel pessoal de **Evolução
+Intelectual** no perfil — memória, vocabulário, leitura, estratégia, escrita, oratória
+e foco, cada um com sua barrinha crescendo. O jogador literalmente **vê o próprio
+intelecto subir de nível**, mesmo sem ninguém por perto. Solidão vira tempo de
+construção, e isso é mensagem poderosa pra retenção noturna.
+
+---
+
 ## Recomendação de ordem de construção
 
 | Fase | Jogos | Por quê |
