@@ -113,6 +113,118 @@ práticas de contorno. 10 segundos para escolher.
 4. **Ponte pro campo (4P):** todo jogo termina com um mini-desafio real ("aplique isso com 1 cliente hoje") — o jogo ensina, o campo consolida.
 5. **Dados pro líder:** o Painel do Líder mostra onde a equipe erra mais (ex.: todo mundo confunde Oriental com Amadeirado) → vira pauta de treinamento.
 
+---
+
+## Nível 4 — Jogos de negócio (perfumaria como empresa)
+
+### 11. Maleta Perfeita (otimização de estoque)
+O jogador tem um orçamento fictício e uma "maleta" com espaço limitado. Precisa montar
+o mix ideal de produtos para uma semana de vendas, sabendo o perfil da região (bairro
+jovem? público maduro? época de festas?). No fim da rodada, o jogo simula a semana e
+mostra quanto ele lucrou — ou quanto dinheiro ficou parado em produto errado.
+- **Treina:** pensar como empresário: capital de giro, mix de produto, giro de estoque.
+- **Mecânica:** budget + slots + simulação simples de demanda por perfil. Puro estado
+  em React, sem canvas.
+
+### 12. Precifique Certo
+Aparece um cenário ("cliente pede desconto de 20%", "kit com 3 itens", "revenda pra
+outra consultora") e o jogador decide o preço. O jogo mostra na hora o **lucro real**
+da decisão — incluindo o clássico erro de dar desconto que come toda a margem.
+- **Treina:** matemática de margem, que é onde a maioria dos consultores quebra.
+- **Mecânica:** slider de preço + cálculo instantâneo de margem com feedback visual
+  (verde/vermelho). Educativo e chocante na medida certa.
+
+### 13. Simulador de Meta do Mês
+Mini-jogo de estratégia por turnos: 30 dias, cada dia o jogador escolhe 1 ação
+(prospectar, fazer demonstração, cobrar pedido, pós-venda, descansar). Cada ação tem
+custo de energia e retorno probabilístico. Objetivo: bater a meta sem "burnout".
+- **Treina:** gestão de rotina e constância — o problema nº 1 do consultor iniciante.
+- **Mecânica:** loop de turnos simples; conecta direto com o desafio de 21 dias da Arena.
+
+---
+
+## Nível 5 — Jogos sociais e de equipe
+
+### 14. Caça ao Tesouro Olfativo (evento semanal)
+Toda semana, o líder esconde 5 "frascos secretos" pelo app (dentro de lições, vídeos,
+páginas de ferramenta). Cada frasco achado dá uma pista sobre um perfume misterioso.
+Quem decifrar o perfume da semana (família + concentração + ocasião) ganha XP em dobro.
+- **Treina:** exploração do próprio app — resolve o problema de features que ninguém descobre.
+- **Mecânica:** easter eggs posicionados por config + um formulário de palpite.
+
+### 15. Torneio Relâmpago da Equipe
+Uma vez por semana, todos da equipe jogam **a mesma rodada** de 10 perguntas (mesmo
+seed) e o resultado alimenta um pódio da equipe no Painel do Líder. O líder pode gravar
+um áudio de 30s comentando o pódio (usa a Central de Áudios).
+- **Treina:** cria ritual semanal de equipe; dá pauta pro líder sem esforço.
+- **Mecânica:** reusa qualquer quiz existente com seed fixo + leaderboard filtrado por rede.
+
+### 16. Passa ou Repassa da Perfumaria
+Jogo em dupla assíncrono: o jogador responde 5 perguntas e pode "passar" 1 pergunta
+difícil para o parceiro. Se o parceiro acertar, os dois pontuam em dobro.
+- **Treina:** conteúdo + vínculo entre patrocinador e patrocinado (dupla natural).
+- **Mecânica:** convite por link interno, turnos assíncronos, notificação quando o
+  parceiro joga.
+
+### 17. Monte a Vitrine (votação da comunidade)
+Desafio criativo mensal: com um catálogo genérico de frascos, fundos e adereços, o
+jogador monta uma vitrine virtual com tema ("Dia dos Namorados", "Verão"). A equipe
+vota na melhor; as 3 mais votadas viram destaque na home.
+- **Treina:** merchandising visual e senso estético de apresentação de produto.
+- **Mecânica:** editor drag-and-drop simples + galeria com votos. Esforço médio,
+  engajamento alto (as pessoas adoram mostrar criação).
+
+---
+
+## Nível 6 — Narrativa e imersão
+
+### 18. A Jornada do Aprendiz de Perfumista (história interativa)
+Visual novel curta: o jogador é aprendiz numa casa de perfumes fictícia e cada
+capítulo termina com uma decisão que testa conhecimento ("o mestre pergunta qual
+matéria-prima falta na fórmula…"). Decisões erradas não travam — geram consequências
+na história e uma explicação.
+- **Treina:** todo o conteúdo técnico embrulhado em narrativa, ideal pra quem não
+  gosta de quiz seco.
+- **Mecânica:** árvore de diálogo em JSON + telas de texto com o design editorial
+  Amethyst Elite (combina perfeitamente com a estética serifada do app).
+
+### 19. Cliente Misterioso (roleplay com IA)
+Uma vez por dia, um "cliente misterioso" chega no chat: uma IA interpretando um perfil
+difícil (apressado, desconfiado, super técnico). O jogador atende por texto. No fim,
+recebe nota em 4 critérios: acolhimento, diagnóstico, recomendação, fechamento.
+- **Treina:** a conversa de venda inteira, com pressão realista e feedback estruturado.
+- **Mecânica:** edge function do Supabase chamando a API do Claude com rubrica de
+  avaliação. É a evolução natural do Simulador de Vendas.
+
+### 20. Perfume Tycoon (jogo idle de longo prazo)
+O jogador administra sua "perfumaria dos sonhos" que cresce com ações reais no app:
+completar lição = novo móvel na loja; bater meta da Arena = nova prateleira; trazer
+patrocinado = contratar funcionário. A loja é a visualização do progresso real.
+- **Treina:** nada diretamente — é a **cola de retenção** que dá significado visual a
+  todo o resto.
+- **Mecânica:** cena ilustrada em camadas (SVG/PNG) desbloqueadas por eventos que o
+  app já emite (XP, badges, missões). Sem loop de jogo próprio = esforço menor do que parece.
+
+---
+
+## Nível 7 — Eventos sazonais (calendário comercial)
+
+### 21. Maratona de Datas Quentes
+Nas 2 semanas antes de cada data forte (Dia das Mães, Namorados, Natal), abre um
+evento temático: perguntas e clientes fictícios todos voltados àquela ocasião
+("presente pra sogra", "primeiro encontro"). Badge exclusiva por edição.
+- **Treina:** preparação comercial na hora exata em que o consultor mais vende.
+- **Mecânica:** reusa os jogos existentes trocando o banco de conteúdo por tema +
+  cronômetro de evento. Custo marginal baixíssimo depois dos jogos base prontos.
+
+### 22. Advento da Perfumaria (dezembro)
+Calendário do advento: 24 portinhas, cada dia abre um micro-desafio de 1 minuto
+(1 pergunta, 1 mito, 1 cliente relâmpago). Quem abrir 20+ portinhas ganha badge dourada.
+- **Treina:** ritual diário no mês mais importante do ano.
+- **Mecânica:** grid de portinhas com estado por dia; conteúdo reciclado dos outros jogos.
+
+---
+
 ## Recomendação de ordem de construção
 
 | Fase | Jogos | Por quê |
@@ -120,4 +232,6 @@ práticas de contorno. 10 segundos para escolher.
 | 1 | Pirâmide Olfativa + Verdade ou Mito | Baratos, validam o apetite por jogos |
 | 2 | Perfumista Pessoal + Quebra-Objeção | Maior valor de negócio, reusa conteúdo existente |
 | 3 | Trilha do Nariz | Transforma jogos soltos em formação contínua |
-| 4 | Balcão Virtual + Duelo PvP | Apostas de engajamento, só depois de validar as fases 1–3 |
+| 4 | Torneio Relâmpago + Maratona de Datas | Ritual de equipe + calendário comercial, reusando os jogos das fases 1–2 |
+| 5 | Cliente Misterioso (IA) | Evolução do Simulador de Vendas, alto valor |
+| 6 | Balcão Virtual, Duelo PvP, Perfume Tycoon | Apostas de engajamento de longo prazo |
