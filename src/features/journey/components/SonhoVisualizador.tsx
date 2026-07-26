@@ -139,8 +139,14 @@ export function SonhoVisualizador({ dados, setDados }: Props) {
       toast('Grave ou digite seu sonho primeiro.', 'error');
       return;
     }
+    // Copia o prompt ANTES de abrir: se o ChatGPT pedir login (ou abrir o
+    // app no celular), o texto da URL se perde — com ele no clipboard,
+    // basta colar. Sem await pra não sair do gesto do clique (Safari
+    // bloqueia window.open fora do gesto).
+    navigator.clipboard?.writeText(promptGpt).catch(() => { /* noop */ });
     const url = `https://chatgpt.com/?q=${encodeURIComponent(promptGpt)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
+    toast('Prompt copiado! Se o ChatGPT abrir vazio, cole na caixa e envie.', 'success', 'content_copy');
   }, [promptGpt, toast]);
 
   const copiarPrompt = useCallback(async () => {
@@ -156,6 +162,10 @@ export function SonhoVisualizador({ dados, setDados }: Props) {
   const onUploadImagem = useCallback(async (file: File) => {
     if (!profile?.id) {
       toast('Precisa estar logado.', 'error');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast('Imagem muito grande (máx. 5 MB). Tire um print da imagem e envie o print.', 'error');
       return;
     }
     setEnviandoImagem(true);
@@ -239,8 +249,9 @@ export function SonhoVisualizador({ dados, setDados }: Props) {
             2. Gerar a imagem no ChatGPT
           </div>
           <p className="text-[11px] text-on-3">
-            Vamos abrir o ChatGPT com o prompt já pronto. Você loga (Google funciona), clica enviar e ele desenha.
-            Depois baixa a imagem e volta pra anexar aqui.
+            Vamos abrir o ChatGPT com o prompt já pronto — e ele também fica <strong>copiado</strong> no
+            seu celular. Se o ChatGPT pedir login e abrir vazio, é só <strong>segurar na caixa de
+            mensagem, colar e enviar</strong>. Ele desenha a imagem; você salva ela e volta aqui pra anexar.
           </p>
           <Button
             type="button"

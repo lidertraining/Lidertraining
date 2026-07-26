@@ -11,8 +11,13 @@ interface Props {
   setDados: (d: Record<string, unknown>) => void;
 }
 
+// Os passos V2 foram renumerados, mas STEPS ainda usa a ordem antiga
+// (0 = "Defina seu Sonho"). Mapeia o passo V2 pro conteúdo certo;
+// Mentalidade (0) ainda não tem conteúdo próprio na lista antiga.
+const CONTEUDO_ANTIGO: Record<number, number> = { 1: 0 };
+
 export function PassoReflexivo({ passoId, dados, setDados }: Props) {
-  const step = STEPS.find((s) => s.id === passoId);
+  const step = STEPS.find((s) => s.id === CONTEUDO_ANTIGO[passoId]);
   const diario = (dados.diario as string) ?? '';
   const isSonhos = passoId === 1;
 
