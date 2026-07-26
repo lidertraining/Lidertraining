@@ -67,10 +67,14 @@ export function SonhoVisualizador({ dados, setDados }: Props) {
   const [transcricao, setTranscricao] = useState(transcricaoSalva);
   const [gravando, setGravando] = useState(false);
   const [enviandoImagem, setEnviandoImagem] = useState(false);
+  // iOS Safari expõe webkitSpeechRecognition mas devolve 'service-not-allowed'
+  // quando Siri e Ditado estão desativados — só dá pra saber tentando.
+  const [speechBlocked, setSpeechBlocked] = useState(false);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const speechSupported = !!getSpeechRecognition();
+  const speechSupported = !!getSpeechRecognition() && !speechBlocked;
 
   // Sincroniza transcrição com dados quando o usuário edita ou grava
   useEffect(() => {
@@ -109,6 +113,14 @@ export function SonhoVisualizador({ dados, setDados }: Props) {
 
     rec.onerror = (e) => {
       if (e.error === 'no-speech') return;
+      if (e.error === 'service-not-allowed' || e.error === 'not-allowed') {
+        // Voz bloqueada pelo aparelho — cai pro ditado do teclado
+        setSpeechBlocked(true);
+        setGravando(false);
+        toast('Sem problema! Toque na caixa de texto e use o microfone 🎤 do seu teclado pra ditar.', 'info', 'keyboard');
+        textareaRef.current?.focus();
+        return;
+      }
       toast(`Erro na gravação: ${e.error}`, 'error');
       setGravando(false);
     };
@@ -222,14 +234,24 @@ export function SonhoVisualizador({ dados, setDados }: Props) {
               {gravando ? 'Parar gravação' : 'Falar meu sonho'}
             </Button>
           )}
+          {speechBlocked && (
+            <div className="flex items-start gap-2 rounded-card bg-sf-top/60 p-3 text-[11px] text-on-2">
+              <Icon name="keyboard" filled className="mt-[1px] !text-[16px] text-am" />
+              <span>
+                Pra falar seu sonho, toque na caixa abaixo e use o <strong>microfone 🎤 do
+                teclado</strong> — ele digita enquanto você fala. Ou escreva normalmente.
+              </span>
+            </div>
+          )}
           <Textarea
+            ref={textareaRef}
             value={transcricao}
             onChange={(e) => setTranscricao(e.target.value)}
             rows={4}
             placeholder={
               speechSupported
                 ? 'Toque o botão acima e fale, ou escreva aqui mesmo…'
-                : 'Descreva seu sonho aqui (texto) — seu navegador não suporta gravação por voz.'
+                : 'Toque aqui e fale usando o microfone 🎤 do teclado, ou escreva…'
             }
             className={cn(gravando && 'ring-1 ring-am')}
           />
